@@ -1,0 +1,239 @@
+/* Hallmark · /services page.
+ * Numbered service rows (Laurenti-style 01/02/03) on the white paper
+ * canvas, following the editorial language of Statement / Services:
+ * explicit ink + mix-blend-mode: normal (the global difference-blend
+ * base rule would otherwise leave text white-on-white), mono eyebrows,
+ * hairline dividers, dim-until-hover gated on (hover: hover).
+ */
+
+.svc {
+  position: relative;
+  background: var(--paper);
+  width: 100%;
+  padding-block: var(--section-space) calc(var(--section-space) * 1.5);
+  overflow: hidden;
+}
+
+.svc__hero,
+.svc__list {
+  max-width: 90rem;
+  margin-inline: auto;
+  padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
+}
+
+/* ───────── Hero ───────── */
+
+.svc__hero {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: clamp(3rem, 7vw, 6rem);
+}
+
+.svc__title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display, var(--font-sans));
+  font-weight: 700;
+  font-size: clamp(2.25rem, 6vw, 5.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  mix-blend-mode: normal;
+}
+
+.svc__lede {
+  max-width: 44ch;
+  margin: clamp(1.25rem, 2.5vw, 2rem) 0 0;
+  color: color-mix(in oklch, var(--ink) 75%, transparent);
+  font-family: var(--font-sans);
+  font-size: clamp(0.9375rem, 1.25vw, 1.125rem);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  mix-blend-mode: normal;
+}
+
+/* ───────── Numbered rows ───────── */
+
+.svc__list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid color-mix(in oklch, var(--ink) 15%, transparent);
+}
+
+.svc__row {
+  display: grid;
+  /* number · copy · image columns */
+  grid-template-columns: clamp(3rem, 6vw, 7rem) minmax(0, 1fr) minmax(0, 22rem);
+  gap: clamp(1.25rem, 4vw, 4rem);
+  align-items: center;
+
+  padding-block: clamp(1.75rem, 3.5vw, 3rem);
+  border-bottom: 1px solid color-mix(in oklch, var(--ink) 15%, transparent);
+  cursor: pointer;
+  outline: none;
+}
+
+.svc__number {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: clamp(0.875rem, 1vw, 1rem);
+  letter-spacing: 0.08em;
+  mix-blend-mode: normal;
+  transition: opacity 220ms var(--ease-out);
+}
+
+/* ─── Copy column ─── */
+
+.svc__copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.svc__name {
+  margin: 0 0 0.5rem;
+  color: var(--ink);
+  font-family: var(--font-display, var(--font-sans));
+  font-weight: 600;
+  font-size: clamp(1.5rem, 2.6vw, 2.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  mix-blend-mode: normal;
+}
+
+.svc__kicker {
+  margin: 0 0 0.75rem;
+  color: color-mix(in oklch, var(--ink) 75%, transparent);
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(0.9375rem, 1.15vw, 1.0625rem);
+  mix-blend-mode: normal;
+}
+
+.svc__description {
+  max-width: 52ch;
+  margin: 0 0 1rem;
+  color: color-mix(in oklch, var(--ink) 85%, transparent);
+  font-family: var(--font-sans);
+  font-size: clamp(0.9375rem, 1.15vw, 1.0625rem);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  mix-blend-mode: normal;
+}
+
+.svc__subitems {
+  color: color-mix(in oklch, var(--ink) 55%, transparent);
+  font-family: var(--font-mono);
+  font-size: clamp(0.6875rem, 0.75vw, 0.75rem);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  mix-blend-mode: normal;
+}
+
+/* ─── Image column ─── */
+
+.svc__image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px color-mix(in oklch, var(--ink) 18%, transparent);
+}
+
+.svc__image {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: clamp(0.6rem, 1vw, 0.9rem);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition:
+    opacity 240ms ease-out,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.svc__image-label {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+/* ─── Hover / selection state ───
+ * Rows dim rest state on hover-capable pointers (echoing the homepage
+ * Services list), with an "unfolded" image on the active row. */
+
+@media (hover: hover) {
+  .svc__row {
+    --svc-row-dim: 0.45;
+  }
+
+  .svc__row:not(.svc__row--active) .svc__number,
+  .svc__row:not(.svc__row--active) .svc__name,
+  .svc__row:not(.svc__row--active) .svc__kicker,
+  .svc__row:not(.svc__row--active) .svc__description,
+  .svc__row:not(.svc__row--active) .svc__subitems {
+    opacity: var(--svc-row-dim);
+  }
+}
+
+.svc__copy,
+.svc__name,
+.svc__kicker,
+.svc__description,
+.svc__subitems,
+.svc__number {
+  transition: opacity 220ms var(--ease-out);
+}
+
+.svc__image-wrap {
+  transition:
+    opacity 240ms ease-out,
+    filter 240ms var(--ease-out);
+}
+
+.svc__row:not(.svc__row--active) .svc__image-wrap {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+.svc__row--active .svc__number {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svc__copy,
+  .svc__name,
+  .svc__kicker,
+  .svc__description,
+  .svc__subitems,
+  .svc__number,
+  .svc__image,
+  .svc__image-wrap {
+    transition: none;
+  }
+}
+
+/* ───────── Mobile ───────── */
+
+@media (max-width: 900px) {
+  .svc__row {
+    grid-template-columns: clamp(2.5rem, 8vw, 4rem) minmax(0, 1fr);
+  }
+
+  .svc__image-wrap {
+    grid-column: 1 / -1;
+    width: min(100%, 28rem);
+    justify-self: start;
+  }
+
+  .svc__row:not(.svc__row--active) .svc__image-wrap {
+    /* Touch devices have no hover: keep all images presentable. */
+    opacity: 1;
+    filter: none;
+  }
+}

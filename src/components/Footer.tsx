@@ -15,7 +15,7 @@ import "./Footer.css";
 const NAV_ITEMS: ReadonlyArray<{ label: string; href: string }> = [
   { label: "About",    href: "#about" },
   { label: "Work",     href: "#success-stories" },
-  { label: "Services", href: "#services" },
+  { label: "Services", href: "/services" },
   { label: "Process",  href: "#process" },
   { label: "Resources", href: "#resources" },
   { label: "Contact",  href: "#contact" },

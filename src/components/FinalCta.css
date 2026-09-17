@@ -1,20 +1,71 @@
-/* Hallmark · final CTA section.
+/* Hallmark · final CTA section — image-unfold edition.
  *
- * Editorial close before the footer. Dark canvas (matches Statement /
- * FAQ / Footer so the page ends on a single dark block), centred
- * three-line statement, then the primary CTA pill.
+ * A pinned, viewport-tall stage. The moody ridge image sits behind a
+ * clip-path mask that opens from a contained rounded card to full-bleed
+ * as the section is scrubbed through (timeline driven by ScrollTrigger
+ * in FinalCta.tsx). The editorial copy, kicker and CTA pill rise over
+ * the fully-unfolded image.
  *
- * Re-uses the hero's `.m-hero__cta` class for the button so the
- * contact affordance is the same component across the page. The pill
- * inherits its difference-blend behaviour from that class — it
- * inverts correctly against any background it lands on. */
+ * The clip containment is the CSS default so the reduced-motion /
+ * no-JS path renders a nicely framed static image with all content
+ * visible on top. Re-uses the hero's `.m-hero__cta` class for the
+ * button so the contact affordance is the same component across the
+ * page. */
 
 .final-cta {
-  background: var(--ink);
-  padding-block: var(--section-space);
+  /* White paper canvas: the contained image reads as a framed print on
+   * the page (Laurenti's framing) and keeps the section partner to the
+   * light press-editorial sections instead of a second dark block. */
+  background: var(--paper);
+}
+
+/* Stage — one stable viewport. `svh` absorbs the mobile browser-UI
+ * collapse that would otherwise end the pin with a snap. */
+.final-cta__stage {
+  position: relative;
+  height: 100svh;
+  min-height: 34rem;
+  overflow: hidden;
+}
+
+/* Media layer sits at full stage size; the clip mask (animated during
+ * the scrub) provides the contained-card → full-bleed transition. */
+.final-cta__media {
+  position: absolute;
+  inset: 0;
+  /* Contained starting frame: centered card with body breathing room
+   * around it, like a gallery print placed on the dark canvas. */
+  clip-path: inset(11% 14% 11% 14% round 14px);
+  will-change: clip-path;
+}
+
+.final-cta__img {
+  object-fit: cover;
+}
+
+/* Scrim — keeps difference-blend copy legible over the photo's mid
+ * tones without dimming the artwork into mush. */
+.final-cta__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      120% 75% at 50% 62%,
+      color-mix(in oklch, var(--ink) 38%, transparent),
+      transparent 68%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklch, var(--ink) 22%, transparent),
+      transparent 30% 70%,
+      color-mix(in oklch, var(--ink) 30%, transparent)
+    );
 }
 
 .final-cta__inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
   width: 100%;
   max-width: 64rem;
   margin-inline: auto;
@@ -23,6 +74,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   gap: clamp(2rem, 4vw, 3rem);
 }
@@ -55,13 +107,19 @@
 }
 
 /* The CTA inherits position / z-index / mix-blend-mode from
- * `.m-hero__cta`. Inside a fixed-bg dark section we just want it to
- * sit in flow with a small left-offset so it aligns visually with
- * the copy. */
+ * `.m-hero__cta`; here it just sits in flow over the image. */
 .final-cta__button {
   position: relative;
   inset: auto;
   z-index: 0;
   transform: none;
   align-self: center;
+}
+
+@media (max-width: 768px) {
+  /* Tighter containment on phones so the unfolded card still clears
+   * the thin scroll track before expanding. */
+  .final-cta__media {
+    clip-path: inset(9% 8% 9% 8% round 12px);
+  }
 }

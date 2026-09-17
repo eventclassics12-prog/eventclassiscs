@@ -27,7 +27,7 @@ interface Service {
   imageLabel: string;
 }
 
-const SERVICES: ReadonlyArray<Service> = [
+export const SERVICES: ReadonlyArray<Service> = [
   {
     name: "Brand Identity & Positioning",
     kicker: "Be known for something.",
