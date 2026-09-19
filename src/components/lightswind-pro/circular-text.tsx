@@ -39,9 +39,6 @@ interface RingConfig {
   exitScale: number;
   /** Fade this ring out during expansion. */
   exitFade: boolean;
-  /** Letter indexes coloured neon cyan / accent orange. */
-  cyan: number[];
-  orange: number[];
 }
 
 /* Deterministic PRNG so the scramble is stable across renders. */
@@ -66,12 +63,7 @@ type Letter = {
 /* Static per-letter geometry: char i sits at angle (i/n)·2π on its
  * orbit, rotated angle + 90° so the baseline stays tangent and faces
  * outwards. Build executed at render — SSR-safe. */
-function buildLetters(
-  sentence: string,
-  radius: number,
-  cyan: number[],
-  orange: number[],
-): Letter[] {
+function buildLetters(sentence: string, radius: number): Letter[] {
   const letters = sentence.split("");
   const n = letters.length || 1;
   return letters.map((ch, i) => {
@@ -80,19 +72,15 @@ function buildLetters(
       ch,
       rotation: Math.round((angle * 180) / Math.PI) + 90,
       radius,
-      tone: cyan.includes(i)
-        ? "circular-text__char--cyan"
-        : orange.includes(i)
-          ? "circular-text__char--orange"
-          : "",
+      tone: "",
       key: `${radius}-${i}-${ch}`,
     };
   });
 }
 
 export default function CircularText({
-  innerSentence = "Round and round the letters go, where they stop, you'll know.",
-  outerSentence = "Round and round the letters go, where they stop, you'll know.",
+  innerSentence = "",
+  outerSentence = "",
 }: CircularTextProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -106,8 +94,6 @@ export default function CircularText({
       exitSpin: 70,
       exitScale: 4.5,
       exitFade: true,
-      cyan: [],
-      orange: [],
     }),
     [],
   );
@@ -119,31 +105,17 @@ export default function CircularText({
       exitSpin: -60,
       exitScale: 6,
       exitFade: false,
-      cyan: [],
-      orange: [],
     }),
     [],
   );
 
   const innerLetters = useMemo(
-    () =>
-      buildLetters(
-        innerSentence,
-        innerRing.radius,
-        innerRing.cyan,
-        innerRing.orange,
-      ),
+    () => buildLetters(innerSentence, innerRing.radius),
     [innerSentence, innerRing],
   );
 
   const outerLetters = useMemo(
-    () =>
-      buildLetters(
-        outerSentence,
-        outerRing.radius,
-        outerRing.cyan,
-        outerRing.orange,
-      ),
+    () => buildLetters(outerSentence, outerRing.radius),
     [outerSentence, outerRing],
   );
 

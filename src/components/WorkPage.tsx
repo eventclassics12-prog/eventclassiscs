@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { pad2 } from "@/lib/utils";
 import { ScrollCards } from "@/components/lightswind/scroll-cards";
 import ImageSlider3D from "@/components/lightswind/3d-image-slider";
 import "./WorkPage.css";
@@ -132,7 +133,7 @@ function ProjectCard({ project, index }: { project: WorkProject; index: number }
     <div className="wk-card">
       <span className="wk-card__corner" aria-hidden="true">
         <span className="wk-card__number">
-          {String(index + 1).padStart(2, "0")}
+          {pad2(index + 1)}
         </span>
       </span>
 

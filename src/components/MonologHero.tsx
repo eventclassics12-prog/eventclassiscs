@@ -61,25 +61,6 @@ export function MonologHero({
         <LiquidMetalBg />
 
         <div className="m-hero__pitch">
-          {/* <svg
-            className="m-hero__icon"
-            viewBox="0 0 48 48"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <rect x="18" y="4" width="12" height="22" rx="6" />
-            <line x1="24" y1="26" x2="24" y2="40" />
-            <line x1="14" y1="14" x2="10" y2="14" />
-            <line x1="34" y1="14" x2="38" y2="14" />
-            <line x1="14" y1="20" x2="10" y2="20" />
-            <line x1="34" y1="20" x2="38" y2="20" />
-            <line x1="12" y1="34" x2="36" y2="34" />
-          </svg> */}
-
           <motion.p
             className="m-hero__para"
             initial={reduce ? false : { opacity: 0, y: 28 }}

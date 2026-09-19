@@ -4,6 +4,7 @@ import { Fragment, useEffect, useRef, type CSSProperties } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { pad2 } from "@/lib/utils";
 import "./SuccessStories.css";
 
 /**
@@ -41,7 +42,7 @@ const PROJECTS: ReadonlyArray<Project> = [
       "IQVIA didn't need another efficiency promise. It needed systems that worked around the business. We built customized CRM and ERP solutions around real workflows — supported by strategic and technology-led frameworks designed to reduce friction across teams.",
     stat: "—",
     statCaption: "Making complex workflow better.",
-    image: "/services.png",
+    image: "/services/growth-strategy.png",
   },
   {
     title: "Manipal Hospitals",
@@ -49,7 +50,7 @@ const PROJECTS: ReadonlyArray<Project> = [
       "Healthcare is full of information. But people don't remember information — they remember how a brand made them feel. We shaped storytelling, branding campaigns and strategic communication around a clearer idea of trust — making the brand more human, recognizable and relevant to the people it serves.",
     stat: "—",
     statCaption: "Making trust easier to feel.",
-    image: "/services.png",
+    image: "/services/content-creation.png",
   },
   {
     title: "Redmonk Wellness",
@@ -57,7 +58,7 @@ const PROJECTS: ReadonlyArray<Project> = [
       "Wellness brands don't need more content. They need content that feels worth stopping for. We built a sharper content approach around short, crisp and raw communication — designed for the way people actually consume information today.",
     stat: "—",
     statCaption: "Turning attention into action.",
-    image: "/services.png",
+    image: "/services/social-media.png",
   },
   {
     title: "Team Taurus",
@@ -65,13 +66,9 @@ const PROJECTS: ReadonlyArray<Project> = [
       "Real estate is often reduced to location, price and square feet. People don't buy spaces like spreadsheets. They imagine what it will feel like to live there. We helped sharpen the brand narrative around the experience behind the spaces — making the communication more distinctive, considered and relevant to the people it was built for.",
     stat: "—",
     statCaption: "Spaces that feel lived in.",
-    image: "/services.png",
+    image: "/services/brand-identity.png",
   },
 ];
-
-function pad2(n: number): string {
-  return n.toString().padStart(2, "0");
-}
 
 export function SuccessStories() {
   const total = PROJECTS.length;

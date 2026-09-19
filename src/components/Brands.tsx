@@ -2,7 +2,7 @@ import Image from "next/image";
 import "./Brands.css";
 
 const BRANDS = [
-  { src: "/brands/brand1.png", name: "Iqvia", width: 2172, height: 724 },
+  { src: "/brands/brand1.png", name: "IQVIA", width: 2172, height: 724 },
   {
     src: "/brands/brand2.png",
     name: "Manipal Hospitals",

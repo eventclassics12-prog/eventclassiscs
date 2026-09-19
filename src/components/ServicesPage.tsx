@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
+import { pad2 } from "@/lib/utils";
 import { SERVICES } from "./Services";
 import "./ServicesPage.css";
 
@@ -74,7 +74,7 @@ export function ServicesPage() {
               }}
             >
               <span className="svc__number" aria-hidden="true">
-                {String(i + 1).padStart(2, "0")}
+                {pad2(i + 1)}
               </span>
 
               <div className="svc__copy">

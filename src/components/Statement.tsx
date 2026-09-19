@@ -80,17 +80,6 @@ export function Statement({
     return () => ctx.revert();
   }, []);
 
-  /* Split a paragraph into per-character spans so each letter is its own
-   * animated target. Regular spaces preserve normal word wrapping while
-   * inline letter spans prevent mobile lines from breaking mid-word. */
-  function splitChars(text: string): ReactNode {
-    return text.split("").map((char, i) => (
-      <span key={i} className="statement__letter">
-        {char}
-      </span>
-    ));
-  }
-
   return (
     <section className="statement" id="about">
       <div className="statement__inner">
@@ -127,3 +116,14 @@ export function Statement({
 }
 
 export default Statement;
+
+/* Split a paragraph into per-character spans so each letter is its own
+ * animated target. Regular spaces preserve normal word wrapping while
+ * inline letter spans prevent mobile lines from breaking mid-word. */
+function splitChars(text: string): ReactNode {
+  return text.split("").map((char, i) => (
+    <span key={i} className="statement__letter">
+      {char}
+    </span>
+  ));
+}

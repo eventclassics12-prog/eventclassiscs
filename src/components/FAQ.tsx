@@ -7,9 +7,8 @@ import "./FAQ.css";
  * Hallmark · FAQ section.
  *
  * Two-column layout:
- *   col 1 (left)  · "● FAQs" label, photo placeholder, CTA card with
- *                   "Got more questions? Chat with Huy." and a Book-a-call
- *                   button.
+ *   col 1 (left)  · "● FAQs" label, CTA card with "Got more questions?
+ *                   Chat with us." and a Book-a-call button.
  *   col 2 (right) · Big editorial headline + accordion of questions.
  *                   Clicking a question expands its answer with CSS.
  *                   Opening one closes any other that's already open —
@@ -81,12 +80,6 @@ export function FAQ() {
         </header>
 
         <aside className="faq__support">
-          <div
-            className=""
-            role="img"
-            aria-label="Photo of Huy"
-          />
-
           <div className="faq__cta">
             <h3 className="faq__cta-heading">
               Still have questions?
