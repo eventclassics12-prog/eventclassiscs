@@ -10,7 +10,8 @@
   position: relative;
   background: var(--paper);
   width: 100%;
-  padding-block: var(--section-space) calc(var(--section-space) * 1.5);
+  /* No top padding: the hero owns the full first viewport itself. */
+  padding-block: 0 calc(var(--section-space) * 1.5);
   overflow: hidden;
 }
 
@@ -21,22 +22,85 @@
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
 }
 
-/* ───────── Hero ───────── */
+/* ───────── Hero ─────────
+ * Mirrors the About hero: full first viewport, content pinned to the
+ * bottom, text left / chrome figure right on desktop; figure stacked
+ * above text on mobile. Explicit mix-blend-mode: normal everywhere. */
 
 .svc__hero {
+  /* Own the first viewport minus the page's bottom padding; `svh` so
+   * mobile browser chrome never clips the block. */
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
+
+  padding-top: clamp(var(--space-lg), 9vh, 8rem);
+  padding-bottom: 10vh;
   margin-bottom: clamp(3rem, 7vw, 6rem);
 }
 
+.svc__hero-grid {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  margin-top: auto;
+}
+
+.svc__hero-figure {
+  flex-shrink: 0;
+  width: clamp(260px, 72vw, 420px);
+  align-self: center;
+  display: grid;
+  place-items: center;
+}
+
+.svc__hero-figure-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  mix-blend-mode: normal;
+}
+
+.svc__hero-figure-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  mix-blend-mode: normal;
+}
+
+.svc__hero-text {
+  max-width: 44rem;
+}
+
+@media (min-width: 769px) {
+  .svc__hero-grid {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .svc__hero-text {
+    order: 1;
+    flex: 1 1 auto;
+  }
+
+  .svc__hero-figure {
+    order: 2;
+    width: clamp(320px, 42vw, 580px);
+  }
+}
+
 .svc__title {
+  max-width: 24ch;
   margin: 0;
   color: var(--ink);
   font-family: var(--font-display, var(--font-sans));
   font-weight: 700;
-  font-size: clamp(2.25rem, 6vw, 5.5rem);
-  line-height: 1.02;
-  letter-spacing: -0.04em;
+  font-size: clamp(2rem, 4.6vw, 4rem);
+  line-height: 1.06;
+  letter-spacing: -0.035em;
   mix-blend-mode: normal;
 }
 

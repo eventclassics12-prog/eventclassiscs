@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Gap } from "@/components/Gap";
 import { KeepScrolling } from "@/components/KeepScrolling";
 import { MonologHero } from "@/components/MonologHero";
+import { PageTransition } from "@/components/PageTransition";
 import { Services } from "@/components/Services";
 import { Statement } from "@/components/Statement";
 import { SuccessStories } from "@/components/SuccessStories";
@@ -11,15 +12,17 @@ import { SuccessStories } from "@/components/SuccessStories";
 export default function Home() {
   return (
     <>
-      <MonologHero />
-      <Brands />
-      <Statement />
-      <Gap />
-      <KeepScrolling />
-      <SuccessStories />
-      <Services />
-      <FAQ />
-      <Footer />
+      <PageTransition>
+        <MonologHero />
+        <Brands />
+        <Statement />
+        <Gap />
+        <KeepScrolling />
+        <SuccessStories />
+        <Services />
+        <FAQ />
+        <Footer />
+      </PageTransition>
     </>
   );
 }

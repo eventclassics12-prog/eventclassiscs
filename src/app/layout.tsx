@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Archivo, Bricolage_Grotesque, Source_Sans_3 } from "next/font/google";
 import { SmoothScroll } from "@/components/SmoothScroll";
-import "lenis/dist/lenis.css";
 import "./globals.css";
 
 /* Primary type — all main UI text (nav, headings, body, buttons). */

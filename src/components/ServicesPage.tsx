@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { SERVICES } from "./Services";
 import "./ServicesPage.css";
@@ -23,15 +24,31 @@ export function ServicesPage() {
     <main className="svc">
       {/* ───── Hero ───── */}
       <header className="svc__hero">
-        <h1 className="svc__title">
-          Four disciplines.
-          <br />
-          One brand system.
-        </h1>
-        <p className="svc__lede">
-          Strategy, identity, distribution and content — built as one
-          connected system, not four disconnected vendors.
-        </p>
+        <div className="svc__hero-grid">
+          <div className="svc__hero-figure" aria-hidden="true">
+            <video
+              className="svc__hero-figure-video"
+              src="/videos/chrome-services-loop.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+            />
+          </div>
+
+          <div className="svc__hero-text">
+            <h1 className="svc__title">
+              Four disciplines.
+              <br />
+              One brand system.
+            </h1>
+            <p className="svc__lede">
+              Strategy, identity, distribution and content — built as one
+              connected system, not four disconnected vendors.
+            </p>
+          </div>
+        </div>
       </header>
 
       {/* ───── Numbered service rows ───── */}

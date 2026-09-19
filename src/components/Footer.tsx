@@ -5,20 +5,19 @@ import "./Footer.css";
  * Hallmark · site footer.
  *
  * Two-region layout on a dark canvas:
- *   left column  · large editorial nav list (About, Work, Process,
- *                 Services, Resources, Contact) with hairline dividers.
+ *   left column  · large editorial nav list (Home, About Us, What We Do,
+ *                 Our Work, FAQ) with hairline dividers.
  *   right column · looping logo video on top, then "(STUDIO DETAILS)" and
  *                 "(SOCIALS)" stacked side-by-side on desktop and
  *                 collapsing to a single column on mobile.
  */
 
 const NAV_ITEMS: ReadonlyArray<{ label: string; href: string }> = [
-  { label: "About",    href: "#about" },
-  { label: "Work",     href: "#success-stories" },
-  { label: "Services", href: "/services" },
-  { label: "Process",  href: "#process" },
-  { label: "Resources", href: "#resources" },
-  { label: "Contact",  href: "#contact" },
+  { label: "Home",       href: "/" },
+  { label: "About Us",   href: "/about" },
+  { label: "What We Do", href: "/services" },
+  { label: "Our Work",   href: "/work" },
+  { label: "FAQ",        href: "/#faq" },
 ];
 
 const SOCIAL_ITEMS: ReadonlyArray<{ label: string; href: string }> = [
@@ -77,20 +76,6 @@ export function Footer() {
                 className="m-hero__cta footer__contact-button"
               >
                 <span>View Contact</span>
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <line x1="7" y1="17" x2="17" y2="7" />
-                  <polyline points="7 7 17 7 17 17" />
-                </svg>
               </span>
             </MagneticButton>
           </a>

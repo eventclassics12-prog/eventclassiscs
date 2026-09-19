@@ -106,14 +106,76 @@
   text-transform: uppercase;
 }
 
-/* The CTA inherits position / z-index / mix-blend-mode from
- * `.m-hero__cta`; here it just sits in flow over the image. */
+/* ── CTA pill ──
+ * Full self-contained styling (mirrors .svc-head__cta / .m-hero__cta):
+ * Pages that import MonologHero.css already ship .m-hero__cta rules, but
+ * pages like /services don't — relying on the shared class used to leave
+ * this pill with a transparent background there. Geometry, colours, the
+ * difference blend and the -135° arrow hover are all declared here. */
 .final-cta__button {
   position: relative;
   inset: auto;
   z-index: 0;
   transform: none;
   align-self: center;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.875rem;
+
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  letter-spacing: -0.005em;
+
+  --cta-h: 2.75rem;
+  height: var(--cta-h);
+  padding: 0 4px 0 1.25rem;
+  border: 0;
+  border-radius: 999px;
+
+  background: var(--paper);
+  color: var(--ink);
+
+  mix-blend-mode: difference;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.final-cta__button .m-hero__cta-label {
+  color: currentColor;
+  mix-blend-mode: normal;
+}
+
+.final-cta__button .m-hero__cta-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--cta-h) - 8px);
+  height: calc(var(--cta-h) - 8px);
+  flex: 0 0 calc(var(--cta-h) - 8px);
+  border-radius: 50%;
+
+  background: var(--ink);
+  color: var(--paper);
+
+  mix-blend-mode: normal;
+}
+
+.final-cta__button .m-hero__cta-arrow svg {
+  color: currentColor;
+  transform: rotate(0deg);
+  transform-origin: 50% 50%;
+  transition: transform var(--dur-normal) var(--ease-in-out);
+}
+
+.final-cta__button:hover .m-hero__cta-arrow svg {
+  transform: rotate(-135deg);
+}
+
+.final-cta__button:focus-visible {
+  outline: 2px solid var(--color-brand-focus);
+  outline-offset: 2px;
 }
 
 @media (max-width: 768px) {

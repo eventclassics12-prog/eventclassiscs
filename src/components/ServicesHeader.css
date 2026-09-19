@@ -1,0 +1,197 @@
+/* Hallmark · /services page header.
+ *
+ * Visual parity with the homepage sticky header (.m-hero__nav /
+ * .m-hero__cta in MonologHero.css), minus the hero coupling: the
+ * wordmark is a static Bricolage 800 string at the header-logo scale
+ * instead of the morphing HeroWordmark. Geometry, blend behaviour and
+ * palette mirror MonologHero.css — when the shared values move there,
+ * mirror them here too.
+ */
+
+.svc-head {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+
+  display: flex;
+  align-items: center;
+
+  /* Ninety-percent-identical to .m-hero__nav: [spacer flex:1] [links
+   * auto — dead centred] [actions flex:1]. The wordmark overlays the
+   * left spacer from outside the flow so it stays static in look but
+   * never shifts the links toward the left. */
+
+  /* Slim band, mirrors .m-hero__nav; its height is driven by the CTA
+   * pill (--cta-h) plus this padding, so the wordmark's top:50% centre
+   * always lands on the pill's centre — on desktop AND on mobile, where
+   * the centre links drop out and the empty spacers would otherwise
+   * collapse the band to a sliver and push the wordmark into the top
+   * edge. Shared here so the fixed pill measures the same value. */
+  --cta-h: 2.75rem;
+  min-height: calc(var(--cta-h) + 1rem);
+  padding-block: 0.5rem;
+  padding-inline: 2vw;
+
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  letter-spacing: -0.005em;
+
+  /* Container-level difference blend: one invert for the whole band
+   * against whatever is scrolled beneath it (white band on the hero
+   * shader / dark canvas, black on white sections). Children keep
+   * `mix-blend-mode: normal` so nothing double-blends inside. */
+  color: var(--paper);
+  mix-blend-mode: difference;
+}
+
+/* ── Static wordmark (overlaying the left spacer) ──
+ * The homepage version morphs out of the hero; here it simply sits in
+ * the band. Header-logo scale (24px) + the wordmark face. Absolute so
+ * its intrinsic width can't bias the centred links. */
+.svc-head__brand-spacer {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.svc-head__brand {
+  position: absolute;
+  left: 2vw;
+  top: 50%;
+  transform: translateY(-50%);
+
+  color: inherit;
+  font-family: var(--font-bricolage), var(--font-archivo), sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.05em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* ── Centred links ── */
+
+.svc-head__links-wrap {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.svc-head__links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.svc-head__links a {
+  color: inherit;
+  text-decoration: none;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.svc-head__links a:hover,
+.svc-head__links a:focus-visible {
+  opacity: 0.6;
+}
+
+/* Right spacer — balances the links-wrap so the five links stay
+ * optically centred between the wordmark and the CTA pill. */
+.svc-head__actions {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* ── CTA pill (fixed, outside the band) ──
+ * Copied from .m-hero__cta (MonologHero.css): same pill geometry, the
+ * dark arrow badge, the -135° hover rotation, and the difference blend
+ * so the pill inverts over every canvas. */
+.svc-head__cta {
+  position: fixed;
+  top: 0.5rem;
+  right: 2vw;
+  z-index: 200;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.875rem;
+
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  letter-spacing: -0.005em;
+
+  /* Fixed height keeps the arrow circle and pill geometry predictable.
+   * Same 2.75rem as .svc-head's band height — duplicated rather than
+   * inherited because the pill is a SIBLING of the header element, not a
+   * descendant (fixed, kept out of the band's blend group). */
+  --cta-h: 2.75rem;
+  height: var(--cta-h);
+  padding: 0 4px 0 1.25rem;
+  border: 0;
+  border-radius: 999px;
+
+  background: var(--color-paper);
+  color: var(--color-foreground);
+
+  mix-blend-mode: difference;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.svc-head__cta-label {
+  color: currentColor;
+  mix-blend-mode: normal;
+}
+
+.svc-head__cta-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--cta-h) - 8px);
+  height: calc(var(--cta-h) - 8px);
+  flex: 0 0 calc(var(--cta-h) - 8px);
+  border-radius: 50%;
+
+  background: var(--color-foreground);
+  color: var(--color-paper);
+
+  mix-blend-mode: normal;
+}
+
+.svc-head__cta-arrow svg {
+  color: currentColor;
+  mix-blend-mode: normal;
+  transform: rotate(0deg);
+  transform-origin: 50% 50%;
+  transition: transform var(--dur-normal) var(--ease-in-out);
+}
+
+.svc-head__cta:hover .svc-head__cta-arrow svg {
+  transform: rotate(-135deg);
+}
+
+.svc-head__cta:focus-visible {
+  outline: 2px solid var(--color-brand-focus);
+  outline-offset: 2px;
+}
+
+/* ── Mobile ── */
+
+@media (max-width: 768px) {
+  /* Too narrow for the five links + wordmark + pill on one line: the
+   * wordmark and the pill carry the header, links drop out. */
+  .svc-head__links-wrap {
+    display: none;
+  }
+
+  /* Small wordmark step — at the desktop 1.5rem the wordmark nearly
+   * touches the fixed pill on a 390px screen (and overlaps at 320px). */
+  .svc-head__brand {
+    font-size: 1.25rem;
+  }
+}

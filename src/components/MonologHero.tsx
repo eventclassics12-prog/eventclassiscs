@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import Link from "next/link";
 import { LiquidMetalBg } from "./LiquidMetalBg";
 import { HeroWordmark } from "./HeroWordmark";
 import "./MonologHero.css";
@@ -34,11 +35,11 @@ interface MonologHeroProps {
 }
 
 const DEFAULT_LINKS = [
-  { label: "Home", href: "#home" },
-  { label: "About Us", href: "#about" },
-  { label: "Work", href: "#success-stories" },
-  { label: "Services", href: "#services" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Home", href: "/" },
+  { label: "About Us", href: "/about" },
+  { label: "What We Do", href: "/services" },
+  { label: "Our Work", href: "/work" },
+  { label: "FAQ", href: "/#faq" },
 ] as const;
 
 export function MonologHero({
@@ -139,7 +140,7 @@ export function MonologHero({
                 ease: "easeInOut",
               }}
             >
-              <a href={link.href}>{link.label}</a>
+              <Link href={link.href}>{link.label}</Link>
             </motion.li>
           ))}
         </ul>

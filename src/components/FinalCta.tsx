@@ -33,7 +33,7 @@ export function FinalCta({
     "You've built something worth noticing.",
     "Now make sure the market sees it.",
   ],
-  cta = { label: "Let's close the gap", href: "#contact" },
+  cta = { label: "Book a call", href: "#contact" },
 }: FinalCtaProps) {
   const sectionRef = useRef<HTMLElement>(null);
 

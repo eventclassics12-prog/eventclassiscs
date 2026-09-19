@@ -1,0 +1,94 @@
+/* Lightswind UI · circular text — kinetic radial rings.
+ *
+ * Pitch-black canvas, faint gray dot grid, HUD labels pinned at the
+ * bottom. Two concentric rings of letter spans are positioned with
+ * polar math and animated by GSAP (see the TSX header for the motion
+ * model). Glyph colour is set explicitly (mix-blend-mode: normal) —
+ * the global difference-blend rule would otherwise fight the dark
+ * canvas during opacity tweens.
+ */
+
+.circular-text {
+  position: relative;
+  height: 350vh;
+}
+
+.circular-text__stage {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--paper);
+  will-change: transform;
+}
+
+/* Centre logo (`ec` mark) — fades in as the letters assemble. */
+.circular-text__logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(180px, 26vw, 320px);
+  z-index: 9;
+  pointer-events: none;
+  mix-blend-mode: normal;
+}
+
+.circular-text__logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+}
+
+/* Ring containers are zero-size pivots at the exact centre; rotating
+ * or scaling them orbits / blows up every letter at once. */
+.circular-text__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  will-change: transform, opacity;
+}
+
+/* Outer slot: GSAP-driven scatter layer (always px, never %). */
+.circular-text__slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  will-change: transform, opacity;
+}
+
+/* Char: static orbital transform baked inline
+ * (translate(-50%,-50%) rotate(θ) translateY(-r)). */
+.circular-text__char {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: pre;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #18181b;
+  mix-blend-mode: normal;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.circular-text__char--cyan {
+  color: #22d3ee;
+}
+
+.circular-text__char--orange {
+  color: #f97316;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .circular-text__ring,
+  .circular-text__slot {
+    will-change: auto;
+  }
+}

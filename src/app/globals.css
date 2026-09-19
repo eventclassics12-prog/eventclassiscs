@@ -1,4 +1,5 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@plugin 'lightswind/plugin';
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -194,5 +195,49 @@
   html {
     @apply font-sans;
     scrollbar-gutter: stable;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Page transitions — React <ViewTransition> crossfade between routes.
+ * Each route's content is wrapped in <PageTransition />; on navigation the
+ * browser snapshots the old page, fades it out, then fades the new page in.
+ * Runs on the compositor (opacity keyframes only), so GSAP pinning,
+ * Locomotive Scroll and the 3D/WebGL heroes never fight the animation.
+ * ------------------------------------------------------------------------- */
+
+::view-transition {
+  /* The snapshot overlay steals clicks for the duration of the animation —
+   * keep them passing through to the live page. */
+  pointer-events: none;
+}
+
+::view-transition-old(.page-fade) {
+  animation: 200ms ease both page-fade-out;
+}
+
+::view-transition-new(.page-fade) {
+  /* Enter starts only once the exit has finished: no two opaque pages
+   * overlapping, no jitter when both are animating. */
+  animation: 260ms ease-in 200ms both page-fade-in;
+}
+
+@keyframes page-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes page-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Fade-only is already motion-safe (no positional movement) — but combine
+ * the snapshot capture+animation into an instant swap for users who ask
+ * the OS to minimise motion. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(.page-fade),
+  ::view-transition-new(.page-fade) {
+    animation-duration: 1ms;
   }
 }

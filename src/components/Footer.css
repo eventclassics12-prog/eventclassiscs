@@ -155,6 +155,36 @@
     opacity var(--dur-normal) var(--ease-out),
     background-color var(--dur-normal) var(--ease-out),
     color var(--dur-normal) var(--ease-out);
+
+  /* Full self-contained pill styling (mirrors .m-hero__cta) — pages
+   * without MonologHero.css (e.g. /services) would otherwise render
+   * this with a transparent background. */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.875rem;
+
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  letter-spacing: -0.005em;
+
+  --cta-h: 2.75rem;
+  height: var(--cta-h);
+  padding: 0 1.25rem;
+  border: 0;
+  border-radius: 999px;
+
+  background: var(--paper);
+  color: var(--ink);
+
+  mix-blend-mode: difference;
+  white-space: nowrap;
+}
+
+/* Text-only button (arrow/circle removed) — no badge hooks needed. */
+.footer .footer__contact-button > span {
+  color: currentColor;
+  mix-blend-mode: normal;
 }
 
 @media (hover: hover) {
