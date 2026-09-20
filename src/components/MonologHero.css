@@ -402,17 +402,23 @@
   max-width: 36ch;
 }
 
-/* Both lines render with the same font, weight, size, tracking and
- * colour — they only differ in the source string itself ("Idea to
- * Impact" vs "PROCESS. PRECISION. PERFORMANCE.", which is already
- * uppercase in copy). Stacked with a small vertical gap so the two
- * read as one paragraph + manifesto beat. */
+/* Two-beat manifesto. The hero line ("Idea to Impact") runs 30 % larger
+ * than the shared .m-hero__para base; the tagline runs smaller and is
+ * forced onto one line (nowrap), its size scaling with viewport width so
+ * it still fits a 390 px phone without wrapping. */
 .m-hero__para-line {
   display: block;
+  font-size: 1.3em;
 }
 
 .m-hero__para-line + .m-hero__para-line {
   margin-top: 0.55em;
+}
+
+.m-hero__para-line--tagline {
+  font-size: clamp(0.7rem, 3.2vw, 1.05rem);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 /* ---------- Massive bottom wordmark ---------- */

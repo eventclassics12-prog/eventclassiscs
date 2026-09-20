@@ -43,6 +43,27 @@ const MENU_LINKS: ReadonlyArray<{
   { label: "FAQ", href: "/#faq", shape: "5", fade: true },
 ];
 
+/* The terminal CTA at the bottom of the menu overlay. Mirrors the
+ * "Book a call with us" pill in the FAQ support column (see FAQ.tsx +
+ * the shared `.m-hero__cta` utility in MonologHero.css) so the contact
+ * affordance reads as the same component across the site.
+ *
+ * `#book` is the same anchor the FAQ CTA targets — it scrolls to the
+ * FAQ's support column when no dedicated booking form exists yet. The
+ * href can be swapped to a real /book route once one ships.
+ *
+ * Reuses the pill geometry (--cta-h, 999 px radius, 8 px arrow badge
+ * inset) but NOT the shared `.m-hero__cta` class — that class carries
+ * `mix-blend-mode: difference` to invert cleanly against arbitrary
+ * section backgrounds, and the menu overlay is paper-toned, so a
+ * paper-bg difference-blended pill would invert to black and swallow
+ * its own dark label. The menu CTA therefore uses solid colours
+ * (dark fill + light text — the inverse of the menu's own palette). */
+const MENU_CTA = {
+  label: "Book a call with us",
+  href: "#book",
+} as const;
+
 export function SterlingGateKineticNavigation() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -137,6 +158,7 @@ export function SterlingGateKineticNavigation() {
     const fadeTargets = containerRef.current.querySelectorAll(
       "[data-menu-fade]"
     );
+    const menuCta = containerRef.current.querySelector(".menu-cta");
     const menuButton = containerRef.current.querySelector(".nav-close-btn");
     const menuButtonTexts = menuButton?.querySelectorAll("p") ?? [];
     const menuButtonIcon = menuButton?.querySelector(".menu-button-icon");
@@ -172,6 +194,20 @@ export function SterlingGateKineticNavigation() {
           { yPercent: 0, rotate: 0, stagger: 0.05 },
           "<+=0.35"
         );
+
+      /* Terminal CTA — joins the link stagger but with a shorter
+       * translate distance and no rotation, so it reads as a button
+       * landing into place rather than an editorial link sliding in.
+       * Placed right after the last link to land just after the
+       * stagger finishes. */
+      if (menuCta) {
+        tl.fromTo(
+          menuCta,
+          { yPercent: 60, opacity: 0 },
+          { yPercent: 0, opacity: 1, duration: 0.5 },
+          "<+=0.05"
+        );
+      }
 
       if (fadeTargets.length) {
         tl.fromTo(
@@ -209,9 +245,22 @@ export function SterlingGateKineticNavigation() {
           menuLinks,
           { yPercent: 140, rotate: 10, stagger: { each: 0.05, from: "end" } },
           "<+=0.05"
-        )
-        .to(
-          bgPanels,
+        );
+
+      /* Terminal CTA — drops out and fades in parallel with the link
+       * reverse stagger (same "<" alignment, no extra delay). The
+       * arrow rotation is tweened in reverse too so the close mirror
+       * is consistent with the open sequence. */
+      if (menuCta) {
+        tl.to(
+          menuCta,
+          { yPercent: 60, opacity: 0, duration: 0.4 },
+          "<"
+        );
+      }
+
+      tl.to(
+        bgPanels,
           {
             xPercent: -101,
             stagger: { each: 0.12, from: "end" },
@@ -220,7 +269,12 @@ export function SterlingGateKineticNavigation() {
           "<+=0.3"
         )
         .to(menu, { xPercent: -120 }, "<")
-        .to(overlay, { autoAlpha: 0, duration: 0.35 }, ">+0.15")
+        /* Overlay tint fades IN PARALLEL with the panel sweep ("<" =
+         * same start as the panel slide) instead of after it. It used
+         * to be released last (">+0.15"), which left a translucent
+         * black film hanging over the page for ~0.5 s after the panels
+         * were already gone — read as a lingering black shadow. */
+        .to(overlay, { autoAlpha: 0, duration: 0.575 }, "<")
         .set(bgPanels, { xPercent: 0 })
         .set(menu, { xPercent: 0 })
         .set(navWrap, { display: "none" })
@@ -296,7 +350,13 @@ export function SterlingGateKineticNavigation() {
           <div className="overlay" onClick={closeMenu} />
           <nav className="menu-content" aria-label="Fullscreen">
             <div className="menu-bg">
-              <div className="backdrop-layer first" />
+              {/* Two backdrop layers only. The third (darkest, 13 %
+               * foreground-mixed "first" layer) used to live here as the
+               * first-in / last-out panel of the open/close stagger, but
+               * it added visual noise that read as a third teardown step
+               * on close without earning its weight on open — removed.
+               * `bgPanels` queries `.querySelectorAll(".backdrop-layer")`
+               * and now picks up exactly these two. */}
               <div className="backdrop-layer second" />
               <div className="backdrop-layer" />
 
@@ -383,6 +443,38 @@ export function SterlingGateKineticNavigation() {
                   </li>
                 ))}
               </ul>
+
+              {/* Terminal CTA — in the flex flow right below the link
+               * list (see CSS note: absolute bottom-corner pinning was
+               * removed because the pill collided with the list on
+               * short viewports). `closeMenu` fires alongside the
+               * anchor navigation so the menu plays its close sweep
+               * instead of jumping to the section while still pinned. */}
+              <div className="menu-cta-wrap">
+                <a
+                  className="menu-cta"
+                  href={MENU_CTA.href}
+                  onClick={closeMenu}
+                >
+                  <span className="menu-cta-label">{MENU_CTA.label}</span>
+                  <span className="menu-cta-arrow" aria-hidden="true">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <line x1="7" y1="17" x2="17" y2="7" />
+                      <polyline points="7 7 17 7 17 17" />
+                    </svg>
+                  </span>
+                </a>
+              </div>
             </div>
           </nav>
         </div>
