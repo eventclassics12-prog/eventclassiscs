@@ -49,7 +49,7 @@
 }
 
 .thank-you-hero__sub {
-  font-family: var(--font-source-sans-3, var(--font-archivo));
+  font-family: var(--font-sans);
   font-size: clamp(1rem, 0.9rem + 0.4vw, 1.25rem);
   line-height: 1.5;
   color: var(--ink-dim);

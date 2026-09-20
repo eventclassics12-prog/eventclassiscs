@@ -750,7 +750,7 @@
    * face (hero + sticky header share this element). font-optical-sizing
    * auto drives the opsz axis from font-size: the display cut at the
    * giant hero size, the text cut at the shrunk header size. */
-  font-family: var(--font-bricolage), var(--font-archivo), sans-serif;
+  font-family: var(--font-bricolage), var(--font-sans), sans-serif;
   font-optical-sizing: auto;
   font-weight: 800;
   font-style: normal;

@@ -230,7 +230,7 @@
   z-index: 2;
   margin: 0;
 
-  font-family: var(--font-bricolage), var(--font-archivo), sans-serif;
+  font-family: var(--font-bricolage), var(--font-sans), sans-serif;
   font-optical-sizing: auto;
   font-weight: 700;
   /* min(7vw, 9.5vh) — the height half keeps the list (plus the CTA that

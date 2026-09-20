@@ -14,8 +14,8 @@
   --color-ink: var(--ink);
   --color-ink-dim: var(--ink-dim);
 
-  --font-sans: var(--font-archivo);
-  --font-mono: var(--font-source-sans-3);
+  --font-sans: var(--font-helvetica-neue), system-ui, sans-serif;
+  --font-mono: var(--font-helvetica-neue), system-ui, sans-serif;
   --font-heading: var(--font-sans);
   --font-display: var(--font-sans);
 

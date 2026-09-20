@@ -62,7 +62,7 @@
   transform: translateY(-50%);
 
   color: inherit;
-  font-family: var(--font-bricolage), var(--font-archivo), sans-serif;
+  font-family: var(--font-bricolage), var(--font-sans), sans-serif;
   font-optical-sizing: auto;
   font-weight: 800;
   font-size: 1.5rem;
