@@ -68,28 +68,72 @@ export function MonologHero({
         <LiquidMetalBg />
 
         <div className="m-hero__pitch">
-          <motion.p
-            className="m-hero__para"
-            initial={reduce ? false : { opacity: 0, y: 28 }}
+          {/* The paragraph keeps its difference-blend invert, but in its
+           * OWN static wrapper (.m-hero__para-blend) rather than on the
+           * pitch container — so the urgency CTA below can render its
+           * true #E36336 palette outside any blend group. Blend lives on
+           * a static, never-transformed div; the motion.p inside is the
+           * animated child (same constraint as before, just narrowed). */}
+          <div className="m-hero__para-blend">
+            <motion.p
+              className="m-hero__para"
+              initial={reduce ? false : { opacity: 0, y: 28 }}
+              animate={reduce ? undefined : { opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.7, ease: "easeInOut" }}
+            >
+              {/* Split para1 on a blank line so callers can pass a
+               * two-line string ("Idea to Impact\n\nPROCESS. PRECISION.
+               * PERFORMANCE.") and have it render as stacked lines with
+               * the right vertical rhythm — see .m-hero__para-line in
+               * MonologHero.css. */}
+              {para1.split("\n\n").map((line, i) => (
+                <span
+                  key={i}
+                  className={`m-hero__para-line${
+                    i > 0 ? " m-hero__para-line--tagline" : ""
+                  }`}
+                >
+                  {line}
+                </span>
+              ))}
+            </motion.p>
+          </div>
+
+          {/* Urgency CTA — below the pitch, inside the shared .m-hero__cta
+           * pill system (same geometry as the FAQ "Book a call" pill) so
+           * all contact pills on the home page read as one component.
+           * The pulsing dot is the urgency affordance. This pill renders
+           * TRUE colour (#E36336 bg, white label) — it sits OUTSIDE any
+           * difference blend group (the blend was narrowed to
+           * .m-hero__para-blend above), so its saturated accent must not
+           * be inverted. Solid opaque pill = readable over the shader's
+           * dark and light regions alike. */}
+          <motion.a
+            className="m-hero__cta m-hero__bookcta"
+            href="/contact-form"
+            initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={reduce ? undefined : { opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.7, ease: "easeInOut" }}
+            transition={{ delay: 0.75, duration: 0.6, ease: "easeInOut" }}
           >
-            {/* Split para1 on a blank line so callers can pass a
-             * two-line string ("Idea to Impact\n\nPROCESS. PRECISION.
-             * PERFORMANCE.") and have it render as stacked lines with
-             * the right vertical rhythm — see .m-hero__para-line in
-             * MonologHero.css. */}
-            {para1.split("\n\n").map((line, i) => (
-              <span
-                key={i}
-                className={`m-hero__para-line${
-                  i > 0 ? " m-hero__para-line--tagline" : ""
-                }`}
+            <span className="m-hero__cta-dot" aria-hidden="true" />
+            <span className="m-hero__cta-label">Book A Call Now!</span>
+            <span className="m-hero__cta-arrow" aria-hidden="true">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
               >
-                {line}
-              </span>
-            ))}
-          </motion.p>
+                <line x1="7" y1="17" x2="17" y2="7" />
+                <polyline points="7 7 17 7 17 17" />
+              </svg>
+            </span>
+          </motion.a>
         </div>
 
         {/* In-flow spacer only — reserves the hero's bottom row height.

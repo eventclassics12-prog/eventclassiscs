@@ -1,0 +1,79 @@
+/* Contact section — full-bleed band on a soft paper canvas.
+ *
+ * The ContactCard primitive lives in `components/ui/contact-card.tsx`
+ * and brings its own rounded card chrome. This file only owns the
+ * section container, the inner max-width, and the form's submit/feedback
+ * affordances (which sit inside the card's form column and need brand
+ * colours the base UI tokens don't carry).
+ */
+
+.contact-section {
+  background: var(--paper);
+  border-top: 1px solid color-mix(in oklab, var(--ink) 8%, transparent);
+  padding: clamp(4rem, 8vw, 7rem) 1.25rem;
+}
+
+.contact-section__inner {
+  max-width: 72rem;
+  margin-inline: auto;
+}
+
+/* Submit button — solid black pill, intentionally NOT theme-aware.
+ *
+ * The `--ink` / `--paper` tokens invert under the `.dark` variant
+ * (`oklch(11% 0.008 60)` / `oklch(94% 0.005 60)`), so a `var(--ink)`
+ * background would flip to near-white the moment dark mode is active.
+ * The contact form's terminal action needs a fixed visual weight —
+ * black button with white text, regardless of which theme the page
+ * is rendered in — so the values are hardcoded here.
+ *
+ * Wrapped in `@layer utilities` so this rule shares Tailwind's
+ * utilities layer priority. Unlayered CSS loses to `@layer utilities`
+ * regardless of specificity, so any override of a shadcn/Tailwind
+ * utility (`.bg-primary`, `.text-primary-foreground`) MUST sit inside
+ * a layer to win the cascade.
+ *
+ * Selector is `button.contact-form__submit` (tag + class) so it also
+ * beats `.bg-primary` (single class) on specificity within the layer.
+ *
+ * `rounded-full` is added on the Button element (overrides the
+ * shadcn `rounded-md` via twMerge's conflict resolution). */
+@layer utilities {
+  button.contact-form__submit {
+    background: #000000;
+    color: #ffffff;
+    letter-spacing: 0.02em;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    height: 2.75rem;
+    border: 1px solid #000000;
+  }
+
+  button.contact-form__submit:hover:not(:disabled) {
+    background: #1a1a1a;
+    border-color: #1a1a1a;
+  }
+
+  button.contact-form__submit:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+  }
+}
+
+.contact-form__feedback {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+.contact-form__feedback--success {
+  color: var(--brand-success, #16a34a);
+}
+
+.contact-form__feedback--error {
+  color: var(--brand-error, #dc2626);
+}

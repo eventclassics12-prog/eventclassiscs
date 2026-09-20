@@ -86,7 +86,7 @@ export function FAQ() {
               <br />
               Chat with us
             </h3>
-            <a className="m-hero__cta faq__cta-button" href="#book">
+            <a className="m-hero__cta faq__cta-button" href="/contact-form">
               <span className="m-hero__cta-label">Book a call with us</span>
               <span className="m-hero__cta-arrow" aria-hidden="true">
                 <svg

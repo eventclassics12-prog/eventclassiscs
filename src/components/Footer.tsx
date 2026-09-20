@@ -39,7 +39,7 @@ const SOCIAL_ITEMS: ReadonlyArray<{ label: string; href: string }> = [
 
 export function Footer() {
   return (
-    <footer className="footer" id="contact">
+    <footer className="footer" id="site-footer">
       <div className="footer__inner">
         {/* ───── Nav (left column) ───── */}
         <nav className="footer__nav-col" aria-label="Site navigation">
@@ -65,7 +65,7 @@ export function Footer() {
 
           <a
             className="footer__magnetic-zone"
-            href="mailto:event.classics12@gmail.com"
+            href="/contact-form"
           >
             <span className="footer__talk-link">
               Let&apos;s Talk <span aria-hidden="true">→</span>
@@ -106,10 +106,10 @@ export function Footer() {
 
               <a
                 className="footer__email"
-                href="mailto:event.classics12@gmail.com"
+                href="mailto:info@eventclassics.in"
               >
                 <span className="footer__email-icon" aria-hidden="true">@</span>
-                <span className="footer__email-text">event.classics12@gmail.com</span>
+                <span className="footer__email-text">info@eventclassics.in</span>
               </a>
 
               <p className="footer__location">

@@ -324,10 +324,17 @@
 
   background: var(--ink);
   color: var(--paper);
+
+  /* The global `:where(span, svg, ...)` base rule applies
+   * `mix-blend-mode: difference` to every span. Inside the white pill
+   * the compositor would flip the circle's black fill back to white.
+   * Setting `mix-blend-mode: normal` here keeps the black circle. */
+  mix-blend-mode: normal;
 }
 
 .about__stance-cta-arrow svg {
   color: currentColor;
+  mix-blend-mode: normal;
   transform: rotate(0deg);
   transform-origin: 50% 50%;
   transition: transform var(--dur-normal) var(--ease-in-out);

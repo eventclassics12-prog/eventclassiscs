@@ -311,7 +311,8 @@
  * .m-hero__wordmark-letter. Reduced-motion re-shows them instantly in
  * the reduced-motion block at the bottom of this file. */
 .m-hero__para,
-.m-hero__links li {
+.m-hero__links li,
+.m-hero__bookcta {
   opacity: 0;
 }
 
@@ -339,6 +340,142 @@
   }
 }
 
+/* ---------- Urgency CTA — hero "Book A Call Now!" rainbow pill ----------
+ * Magic UI "Rainbow Button" treatment, implemented in plain CSS against
+ * the shared .m-hero__cta pill geometry: near-black body + a 2 px
+ * transparent border filled by an animated 200%-size rainbow gradient
+ * (background-clip: padding-box,border-box,border-box) plus a blurred
+ * rainbow glow strip bleeding from the pill's bottom edge (::before).
+ *
+ * Rainbow palette (Magic UI defaults): */
+:root {
+  --color-1: hsl(0 100% 63%);
+  --color-2: hsl(270 100% 63%);
+  --color-3: hsl(210 100% 63%);
+  --color-4: hsl(195 100% 63%);
+  --color-5: hsl(90 100% 63%);
+}
+
+.m-hero__bookcta {
+  margin-top: clamp(1.25rem, 3vw, 2rem);
+  /* Slightly larger than the nav-scale pill — it's the hero's primary
+   * action, not chrome. */
+  --cta-h: 3.25rem;
+  padding: 0 4px 0 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+
+  /* Override the shared pill's paper/difference treatment — this is the
+   * one deliberately LOUD pill on the page. */
+  color: #ffffff;
+  mix-blend-mode: normal;
+
+  /* Transparent border the rainbow gradient paints through. */
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+
+  background:
+    /* Body — near-black fill inside the padding box. */
+    linear-gradient(#121213, #121213) padding-box,
+    /* Rainbow sweep — 200 % width, scrolled by the keyframes below. */
+    linear-gradient(
+      90deg,
+      var(--color-1),
+      var(--color-5),
+      var(--color-3),
+      var(--color-4),
+      var(--color-2)
+    )
+      border-box;
+  background-size: 200% 100%;
+  background-origin: border-box;
+  animation: m-hero-rainbow 2s linear infinite;
+}
+
+/* Blurred rainbow glow bleeding from the pill's bottom edge (Magic UI's
+ * ::before). z-index -1 keeps it behind the pill body; the pill's
+ * z-index: 0 (from the shared .m-hero__cta block) makes that work. */
+.m-hero__bookcta::before {
+  content: "";
+  position: absolute;
+  bottom: -20%;
+  left: 50%;
+
+  z-index: -1;
+
+  height: 20%;
+  width: 60%;
+
+  transform: translateX(-50%);
+
+  background: linear-gradient(
+    90deg,
+    var(--color-1),
+    var(--color-5),
+    var(--color-3),
+    var(--color-4),
+    var(--color-2)
+  );
+  background-size: 200% 100%;
+  filter: blur(0.75rem);
+  animation: m-hero-rainbow 2s linear infinite;
+}
+
+.m-hero__bookcta:hover {
+  filter: brightness(1.15);
+}
+
+/* Arrow badge — white-on-dark (visible on the near-black pill body),
+ * pulled 1 px smaller than the shared pill's badge. */
+.m-hero__bookcta .m-hero__cta-arrow {
+  --badge-inset: 4.5px; /* shared 4px inset + the requested 0.5px */
+  width: calc(var(--cta-h) - 2 * var(--badge-inset));
+  height: calc(var(--cta-h) - 2 * var(--badge-inset));
+  flex: 0 0 calc(var(--cta-h) - 2 * var(--badge-inset));
+  background: #ffffff;
+  color: #121213;
+}
+
+@keyframes m-hero-rainbow {
+  0% {
+    background-position: 0%;
+  }
+  100% {
+    background-position: 200%;
+  }
+}
+
+/* Urgency dot — a tiny white circle that pulses before the label. */
+.m-hero__cta-dot {
+  flex: 0 0 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-paper);
+  mix-blend-mode: normal;
+  animation: m-hero-cta-pulse 1.6s var(--ease-in-out) infinite;
+}
+
+@keyframes m-hero-cta-pulse {
+  0%,
+  100% {
+    transform: scale(0.75);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-hero__cta-dot,
+  .m-hero__bookcta,
+  .m-hero__bookcta::before {
+    animation: none;
+  }
+}
+
 /* ---------- Centred pitch ---------- */
 
 .m-hero__pitch {
@@ -359,17 +496,16 @@
    * manifesto sits visibly lower in the hero.) */
   padding-top: clamp(8rem, 26svh, 22rem);
 
-  /* Container-level difference invert: the blend lives HERE on a
-   * static, never-transformed div so the .m-hero__para child can be
-   * transform-animated by framer-motion without breaking the invert
-   * (blend + transform on the SAME element is the documented clip bug).
-   * The paragraph is white + normal-blend and inverts against this
-   * group — the same pattern as the nav and the wordmark. */
-  mix-blend-mode: difference;
+  /* The pitch no longer carries the difference blend — it was narrowed
+   * to .m-hero__para-blend (below) so the urgency CTA renders its true
+   * #E36336 palette outside any invert group. */
+}
 
-  /* Horizontal padding lives on .m-hero (5 vw each side). No need to
-   * duplicate it here.
-   */
+/* Static, never-transformed blend wrapper around the paragraph only.
+ * Same mechanics as before (blend on a static group, motion.p is the
+ * animated child) — just narrowed so the CTA stays true-coloured. */
+.m-hero__para-blend {
+  mix-blend-mode: difference;
 }
 
 .m-hero__icon {
@@ -389,8 +525,8 @@
   font-size: clamp(1.875rem, 4.05vw, 3rem);
   line-height: 1.4;
   letter-spacing: -0.02em;
-  /* The pitch div is the difference blend group (see .m-hero__pitch);
-   * this <p> stays normal-blend so framer-motion can slide it. */
+  /* The .m-hero__para-blend wrapper is the difference blend group (see
+   * above); this <p> stays normal-blend so framer-motion can slide it. */
   mix-blend-mode: normal;
   /* No `color: inherit` here on purpose. The text must stay pure white
    * (#fff) so the .m-hero__pitch group's difference blend inverts it to
@@ -790,7 +926,8 @@
 @media (prefers-reduced-motion: reduce) {
   /* Skip the load-in entrance: reveal the hero elements instantly. */
   .m-hero__para,
-  .m-hero__links li {
+  .m-hero__links li,
+  .m-hero__bookcta {
     opacity: 1;
   }
 

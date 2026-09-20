@@ -48,9 +48,8 @@ const MENU_LINKS: ReadonlyArray<{
  * the shared `.m-hero__cta` utility in MonologHero.css) so the contact
  * affordance reads as the same component across the site.
  *
- * `#book` is the same anchor the FAQ CTA targets — it scrolls to the
- * FAQ's support column when no dedicated booking form exists yet. The
- * href can be swapped to a real /book route once one ships.
+ * Navigates to the dedicated `/contact-form` route so the same CTA
+ * works regardless of which page the menu was opened from.
  *
  * Reuses the pill geometry (--cta-h, 999 px radius, 8 px arrow badge
  * inset) but NOT the shared `.m-hero__cta` class — that class carries
@@ -61,7 +60,7 @@ const MENU_LINKS: ReadonlyArray<{
  * (dark fill + light text — the inverse of the menu's own palette). */
 const MENU_CTA = {
   label: "Book a call with us",
-  href: "#book",
+  href: "/contact-form",
 } as const;
 
 export function SterlingGateKineticNavigation() {
