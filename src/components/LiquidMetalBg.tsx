@@ -37,8 +37,8 @@ import "./LiquidMetalBg.css";
  *     resolution loss is invisible.
  *
  *   • `maxPixelCount` — paper-design's default cap is
- *     1920 × 1080 × 4 ≈ 8.3 M pixels. We pin a CONSTANT 500 K pixel
- *     budget (~700 × 700 backing buffer) permanently — no scroll
+ *     1920 × 1080 × 4 ≈ 8.3 M pixels. We pin a CONSTANT 1.5 M pixel
+ *     budget (~1225 × 1225 backing buffer) permanently — no scroll
  *     listener, no state, no toggling.
  *
  *     Earlier versions switched 1.5 M (idle) ↔ 500 K (scrolling) via
@@ -51,15 +51,30 @@ import "./LiquidMetalBg.css";
  *     keeping fragment work at the cheap per-frame level the GPU
  *     needs alongside the wordmark's force3D transform.
  *
+ *     The 500 K cap made the metaballs render at ~700 px square
+ *     backing regardless of viewport. On a 1080p hero the browser had
+ *     to upsample a 700 px texture to fill ~2 M CSS pixels — visible
+ *     blur/distortion on wide screens. 1.5 M (~1225²) gives roughly
+ *     1:1 backing-to-CSS ratio on 1080p and ~2× headroom on 1440p.
+ *     Metaballs is a cheap fragment shader so the extra work is
+ *     comfortably under the GPU budget alongside the wordmark's
+ *     force3D transform.
+ *
+ *   • `fit="cover"` — paper-design's default is `contain`, which
+ *     preserves the shader's source UV aspect ratio and centres the
+ *     pattern. On a wide hero that produces a narrow centred metaballs
+ *     band with visually-empty edges. `cover` scales the metaballs to
+ *     fill the full canvas, cropping top/bottom slightly on wide
+ *     aspect ratios (acceptable for a soft organic pattern).
+ *
  *   • `speed={1}` — ALWAYS 1. The animation must never pause
  *     (pausing reads as dead, per the user). The metaballs keep
  *     moving the whole time at the original speed.
  *
- * Trade-off vs the old idle cap: the metaballs render at ~700 px
- * square backing instead of ~1300 px at rest. On a soft, organic
- * noise pattern the visible delta is "slightly softer edges" — the
- * user's attention is on the wordmark and the pitch, not the
- * background.
+ * Trade-off: on a 4K screen the metaballs still get downscaled, but
+ * the visual delta is now invisible (the pattern is soft / non-text).
+ * On phone-portrait the cap is unused — backing is already
+ * pixel-equivalent to CSS.
  *
  * Why no `will-change` on the canvas: HeroWordmark's own code
  * documents why this hurts — "can force excessive layer creation
@@ -69,9 +84,9 @@ import "./LiquidMetalBg.css";
 const MIN_PIXEL_RATIO = 1;
 
 /** Render-target cap, pinned constant — fragment-work budget that
- *  leaves GPU headroom for the scroll-driven wordmark. 500 K pixels
- *  ≈ 700 × 700 backing buffer. */
-const MAX_PIXEL_COUNT = 500_000;
+ *  leaves GPU headroom for the scroll-driven wordmark. 1.5 M pixels
+ *  ≈ 1225 × 1225 backing buffer, sharp on 1080p / 1440p. */
+const MAX_PIXEL_COUNT = 1_500_000;
 
 export function LiquidMetalBg() {
   return (
@@ -96,7 +111,7 @@ export function LiquidMetalBg() {
         speed={1}
         scale={1.36}
         offsetY={-0.42}
-        fit="contain"
+        fit="cover"
         minPixelRatio={MIN_PIXEL_RATIO}
         maxPixelCount={MAX_PIXEL_COUNT}
       />

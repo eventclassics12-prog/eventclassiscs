@@ -371,7 +371,7 @@
   mix-blend-mode: normal;
 
   /* Transparent border the rainbow gradient paints through. */
-  border: 1.5px solid transparent;
+  border: 0.5px solid transparent;
   border-radius: 999px;
 
   background:
