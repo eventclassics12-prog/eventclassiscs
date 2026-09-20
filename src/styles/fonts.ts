@@ -1,11 +1,10 @@
 import localFont from "next/font/local";
-import { Bricolage_Grotesque } from "next/font/google";
 
 /**
  * Font definitions — single source of truth for every text face used in the
  * app. Consumed by `src/app/layout.tsx` which attaches the generated CSS
- * variable className to <html>; downstream CSS reads `--font-helvetica-neue`,
- * `--font-bricolage`, etc. through the tokens in `src/app/globals.css`.
+ * variable className to <html>; downstream CSS reads `--font-helvetica-neue`
+ * through the tokens in `src/app/globals.css`.
  *
  * We keep this file separate from layout.tsx (the Next.js docs call this the
  * "font definitions file" pattern) so the long `src` arrays don't bloat the
@@ -18,6 +17,8 @@ import { Bricolage_Grotesque } from "next/font/google";
  */
 
 /* Primary type — Helvetica Neue, all 8 weights × 2 styles (Roman + Italic).
+ * Also serves as the wordmark face ("eventclassics" reads in the Heavy cut
+ * at 800 in the hero and the sticky header).
  *
  * `display: swap` keeps the text visible while the .otf files decode —
  * prevents a flash of invisible text on first paint.
@@ -52,17 +53,4 @@ const helveticaNeue = localFont({
   ],
 });
 
-/* Wordmark display face — "eventclassics" reads in Bricolage Grotesque
- * at 800 (hero wordmark + sticky header state share the same element).
- *
- * Kept on `next/font/google` so it stays self-hosted by Next.js with no
- * binary files in the repo. Helvetica Neue handles every other text face
- * — the wordmark is the only display face in the system. */
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
-  weight: "variable",
-  axes: ["opsz", "wdth"],
-  subsets: ["latin"],
-});
-
-export { helveticaNeue, bricolage };
+export { helveticaNeue };

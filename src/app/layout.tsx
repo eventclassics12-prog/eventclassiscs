@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SmoothScroll } from "@/components/SmoothScroll";
-import { helveticaNeue, bricolage } from "@/styles/fonts";
+import { helveticaNeue } from "@/styles/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${helveticaNeue.variable} ${bricolage.variable} h-full antialiased`}
+      className={`${helveticaNeue.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col text-foreground">
         <SmoothScroll>{children}</SmoothScroll>

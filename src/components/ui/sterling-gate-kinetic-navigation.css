@@ -230,8 +230,7 @@
   z-index: 2;
   margin: 0;
 
-  font-family: var(--font-bricolage), var(--font-sans), sans-serif;
-  font-optical-sizing: auto;
+  font-family: var(--font-sans), sans-serif;
   font-weight: 700;
   /* min(7vw, 9.5vh) — the height half keeps the list (plus the CTA that
    * now sits below it in flow) inside short viewports, e.g. a wide but

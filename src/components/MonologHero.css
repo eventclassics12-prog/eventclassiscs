@@ -746,12 +746,11 @@
   );
 
   display: inline-block;
-  /* Bricolage Grotesque variable at 800 — the "eventclassics" wordmark
-   * face (hero + sticky header share this element). font-optical-sizing
-   * auto drives the opsz axis from font-size: the display cut at the
-   * giant hero size, the text cut at the shrunk header size. */
-  font-family: var(--font-bricolage), var(--font-sans), sans-serif;
-  font-optical-sizing: auto;
+  /* Helvetica Neue Heavy at 800 — the "eventclassics" wordmark face
+   * (hero + sticky header share this element). Helvetica Neue's
+   * "Heavy" cut gives the wordmark its characteristic dense, slightly
+   * condensed weight at this size. */
+  font-family: var(--font-sans), sans-serif;
   font-weight: 800;
   font-style: normal;
   /* Sized for the longer `eventclassics.in` string and its individually
