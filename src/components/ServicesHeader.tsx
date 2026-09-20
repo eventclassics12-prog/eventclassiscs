@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SterlingGateKineticNavigation from "./ui/sterling-gate-kinetic-navigation";
 import "./ServicesHeader.css";
 
 interface ServicesHeaderProps {
@@ -55,28 +56,9 @@ export function ServicesHeader({ currentPage }: ServicesHeaderProps) {
         <div className="svc-head__actions" aria-hidden="true" />
       </header>
 
-      {/* CTA pill — fixed outside the header band (same reasoning as the
-       * homepage: keeps its z-index out of any transformed ancestor and
-       * difference-blends as one group). */}
-      <a className="svc-head__cta" href="#final-cta">
-        <span className="svc-head__cta-label">Let&apos;s close the gap</span>
-        <span className="svc-head__cta-arrow" aria-hidden="true">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <line x1="7" y1="17" x2="17" y2="7" />
-            <polyline points="7 7 17 7 17 17" />
-          </svg>
-        </span>
-      </a>
+      {/* Fullscreen menu — trigger fixed where the CTA pill used to sit
+       * (same 2.75rem pill geometry, outside the band's blend group). */}
+      <SterlingGateKineticNavigation />
     </>
   );
 }

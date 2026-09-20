@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
+import SterlingGateKineticNavigation from "./ui/sterling-gate-kinetic-navigation";
 import { LiquidMetalBg } from "./LiquidMetalBg";
 import { HeroWordmark } from "./HeroWordmark";
 import "./MonologHero.css";
@@ -10,10 +11,19 @@ import "./MonologHero.css";
  * Hallmark · atmospheric · studied DNA from Monolog.
  *
  * Client component — framer-motion drives the load-in entrance.
- * Three vertical regions:
- *   1. edge-aligned nav (wordmark left, links centre, sound + CTA right)
- *   2. centred pitch (small wireframe mic icon + a single prose paragraph)
- *   3. massive cropped wordmark bleeding off viewport edges
+ * Vertical regions + body-level fixed overlays:
+ *   1. section: centred pitch (a single prose paragraph)
+ *   2. section: bottom wordmark bar (reserves hero's bottom row)
+ *
+ *   Body-level fixed overlays (outside the section on purpose — see
+ *   `.m-hero__nav` and `.m-hero__wordmark-blend` in MonologHero.css for
+ *   the stacking-context reasoning):
+ *   3. nav band (wordmark left overlay, links centre, sound + menu right)
+ *   4. <SterlingGateKineticNavigation /> — fullscreen menu trigger pill,
+ *      mounted in place of the previous "Let's close the gap" CTA so the
+ *      hero chrome matches about/services/work verbatim.
+ *   5. wordmark blend group (GSAP-scrubbed from bottom-centre → top-left
+ *      as the hero scrolls out; settles as the sticky-header wordmark).
  *
  * Copy & link labels mirror the Monolog reference verbatim per the user's
  * brief — only the bottom wordmark text swaps to "eventclassics".
@@ -30,8 +40,6 @@ interface MonologHeroProps {
   navLinks?: ReadonlyArray<{ label: string; href: string }>;
   /** Headline paragraph. */
   para1?: string;
-  /** Right-side CTA copy + href. */
-  cta?: { label: string; href: string };
 }
 
 const DEFAULT_LINKS = [
@@ -46,7 +54,6 @@ export function MonologHero({
   brand = "eventclassics.in",
   navLinks = DEFAULT_LINKS,
   para1 = "Idea to Impact\n\nPROCESS. PRECISION. PERFORMANCE.",
-  cta = { label: "Let's close the gap", href: "#final-cta" },
 }: MonologHeroProps) {
   const reduce = useReducedMotion() ?? false;
 
@@ -129,42 +136,27 @@ export function MonologHero({
         <div className="m-hero__actions" />
       </nav>
 
-      {/* Primary CTA — fixed, OUTSIDE the nav so its complete pill can
-       * difference-blend as one group against the current section.
-       * Position mirrors the nav band: top matches the nav's
-       * padding-block, right matches its padding-inline.
+      {/* Fullscreen-menu trigger — fixed, OUTSIDE both the nav band and
+       * <section class="m-hero"> for the same stacking-context reason the
+       * nav lives at body level: the hero sets z-index: 10, which would
+       * cap this pill's own z-index: 300 inside that stacking context and
+       * let the nav (200) and pinned section visuals (e.g. .gap__display)
+       * paint over it. As a body-level sibling it keeps its true 300.
        *
-       * Also deliberately outside <section class="m-hero">: the hero sets
-       * z-index: 10, which would cap this element's own z-index: 200
-       * inside that stacking context and let the nav (200) and pinned
-       * section visuals (e.g. .gap__display) paint over the pill. As a
-       * body-level sibling it keeps its true 200. The mobile layout in
-       * MonologHero.css repositions it without reparenting. */}
-      <motion.a
-        className="m-hero__cta"
-        href={cta.href}
-        initial={reduce ? false : { opacity: 0 }}
-        animate={reduce ? undefined : { opacity: 1 }}
-        transition={{ delay: 0.85, duration: 0.6, ease: "easeInOut" }}
-      >
-        <span className="m-hero__cta-label">{cta.label}</span>
-        <span className="m-hero__cta-arrow" aria-hidden="true">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <line x1="7" y1="17" x2="17" y2="7" />
-            <polyline points="7 7 17 7 17 17" />
-          </svg>
-        </span>
-      </motion.a>
+       * The component reuses the pill geometry the old CTA shared with the
+       * nav band (2.75rem height, 999 px radius, paper bg, dark badge),
+       * so swapping CTA → menu is a visual no-op on first paint — only
+       * the affordance changes. The same component is what
+       * ServicesHeader mounts on /about, /services and /work, so the home
+       * page now ships identical chrome.
+       *
+       * Its entrance fade is driven from CSS in MonologHero.css (scoped
+       * via `.m-hero ~ .stg-root .nav-close-btn`) so the 0.85 s delay that
+       * used to live on the CTA's framer-motion transition is preserved
+       * here without leaking into the about/services/work pages, where
+       * the same pill rides inside <ServicesHeader> and must reveal with
+       * the page transition instead. */}
+      <SterlingGateKineticNavigation />
 
       {/* Fixed full-viewport blend group for the wordmark — rendered
        * outside the hero section for the same stacking-context reason

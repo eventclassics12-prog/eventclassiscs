@@ -79,8 +79,8 @@ function buildLetters(sentence: string, radius: number): Letter[] {
 }
 
 export default function CircularText({
-  innerSentence = "",
-  outerSentence = "",
+  innerSentence = "Round and round the letters go, where they stop, you'll know.",
+  outerSentence = "Round and round the letters go, where they stop, you'll know.",
 }: CircularTextProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);

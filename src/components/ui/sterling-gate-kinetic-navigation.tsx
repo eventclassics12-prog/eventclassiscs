@@ -182,7 +182,17 @@ export function SterlingGateKineticNavigation() {
         );
       }
     } else {
-      navWrap.setAttribute("data-nav", "closed");
+      // NOTE: `data-nav` is intentionally NOT flipped to "closed" at the
+      // top of this branch the way the open branch sets it to "open".
+      // Any CSS that targets `.nav-overlay-wrapper[data-nav="open"]`
+      // (see the homepage wordmark-blend override in MonologHero.css,
+      // which drops the morphing wordmark behind the menu panel) needs
+      // the open flag to stay set for the FULL close sweep — otherwise
+      // the wordmark snaps back on top of the menu the instant the user
+      // clicks close, while the backdrop layers are still sliding off.
+      // We flip the flag inside the timeline's final .call() below,
+      // after display:none has been written — which is the moment the
+      // overlay is actually gone and the wordmark is allowed to return.
 
       // Mirror of the open sequence, played backwards: the badge flips,
       // the links drop back out with reversed stagger, the backdrop
@@ -213,7 +223,8 @@ export function SterlingGateKineticNavigation() {
         .to(overlay, { autoAlpha: 0, duration: 0.35 }, ">+0.15")
         .set(bgPanels, { xPercent: 0 })
         .set(menu, { xPercent: 0 })
-        .set(navWrap, { display: "none" });
+        .set(navWrap, { display: "none" })
+        .call(() => navWrap.setAttribute("data-nav", "closed"));
     }
 
     return () => {
