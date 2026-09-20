@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { ContactCard } from "@/components/ui/contact-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { MailIcon, PhoneIcon, MapPinIcon, CheckIcon } from "lucide-react";
+import { MailIcon, PhoneIcon, MapPinIcon } from "lucide-react";
 import "./ContactSection.css";
 
 /**
@@ -22,13 +23,16 @@ import "./ContactSection.css";
  * submission to Zoho CRM as a Lead. If the server route returns 503
  * (env vars missing — typical in local dev before Zoho creds are wired)
  * we fall back to the original `mailto:` handoff so the form keeps
- * working. The UI state machine is unchanged: idle → submitting →
- * success / error.
+ * working. Both paths land on `/thank-you`, which the user sees as
+ * the confirmation surface. The inline state machine stays narrow
+ * (idle → submitting → error) since the success case now lives on a
+ * dedicated route and isn't rendered in place.
  */
 export function ContactSection() {
-  const [status, setStatus] = useState<
-    "idle" | "submitting" | "success" | "error"
-  >("idle");
+  const router = useRouter();
+  const [status, setStatus] = useState<"idle" | "submitting" | "error">(
+    "idle",
+  );
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -53,14 +57,16 @@ export function ContactSection() {
 
       if (res.status === 503) {
         // Server has no Zoho creds — open the user's mail client so
-        // the form keeps working during local development.
+        // the form keeps working during local development, then route
+        // to the confirmation page. `replace` (not push) drops the
+        // reset form from the history stack so Back goes wherever
+        // the visitor was before they hit Contact.
         const subject = encodeURIComponent(`Website enquiry — ${name}`);
         const body = encodeURIComponent(
           `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\n${message}`,
         );
         window.location.href = `mailto:info@eventclassics.in?subject=${subject}&body=${body}`;
-        setStatus("success");
-        event.currentTarget.reset();
+        router.replace("/thank-you");
         return;
       }
 
@@ -69,8 +75,7 @@ export function ContactSection() {
         return;
       }
 
-      setStatus("success");
-      event.currentTarget.reset();
+      router.replace("/thank-you");
     } catch {
       setStatus("error");
     }
@@ -152,16 +157,6 @@ export function ContactSection() {
             >
               {status === "submitting" ? "Sending…" : "Send message"}
             </Button>
-            {status === "success" && (
-              <p
-                className="contact-form__feedback contact-form__feedback--success"
-                role="status"
-              >
-                <CheckIcon aria-hidden="true" className="h-4 w-4" />
-                Your mail client should be open. We'll reply within a
-                business day.
-              </p>
-            )}
             {status === "error" && (
               <p
                 className="contact-form__feedback contact-form__feedback--error"
