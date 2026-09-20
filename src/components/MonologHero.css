@@ -355,8 +355,9 @@
 
   /* Push the paragraphs down off dead-centre — the flex centring keeps
    * them centred inside the padded content box, so this shifts the
-   * whole group down by half the padding. */
-  padding-top: clamp(8rem, 17svh, 17rem);
+   * whole group down by half the padding. (Bumped from 17 svh so the
+   * manifesto sits visibly lower in the hero.) */
+  padding-top: clamp(8rem, 26svh, 22rem);
 
   /* Container-level difference invert: the blend lives HERE on a
    * static, never-transformed div so the .m-hero__para child can be
@@ -385,7 +386,7 @@
 .m-hero__para {
   font-family: var(--font-sans);
   font-weight: 700;
-  font-size: clamp(1.25rem, 2.7vw, 2rem);
+  font-size: clamp(1.875rem, 4.05vw, 3rem);
   line-height: 1.4;
   letter-spacing: -0.02em;
   /* The pitch div is the difference blend group (see .m-hero__pitch);

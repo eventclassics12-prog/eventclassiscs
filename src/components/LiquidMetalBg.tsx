@@ -1,7 +1,6 @@
 "use client";
 
 import { LiquidMetal } from "@paper-design/shaders-react";
-import { useEffect, useState } from "react";
 import "./LiquidMetalBg.css";
 
 /**
@@ -27,16 +26,9 @@ import "./LiquidMetalBg.css";
  *
  * The hero runs a continuously-rendering WebGL shader AND a scroll-
  * driven wordmark transform (HeroWordmark.tsx, force3D: true). Both
- * want GPU time every frame. Letting the shader run at full quality
- * while the wordmark scrubs under ScrollTrigger is what caused the
- * jittery scroll the user reported.
- *
- * Fragment-shader cost is roughly proportional to the render-target
- * pixel count; the wordmark's transform cost is fixed (one
- * translate3d + scale on a fixed-size layer). So the right lever is
- * the shader's resolution, not its time axis — keep the animation
- * alive, shrink the render target while the GPU is busy serving the
- * wordmark.
+ * want GPU time every frame. The shader's fragment cost is roughly
+ * proportional to the render-target pixel count, so the right lever
+ * is the shader's resolution.
  *
  *   • `minPixelRatio={1}` — paper-design defaults to 2, which forces
  *     the shader to render at 2× the CSS pixels even on standard-DPI
@@ -45,27 +37,29 @@ import "./LiquidMetalBg.css";
  *     resolution loss is invisible.
  *
  *   • `maxPixelCount` — paper-design's default cap is
- *     1920 × 1080 × 4 ≈ 8.3 M pixels. We cap the IDLE budget at
- *     1.5 M (~1300 × 1150 backing buffer, plenty for a soft
- *     background) and the SCROLLING budget at 500 K (~700 × 700).
- *     That ~3× drop in fragment work per frame is what frees the
- *     GPU for the wordmark's compositor transform. The metaballs
- *     keep moving the whole time at the original `speed={1}`.
+ *     1920 × 1080 × 4 ≈ 8.3 M pixels. We pin a CONSTANT 500 K pixel
+ *     budget (~700 × 700 backing buffer) permanently — no scroll
+ *     listener, no state, no toggling.
+ *
+ *     Earlier versions switched 1.5 M (idle) ↔ 500 K (scrolling) via
+ *     React state driven by a scroll listener. Every scroll event
+ *     re-rendered the component, and each flip of `maxPixelCount`
+ *     made the shader reallocate its WebGL backing buffer (frequently
+ *     mid-scroll) — more main-thread/GPU churn than the scroll itself,
+ *     defeating the point of the cap. A constant cap removes the
+ *     re-render path AND the framebuffer realloc path entirely, while
+ *     keeping fragment work at the cheap per-frame level the GPU
+ *     needs alongside the wordmark's force3D transform.
  *
  *   • `speed={1}` — ALWAYS 1. The animation must never pause
- *     (pausing reads as dead, per the user). Only the render target
- *     changes during scroll.
+ *     (pausing reads as dead, per the user). The metaballs keep
+ *     moving the whole time at the original speed.
  *
- * Scroll detection: passive `window.scroll` listener with a 100 ms
- * resume debounce. The handler is O(1) — set a state flag, reset a
- * timer — so it never blocks the scroll thread.
- *
- * Trade-off: during an active scroll, the metaballs render at a
- * lower resolution (~700 px square backing buffer instead of
- * ~1300 px). On a soft, organic noise pattern the visible delta is
- * "slightly softer edges for the scroll duration" rather than
- * "frozen frame" — and the user's attention is on the wordmark
- * transition during scroll, not the background.
+ * Trade-off vs the old idle cap: the metaballs render at ~700 px
+ * square backing instead of ~1300 px at rest. On a soft, organic
+ * noise pattern the visible delta is "slightly softer edges" — the
+ * user's attention is on the wordmark and the pitch, not the
+ * background.
  *
  * Why no `will-change` on the canvas: HeroWordmark's own code
  * documents why this hurts — "can force excessive layer creation
@@ -74,50 +68,12 @@ import "./LiquidMetalBg.css";
 
 const MIN_PIXEL_RATIO = 1;
 
-/** Render-target cap while idle — the visible-quality budget.
- *  1.5 M pixels ≈ 1300 × 1150 backing buffer. */
-const MAX_PIXEL_COUNT_IDLE = 1_500_000;
-
-/** Render-target cap while actively scrolling — the GPU-headroom
- *  budget. 500 K pixels ≈ 700 × 700 backing buffer. ~3× less
- *  fragment work per frame than IDLE, which is the GPU time the
- *  wordmark's force3D transform needs. */
-const MAX_PIXEL_COUNT_SCROLLING = 500_000;
-
-/** ms to wait after the last scroll event before resuming the shader.
- *  Long enough to cover a one-frame scroll gap; short enough that
- *  resuming doesn't feel laggy when the user stops scrolling. */
-const SCROLL_RESUME_DELAY_MS = 100;
+/** Render-target cap, pinned constant — fragment-work budget that
+ *  leaves GPU headroom for the scroll-driven wordmark. 500 K pixels
+ *  ≈ 700 × 700 backing buffer. */
+const MAX_PIXEL_COUNT = 500_000;
 
 export function LiquidMetalBg() {
-  const [isScrolling, setIsScrolling] = useState(false);
-
-  useEffect(() => {
-    let resumeTimer: ReturnType<typeof setTimeout> | null = null;
-
-    // Passive listener — does NOT call preventDefault, so the scroll
-    // thread isn't blocked. The handler itself is O(1) (set a state
-    // flag + reset a timer); no layout or paint work happens here.
-    const handleScroll = () => {
-      setIsScrolling(true);
-      if (resumeTimer !== null) {
-        clearTimeout(resumeTimer);
-      }
-      resumeTimer = setTimeout(() => {
-        setIsScrolling(false);
-        resumeTimer = null;
-      }, SCROLL_RESUME_DELAY_MS);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (resumeTimer !== null) {
-        clearTimeout(resumeTimer);
-      }
-    };
-  }, []);
-
   return (
     <div aria-hidden="true" className="liquid-metal-bg">
       <LiquidMetal
@@ -133,18 +89,16 @@ export function LiquidMetalBg() {
         distortion={0.07}
         contour={0.4}
         angle={70}
-        // Always 1 — the metaballs keep moving at full speed during
-        // scroll. Only the render target's pixel count drops during
-        // scroll (see maxPixelCount below); the simulation clock and
+        // Always 1 — the metaballs keep moving at full speed. The
+        // render target is a fixed 500 K-pixel budget (see
+        // maxPixelCount doc above); the simulation clock and
         // animation never pause.
         speed={1}
         scale={1.36}
         offsetY={-0.42}
         fit="contain"
         minPixelRatio={MIN_PIXEL_RATIO}
-        maxPixelCount={
-          isScrolling ? MAX_PIXEL_COUNT_SCROLLING : MAX_PIXEL_COUNT_IDLE
-        }
+        maxPixelCount={MAX_PIXEL_COUNT}
       />
     </div>
   );
