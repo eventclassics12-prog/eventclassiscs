@@ -8,29 +8,9 @@ import ImageSlider3D from "@/components/lightswind/3d-image-slider";
 import { mediaAlt, mediaUrl, type PageWorkData, type TextPart } from "@/lib/cms";
 import "./WorkPage.css";
 
-/**
- * Hallmark · /work — "Our Work".
- *
- * Reference-style editorial layout (white canvas, blue accent):
- *   1. strip    · mono "Our Work" label between hairlines + blue dot
- *   2. intro    · statement panel ("Great work is built on evidence…")
- *   3. marquee  · looping "That's our work in motion" band with an
- *                 inline looping video figure
- *   4. cases    · "Projects" strip + GSAP ScrollCards stack — each
- *                 project is a 60vh card (text left, image right) that
- *                 slides up from the bottom over the previous card
- *   5. cta      · pill bar ("Great work works best when we connect." +
- *                 blue "Book a call")
- *   6. socials  · "Latest on socials" image-card marquee
- *
- * Content is driven by the `page-work` Payload global (prop `data`).
- * Every field falls back to the original hardcoded copy so the page
- * renders unchanged when the CMS is empty or unreachable.
- */
-
 interface WorkProject {
   title: string;
-  kicker: Array<[string, string?]>; // [text, tone] · tone "blue" highlights
+  kicker: Array<[string, string?]>;
   intro: string;
   body: string;
   includes: ReadonlyArray<string>;
@@ -109,21 +89,11 @@ const PROJECTS: ReadonlyArray<WorkProject> = [
   },
 ];
 
-/** Convert a hardcoded [text, tone] kicker into CMS TextPart rows. */
-const toParts = (k: Array<[string, string?]>): TextPart[] =>
-  k.map(([text, tone]) => ({ text, highlight: tone === "blue" }));
-
-/** Convert CMS TextPart rows back into the render-time kicker tuples. */
 const fromParts = (parts: TextPart[]): Array<[string, string?]> =>
   parts.map((part) => [part.text ?? "", part.highlight ? "blue" : undefined]);
 
 type CmsWorkProject = NonNullable<NonNullable<PageWorkData["projects"]>[number]>;
 
-/**
- * Resolve the project list: CMS projects when present, otherwise the
- * full hardcoded list. Individual fields fall back to the same-index
- * hardcoded project so a partially-filled CMS row still renders.
- */
 function resolveProjects(
   data: PageWorkData | null | undefined,
 ): ReadonlyArray<WorkProject> {
@@ -309,7 +279,6 @@ export function WorkPage({ data }: { data?: PageWorkData | null }) {
 
   return (
     <main className="wk">
-      {/* ───── 1. Hero: 3D carousel + statement ───── */}
       <section className="wk__hero" aria-label="Our work highlights">
         <div className="wk__hero-slider">
           <ImageSlider3D
@@ -330,7 +299,6 @@ export function WorkPage({ data }: { data?: PageWorkData | null }) {
         </div>
       </section>
 
-      {/* ───── 2. Project cards (GSAP stacking) ───── */}
       <section className="wk__cases" aria-label="Case studies">
         <div className="wk__strip wk__strip--cases">
           <span className="wk__strip-label">
@@ -348,23 +316,13 @@ export function WorkPage({ data }: { data?: PageWorkData | null }) {
           paddingClass="p-0"
           cardScale={0.9}
           cardRotation={2}
-          /* NOTE: tailwind-merge treats variant-prefixed classes as
-           * separate groups, so the base component's `sm:w-[90%]` /
-           * `lg:w-[85%]` / `md:aspect-video` survive a plain `w-full` /
-           * `aspect-auto` override — the cards were rendering at 85%
-           * width, centred, with dead gutters on both sides, despite the
-           * full-bleed intent. The sm:/lg:/md: overrides below cancel
-           * them explicitly. */
           containerClassName="h-full w-full sm:w-full lg:w-full max-w-none aspect-auto md:aspect-auto rounded-none bg-transparent shadow-none overflow-visible"
         />
       </section>
 
-      {/* ───── 3. Motion marquee ───── */}
       <section className="wk__marquee" aria-label="Studio work in motion">
         {marquee}
       </section>
     </main>
   );
 }
-
-export default WorkPage;

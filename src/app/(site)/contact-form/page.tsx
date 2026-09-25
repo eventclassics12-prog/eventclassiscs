@@ -17,20 +17,6 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-/**
- * Dedicated /contact-form route — the single landing target for every
- * "Book a call" / "View Contact" CTA on the site.
- *
- * Layout mirrors the other subpages (`/about`, `/services`, `/work`):
- * standard nav → editorial intro → ContactSection → Footer. The form
- * itself is the same component mounted inline on the home page in
- * earlier iterations; keeping it as the section primitive lets us
- * reuse the brand-accent button, contact info, and feedback states
- * without forking markup.
- *
- * Intro copy and the form surface come from the `page-contact`
- * Payload global, with fallbacks to the original copy.
- */
 export default async function ContactFormPage() {
   const [data, site] = await Promise.all([
     getGlobal<PageContactData>("page-contact"),

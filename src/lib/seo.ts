@@ -1,21 +1,10 @@
-/**
- * SEO helpers — client-safe (pure functions + types only).
- *
- * Central place that turns the `site-settings` CMS global into full
- * Next.js metadata: title, description, keywords, canonical URL,
- * Open Graph, Twitter cards and robots directives. Every public page
- * builds its metadata through `buildMetadata()` so share cards and
- * canonicals stay consistent and editable from the CMS.
- */
-
 import type { Metadata } from 'next'
 import { mediaUrl, type SiteSettingsData } from './cms'
 
 export const FALLBACK_SITE_URL = 'https://www.eventclassics.in'
-/** Built-in social share image until one is uploaded in Site Settings. */
+
 export const FALLBACK_OG_IMAGE = '/cta-scale.jpg'
 
-/** Canonical production origin, from CMS with a safe fallback. */
 export function siteUrlOf(site?: SiteSettingsData | null): string {
   const raw = site?.siteUrl?.trim()
   if (raw) return raw.replace(/\/+$/, '')
@@ -29,12 +18,10 @@ export function absoluteUrl(
   return new URL(path, siteUrlOf(site)).toString()
 }
 
-/** Relative OG image path — Next resolves it against metadataBase. */
 export function ogImageOf(site?: SiteSettingsData | null): string {
   return mediaUrl(site?.ogImage) ?? FALLBACK_OG_IMAGE
 }
 
-/** `@handle` derived from the CMS socials (X/Twitter URL), if present. */
 export function twitterHandleOf(
   site?: SiteSettingsData | null,
 ): string | undefined {
@@ -48,11 +35,8 @@ export function twitterHandleOf(
 export interface PageSeo {
   title: string
   description: string
-  /** Canonical path, e.g. `/about`. */
   path: string
-  /** Page-specific share image (relative path ok); defaults to the site OG image. */
   image?: string
-  /** Set for utility pages that must not be indexed (e.g. /thank-you). */
   noIndex?: boolean
 }
 
@@ -118,7 +102,6 @@ export function buildMetadata(
   }
 }
 
-/** Schema.org Organization graph for the JSON-LD script in the root layout. */
 export function organizationJsonLd(
   site: SiteSettingsData | null | undefined,
 ): Record<string, unknown> {

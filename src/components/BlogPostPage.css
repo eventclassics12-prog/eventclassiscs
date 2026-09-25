@@ -1,13 +1,3 @@
-/* Hallmark · /blog/[slug] — a single journal article.
- *
- * Minimal editorial article: back link, meta row, one oversized
- * wordmark-style title (weight 800, -0.05em), lede, cover image, then
- * a centred 68ch measure of rich text.
- *
- * Tokens come from globals.css: --paper, --ink, --font-sans,
- * --space-md, --space-2xl.
- */
-
 .bpost {
   background: var(--paper);
   color: var(--ink);
@@ -17,13 +7,10 @@
   --bpost-dim: 0.58;
 }
 
-/* ───────── Label strip ───────── */
-
 .bpost__strip {
   display: flex;
   align-items: center;
   min-height: 2.75rem;
-  /* Clear the fixed ServicesHeader band at the top of the page */
   margin-top: clamp(3.75rem, 6vh, 5rem);
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
 }
@@ -49,8 +36,6 @@
   outline: 2px solid var(--ink);
   outline-offset: 0.35rem;
 }
-
-/* ───────── Hero ───────── */
 
 .bpost__hero {
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
@@ -88,8 +73,6 @@
   opacity: var(--bpost-dim);
 }
 
-/* ───────── Cover ───────── */
-
 .bpost__cover {
   margin: 0;
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
@@ -102,8 +85,6 @@
   aspect-ratio: 16 / 9;
   object-fit: cover;
 }
-
-/* ───────── Body (Payload Lexical rich text) ───────── */
 
 .bpost__body {
   width: min(68ch, 100% - clamp(var(--space-md), 5vw, var(--space-2xl)) * 2);
@@ -187,8 +168,6 @@
   max-width: 100%;
   height: auto;
 }
-
-/* ───────── Footer nav ───────── */
 
 .bpost__footer-nav {
   padding: clamp(1rem, 3vh, 2rem)

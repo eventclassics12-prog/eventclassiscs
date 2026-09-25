@@ -69,8 +69,6 @@ export default async function BlogPostRoute({ params }: BlogPostRouteProps) {
     <PageTransition>
       <ServicesHeader currentPage="blog" site={site} />
       <BlogPostPage post={post} />
-      {/* Structured data: Article — matches the Organization graph
-          in the root layout. */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

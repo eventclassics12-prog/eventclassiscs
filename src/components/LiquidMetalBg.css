@@ -1,67 +1,15 @@
-/* LiquidMetalBg — full-bleed WebGL canvas that IS the hero background.
- *
- * Layering contract (read together with MonologHero.css):
- *   .m-hero                z-index: 10  ← stacking-context root (section)
- *   .liquid-metal-bg       z-index: -1  ← inside the section's context,
- *                                          below every non-negative layer
- *   .m-hero__pitch         (static)     ← level 3 → above the shader
- *   .m-hero__wordmark-bar  (relative)   ← level 6 → above the shader
- *   .m-hero__nav           z-index: 200 ← fixed nav — ROOT context
- *   .m-hero__wordmark-blend z-index: 300 ← blend group — ROOT context
- *
- * Why the nav + wordmark blend group live OUTSIDE the section (see
- * MonologHero.tsx): both carry container-level mix-blend-mode groups,
- * and a blend group only blends with content behind it inside the SAME
- * stacking context. Inside .m-hero (z-index: 10) their backdrop would
- * be the hero's interior alone — they'd render raw white over every
- * section past the hero. As body children they participate in the
- * root stacking context and invert against whichever section is
- * actually behind them.
- *
- * Why z-index: -1 inside a stacking context: the section declares
- * `z-index: 10` which makes it the root of a new stacking context.
- * Inside that context, in-flow elements like the pitch would paint
- * BELOW a positioned child with z-index: 1. Negative z-index is the
- * established pattern for "background of a stacking context" — it
- * lifts the shader above the section's transparent box but below every
- * painted descendant.
- */
-
 .liquid-metal-bg {
   position: absolute;
   inset: 0;
   z-index: -1;
 
-  /* Cover the entire hero including any vertical overflow from the
-   * fixed nav (which lives outside the section's content flow but
-   * visually overlaps the top of the hero). */
   width: 100%;
   height: 100%;
   min-height: 100vh;
   min-height: 100svh;
 
-  /* The canvas never receives pointer events — every interaction on
-   * the hero (nav links, CTA, sound toggle) must still hit its real
-   * target. */
   pointer-events: none;
 
-  /* `contain: layout` (NOT `contain: layout paint`) on purpose. The
-   * `paint` value creates a new stacking context per the spec, which
-   * traps the page-wide `mix-blend-mode: difference` from globals.css
-   * — the text in `.m-hero` would then blend with the canvas
-   * wrapper's transparent interior and render white-on-white
-   * invisible. Keeping only `contain: layout` preserves the
-   * layout-isolation optimisation hint the browser uses to skip
-   * re-layouting the canvas when the rest of the page reflows,
-   * without carving out a stacking context that blocks the blend.
-   *
-   * Intentionally NO `will-change: transform` — HeroWordmark.tsx's own
-   * comments document why: a permanent will-change hint "can force
-   * excessive layer creation and eat up memory/GPU bandwidth." The
-   * WebGL canvas is already a heavy GPU consumer; adding another
-   * permanently-promoted layer tips the compositor budget past the
-   * point where the wordmark's scroll-driven transform stays smooth.
-   */
   contain: layout;
 }
 
@@ -69,14 +17,4 @@
   display: block;
   width: 100% !important;
   height: 100% !important;
-}
-
-/* Honour reduced motion: the shader's per-frame animation is the only
- * motion this component owns. The LiquidMetal component itself doesn't
- * expose a static flag, so this rule documents the intent for future
- * edits — anything added here must be gated on the media query. */
-@media (prefers-reduced-motion: reduce) {
-  .liquid-metal-bg {
-    /* No animation/transition is declared on this element. */
-  }
 }

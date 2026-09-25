@@ -4,14 +4,6 @@ import { mediaAlt, mediaUrl } from "@/lib/cms";
 import { formatPostDate, readingTimeOf } from "@/lib/blog";
 import "./JournalGrid.css";
 
-/**
- * Hallmark · journal card grid.
- *
- * Sharp-cornered square cards, 3 across on desktop and 2 on small
- * screens: the top 60% is a flush-bleed cover image (no padding, no
- * bezels — the img fills its box edge to edge), the bottom 40%
- * carries the date, reading time and title.
- */
 export function JournalGrid({ posts }: { posts: PostData[] }) {
   return (
     <div className="jg">

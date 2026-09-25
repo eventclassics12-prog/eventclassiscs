@@ -13,29 +13,10 @@ export async function generateMetadata(): Promise<Metadata> {
     title: `Thank you — ${site?.brandName ?? "EVENTCLASSICS"}`,
     description: "Your message is on its way. We'll be in touch very soon.",
     path: "/thank-you",
-    /* Post-submission confirmation — no value in search results. */
     noIndex: true,
   });
 }
 
-/**
- * /thank-you — confirmation route the contact form redirects to after a
- * successful submission (either a 200 from /api/zoho/leads or the 503
- * mailto fallback used while Zoho creds are unwired locally).
- *
- * Layout mirrors the other subpages: ServicesHeader → centered hero
- * → Footer. The hero is deliberately simpler than the home MonologHero
- * — no GSAP, no Three.js — so the confirmation stays a calm landing
- * after a high-intent action.
- *
- * `router.replace` (set in ContactSection) drops the empty form from
- * the history stack, so the browser's Back button takes the visitor
- * to wherever they were before they hit "Contact", not back to the
- * reset form.
- *
- * Copy comes from the `page-thank-you` Payload global, with fallbacks
- * to the original text.
- */
 export default async function ThankYouPage() {
   const [data, site] = await Promise.all([
     getGlobal<PageThankYouData>("page-thank-you"),

@@ -6,9 +6,7 @@ import "./ServicesHeader.css";
 type PageKey = "about" | "services" | "work" | "blog";
 
 interface ServicesHeaderProps {
-  /** Which nav entry gets `aria-current="page"`. */
   currentPage?: PageKey;
-  /** Optional CMS site settings; falls back to the built-in copy. */
   site?: SiteSettingsData | null;
 }
 
@@ -25,7 +23,6 @@ const NAV_LINKS: ReadonlyArray<{
   { label: "FAQ", href: "/#faq" },
 ] as const;
 
-/** Map a CMS-provided href back to the page key used for `aria-current`. */
 const HREF_TO_PAGE: Record<string, PageKey> = {
   "/about": "about",
   "/services": "services",
@@ -54,9 +51,6 @@ export function ServicesHeader({ currentPage, site }: ServicesHeaderProps) {
   return (
     <>
       <header className="svc-head">
-        {/* Left spacer — keeps the links optically centred in the
-         * viewport, exactly like .m-hero__nav-brand on the homepage.
-         * The wordmark overlays it from outside the flex flow below. */}
         <div className="svc-head__brand-spacer" aria-hidden="true" />
 
         <Link
@@ -87,8 +81,6 @@ export function ServicesHeader({ currentPage, site }: ServicesHeaderProps) {
         <div className="svc-head__actions" aria-hidden="true" />
       </header>
 
-      {/* Fullscreen menu — trigger fixed where the CTA pill used to sit
-       * (same 2.75rem pill geometry, outside the band's blend group). */}
       <SterlingGateKineticNavigation site={site} />
     </>
   );

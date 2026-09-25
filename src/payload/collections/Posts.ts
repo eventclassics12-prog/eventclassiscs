@@ -1,12 +1,5 @@
 import type { CollectionConfig } from 'payload'
 
-/**
- * Posts — the Journal / blog.
- *
- * Rendered at /blog (index) and /blog/[slug] (article). A post is listed
- * publicly as soon as `publishedAt` is set to a time in the past; leaving
- * it empty keeps the post as a draft that never appears on the site.
- */
 export const Posts: CollectionConfig = {
   slug: 'posts',
   labels: {

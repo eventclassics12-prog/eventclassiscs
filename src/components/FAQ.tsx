@@ -4,27 +4,12 @@ import { Fragment, useState } from "react";
 import type { HomeFaqData } from "@/lib/cms";
 import "./FAQ.css";
 
-/**
- * Hallmark · FAQ section.
- *
- * Two-column layout:
- *   col 1 (left)  · "● FAQs" label, CTA card with "Got more questions?
- *                   Chat with us." and a Book-a-call button.
- *   col 2 (right) · Big editorial headline + accordion of questions.
- *                   Clicking a question expands its answer with CSS.
- *                   Opening one closes any other that's already open —
- *                   classic single-open accordion.
- *
- * prefers-reduced-motion snaps the open/close instantly (CSS handles it).
- */
-
 interface FAQItem {
   question: string;
   answer: string;
 }
 
 interface FAQProps {
-  /** CMS `home-faq` global. Falls back to the hardcoded content. */
   data?: HomeFaqData | null;
 }
 
@@ -80,16 +65,11 @@ export function FAQ({ data }: FAQProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const label = data?.label ?? FALLBACK_LABEL;
-  /* `\n` in the CMS heading becomes a line break, matching the hardcoded
-   * two-line layout. */
   const ctaHeadingLines = (data?.ctaHeading ?? FALLBACK_CTA_HEADING).split("\n");
   const ctaButtonLabel = data?.ctaButtonLabel ?? FALLBACK_CTA_BUTTON;
   const ctaHref = data?.ctaHref ?? FALLBACK_CTA_HREF;
   const headline = data?.headline ?? FALLBACK_HEADLINE;
 
-  /* CMS FAQs drive the accordion when present; otherwise the full
-   * hardcoded list is used. Per item, each CMS field falls back to the
-   * matching hardcoded FAQ by position. */
   const faqs: FAQItem[] =
     data?.faqs && data.faqs.length > 0
       ? data.faqs.map((f, i) => {
@@ -145,7 +125,6 @@ export function FAQ({ data }: FAQProps) {
           </div>
         </aside>
 
-        {/* ───── Col 2 — headline + accordion ───── */}
         <div className="faq__right">
           <h2 className="faq__headline">{headline}</h2>
 

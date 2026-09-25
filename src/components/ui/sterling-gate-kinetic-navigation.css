@@ -1,19 +1,7 @@
-/* Sterling Gate · kinetic fullscreen navigation.
- *
- * Replaces the ServicesHeader CTA pill: the trigger (.nav-close-btn)
- * copies .svc-head__cta / .m-hero__cta geometry exactly — same 2.75rem
- * pill, same dark rounded badge — so the header band proportions built
- * on --cta-h stay intact. The overlay palette mirrors the site's ink/
- * paper tokens (inverted: ink surface, paper type) so it works in both
- * light and dark themes without hard-coded colors.
- */
-
 .stg-root {
   font-family: var(--font-sans);
   letter-spacing: -0.005em;
 }
-
-/* ── Trigger (fixed, where the CTA pill used to sit) ── */
 
 .nav-close-btn {
   position: fixed;
@@ -91,8 +79,6 @@
   outline-offset: 2px;
 }
 
-/* ── Fullscreen overlay ── */
-
 .stg-root .fullscreen-menu-container {
   position: static;
   height: 0;
@@ -151,12 +137,6 @@
   background: color-mix(in oklab, var(--color-foreground) 7%, var(--color-paper));
 }
 
-/* The `.backdrop-layer.first` rule (13 % foreground-mixed paper, the
- * darkest panel) used to live here as the first-to-open / last-to-close
- * panel of the stagger. Removed — see the JSX note above. */
-
-/* Ambient art, one shape per hovering link. */
-
 .ambient-background-shapes {
   position: absolute;
   inset: 0;
@@ -178,17 +158,12 @@
   opacity: 1;
 }
 
-/* ── Link list ── */
-
 .menu-content-wrapper {
   position: relative;
   z-index: 1;
 
   display: flex;
   flex-direction: column;
-  /* `safe center` — falls back to start alignment when the link list +
-   * CTA are taller than the viewport, so nothing gets clipped top/bottom
-   * (plain `center` clips both ends on short screens). */
   justify-content: safe center;
   flex: 1;
   align-self: stretch;
@@ -232,11 +207,6 @@
 
   font-family: var(--font-sans), sans-serif;
   font-weight: 700;
-  /* min(5.5vw, 7vh) — the height half keeps the six-link list (plus the
-   * CTA that sits below it in flow) inside short viewports, e.g. a wide
-   * but 700px-tall window: width-only sizing pushed the stack past the
-   * overlay edge and clipped the pill. Scaled down so nothing overflows
-   * at the bottom. */
   font-size: clamp(1.75rem, min(5.5vw, 7vh), 4rem);
   letter-spacing: -0.035em;
   line-height: 1.16;
@@ -245,50 +215,10 @@
   mix-blend-mode: normal;
 }
 
-.nav-link-hover-bg {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-
-  background: color-mix(in oklab, var(--color-foreground) 6%, var(--color-paper));
-  border-radius: 0.35em;
-  mix-blend-mode: normal;
-
-  transform: scaleY(0);
-  transform-origin: 50% 100%;
-  transition: transform 0.4s cubic-bezier(0.65, 0.05, 0, 1);
-}
-
-.nav-link:hover .nav-link-hover-bg,
-.nav-link:focus-visible .nav-link-hover-bg {
-  transform: scaleY(1);
-}
-
 .nav-link:focus-visible {
   outline: 2px solid var(--color-brand-focus);
   outline-offset: 4px;
 }
-
-/* ── Terminal CTA ───────────────────────────────────────────────────
- * "Book a call with us" pill placed in the flow directly below the
- * link list (mirrors the menu trigger pill at top-right).
- *
- * It used to be absolutely pinned to the wrapper's bottom corner, but
- * on short viewports the centred link list extended past that point —
- * the pill overlapped the last link (FAQ) and, in the worst cases,
- * got clipped off entirely by `.menu-content { overflow: hidden }`.
- * Keeping it in the flex flow guarantees it always sits below the
- * list inside the visible box, at every viewport size.
- *
- * NOT a `.m-hero__cta`: that shared class carries `mix-blend-mode:
- * difference` to invert cleanly against arbitrary section backdrops.
- * The menu overlay is paper-toned (`.backdrop-layer { background: var
- * (--color-paper) }`), so a paper-bg difference pill would invert to
- * black and swallow its own dark label. The menu CTA therefore uses
- * solid colours — dark fill + light text, with a light arrow badge —
- * the inverse of the menu's own palette. Geometry mirrors the shared
- * pill (--cta-h, 999 px radius, 8 px arrow badge inset) so it still
- * reads as the same component family. */
 
 .menu-cta-wrap {
   z-index: 2;
@@ -338,10 +268,6 @@
 }
 
 .menu-cta-arrow svg {
-  /* globals.css :where(svg) drops every svg into the per-pixel
-   * difference-blend text system. Inside this white badge that turns a
-   * black stroke into white-on-white (invisible). Escape hatch per the
-   * comment block in globals.css: explicit ink + normal blend. */
   color: var(--color-foreground);
   mix-blend-mode: normal;
   transform: rotate(0deg);
@@ -357,8 +283,6 @@
   outline: 2px solid var(--color-brand-focus);
   outline-offset: 2px;
 }
-
-/* ── Mobile ── */
 
 @media (max-width: 768px) {
   .menu-content-wrapper {

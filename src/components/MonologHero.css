@@ -1,10 +1,3 @@
-/* Hallmark · light paper · centred everything · black ink.
- * macrostructure: centered Marquee Hero · single-family geometric sans (Geist)
- * paper: white · ink: near-black · accent: none (near-monochrome)
- * states covered (CTAs): default · hover · focus-visible · active
- * contrast: pass (black ink on white paper, dark CTA on white paper)
- */
-
 .m-hero {
   position: relative;
   z-index: 10;
@@ -15,54 +8,10 @@
   display: grid;
   grid-template-rows: auto 1fr auto;
 
-  /* The user asked for exactly 5 vw gap on each side for the big bottom
-   * text. Locking it here means nav + pitch + wordmark all share the same
-   * 90 vw content area; the wordmark fills it edge-to-edge.
-   *
-   * padding-top reserves room for the fixed nav (which now leaves the
-   * grid flow) so the centred pitch doesn't get crowded against the
-   * header. Tracks the nav's vertical footprint with a generous clamp.
-   */
   padding-block: clamp(2.5rem, 8vw, 5rem) 0;
   padding-inline: 2vw;
-
-  /* Intentionally NO `overflow-x: clip` here. Per CSS Overflow L3, an
-   * element with `overflow-x: clip` (or `overflow-y: clip`) becomes a
-   * containing block for position: fixed descendants — which would
-   * anchor the scroll-driven wordmark (`.m-hero__wordmark-display`,
-   * position: fixed) to this scrolling section instead of the viewport.
-   * Symptom: the wordmark gets clipped at the section's bottom edge
-   * during scroll and the GSAP "scrub to top-left" animation never
-   * reaches the sticky-header position. The horizontal-overflow
-   * protection we used to need here is no longer required — the
-   * wordmark is position: fixed (out of flow) and the in-flow content
-   * (nav, pitch, wordmark-bar) all respects the 2 vw horizontal
-   * padding via grid + width: 100%.
-   */
 }
 
-/* ---------- Nav (sticky/fixed to top) ----------
- * Slim, transparent, single-row flex. Three children:
- *   [ .m-hero__nav-brand  →  flex: 1 ]   ← left spacer (wordmark overlays)
- *   [ .m-hero__links      →  auto    ]   ← centred in the viewport
- *   [ .m-hero__actions    →  flex: 1 ]   ← right-anchored inside its column
- *
- * The two flex: 1 spacers split the leftover row width equally, so
- * the links sit between the wordmark (fixed-positioned overlay) and
- * the actions regardless of how wide the screen is.
- *
- * Sticky positioning: position: fixed, lives at the top of the
- * viewport from first paint onward — links + sound toggle + CTA
- * persist as the user scrolls past the hero. The wordmark (the
- * <HeroWordmark /> client component) animates from the bottom of the
- * hero up to the top-left of the viewport and shares this header band
- * with the nav: the wordmark is the logo (left), links are the menu
- * (centre), actions live on the right.
- *
- * z-index 200 keeps the nav above section content but below the
- * wordmark blend group (z-index 300 on .m-hero__wordmark-blend) so the
- * wordmark reads as foreground text inside the header band.
- */
 .m-hero__nav {
   position: fixed;
   top: 0;
@@ -73,7 +22,6 @@
   display: flex;
   align-items: center;
 
-  /* Slim — was clamp(0.875rem, 2vw, 1.5rem); ~28 px tall band. */
   padding-block: 0.5rem;
   padding-inline: 2vw;
 
@@ -81,25 +29,11 @@
   font-size: 0.9375rem;
   letter-spacing: -0.005em;
 
-  /* Per-pixel invert, container-level: the nav itself is the blend
-   * group. It's fixed + static (never transformed), so the compositor
-   * samples the correct page backdrop behind the band on every frame
-   * and the whole header (links, toggle, CTA) inverts as one unit —
-   * dark ink on light sections, white on dark sections. Children are
-   * plain white with `mix-blend-mode: normal` (see the per-child
-   * overrides below) so nothing double-blends inside the group. */
   color: var(--paper);
   mix-blend-mode: difference;
-
-  /* Fully transparent — no background, no blur, no border. Content
-   * scrolls beneath cleanly. */
 }
 
 .m-hero__nav-brand {
-  /* Left flex spacer — keeps the links centred in the viewport. The
-   * wordmark (fixed, see .m-hero__wordmark-display) overlays this from
-   * outside the flex flow; it doesn't contribute to the spacer's
-   * intrinsic width. */
   flex: 1 1 0;
   min-width: 0;
 }
@@ -115,10 +49,6 @@
 }
 
 .m-hero__links a {
-  /* Container-level invert lives on .m-hero__nav (see above) — the
-   * children are plain white with normal blending so the band inverts
-   * as one group instead of per-glyph. Explicit color: #fff keeps this
-   * independent of the :where() invert rule from globals.css. */
   color: var(--paper);
   mix-blend-mode: normal;
   text-decoration: none;
@@ -132,10 +62,6 @@
   opacity: 0.6;
 }
 
-/* The <li> wrappers inherit the globals :where(li) difference blend —
- * neutralise it (like the <a> above) so framer-motion can transform the
- * <li> during the load-in entrance without clipping the invert. The <a>
- * inside keeps its own hover opacity. */
 .m-hero__links li {
   mix-blend-mode: normal;
 }
@@ -147,88 +73,11 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-md);
-  /* The CTA no longer lives in this row — reserve its exact 44 px so the
-   * nav band keeps its height and the links stay vertically centred
-   * on the pill's centre. */
+
   min-height: 44px;
 }
 
-/* Sound-toggle — icon-only button, no chrome. Sits inline with the
- * CTA like any other text glyph. */
-.m-hero__toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
 
-  background: transparent;
-  /* Inherit the shader-aware colour from .m-hero__nav (pure white —
-   * the container group inverts it). */
-  color: inherit;
-  mix-blend-mode: normal;
-  border: none;
-  border-radius: 2px;
-
-  cursor: pointer;
-
-  transition: opacity var(--dur-fast) var(--ease-out);
-}
-
-/* The icon's SVG is in globals.css's :where() invert list — neutralise
- * it so it stays plain white inside the nav's container-level group. */
-.m-hero__toggle svg {
-  mix-blend-mode: normal;
-}
-
-.m-hero__toggle:hover {
-  opacity: 0.6;
-}
-
-.m-hero__toggle:focus-visible {
-  outline: 2px solid var(--color-brand-focus);
-  outline-offset: 2px;
-}
-
-/* Primary nav pill — the <SterlingGateKineticNavigation /> trigger mounted
- * by MonologHero.tsx at body level (outside the section). The pill itself
- * carries its own geometry in sterling-gate-kinetic-navigation.css
- * (2.75 rem, 999 px radius, paper bg, dark badge, mix-blend-mode:
- * difference, z-index 300) — it intentionally mirrors the CTA pill that
- * used to sit here so the visual swap is a no-op on first paint.
- *
- * The CTA-specific rules below are gone (no .m-hero__cta class, no
- * arrow-rotate hover, no mobile centered layout); see
- * sterling-gate-kinetic-navigation.css for the live pill styles.
- */
-
-/* ---------- Shared `.m-hero__cta` utility — DO NOT REMOVE ----------
- * The pill class is no longer used by MonologHero itself (its right-side
- * slot is now the SterlingGateKineticNavigation trigger, above), but
- * the same classname is still applied by three other components that
- * ship on the home page:
- *
- *   FAQ.tsx        — `<a className="m-hero__cta faq__cta-button">`
- *                    (the "Book a call with us" pill in the FAQ support
- *                    column; FAQ.css only overrides position)
- *   FinalCta.tsx   — `<a className="m-hero__cta final-cta__button">`
- *                    (the terminal CTA inside the FinalCta section;
- *                    FinalCta.css has its own self-contained mirror, so
- *                    these rules are belt-and-braces on /, where both
- *                    sheets ship)
- *   Footer.tsx     — `<a className="m-hero__cta footer__contact-button">`
- *                    (Footer.css has its own self-contained mirror for
- *                    the same reason)
- *
- * The geometry, palette, blend and arrow-rotate hover all live here so
- * the four contact pills across the home page read as the same component.
- * Pulling any of these rules out would break the FAQ "Book a call" pill
- * on the home page (the one page that ships this sheet but not the
- * self-contained FinalCta / Footer mirrors — FAQ's CSS does not include
- * its own copy).
- *
- * Move this block to a shared `cta-pill.css` and import it from the four
- * component CSS files when the codebase is ready for the refactor. */
 .m-hero__cta {
   position: relative;
   inset: auto;
@@ -243,12 +92,9 @@
   font-size: 0.9375rem;
   letter-spacing: -0.005em;
 
-  /* Fixed height keeps the arrow circle and pill geometry predictable.
-   * 2.75 rem mirrors the SterlingGateKineticNavigation trigger pill. */
   --cta-h: 2.75rem;
   height: var(--cta-h);
-  /* With no border consuming the border-box, --cta-h - 8px gives the
-   * circle an exact 4px inset at the top, right and bottom. */
+
   padding: 0 4px 0 1.25rem;
   border: 0;
   border-radius: 999px;
@@ -261,13 +107,11 @@
   white-space: nowrap;
 }
 
-/* Re-tie the globally blended label to the pill's internal ink colour. */
 .m-hero__cta-label {
   color: currentColor;
   mix-blend-mode: normal;
 }
 
-/* The badge stays opposite to the pill within the blended group. */
 .m-hero__cta-arrow {
   display: inline-flex;
   align-items: center;
@@ -283,8 +127,6 @@
   mix-blend-mode: normal;
 }
 
-/* Arrow sits at 45° up-right at rest; on hover it rotates -135°
- * (counter-clockwise) to point left, toward the label. */
 .m-hero__cta-arrow svg {
   color: currentColor;
   mix-blend-mode: normal;
@@ -302,31 +144,12 @@
   outline-offset: 2px;
 }
 
-/* ---------- Load-in entrance pre-hide ----------
- * The hero reveals bottom→top on first paint (wordmark → pitch → nav
- * links → menu pill); framer-motion animates the motion (see
- * MonologHero.tsx) and the CSS animation below drives the menu pill.
- * These rules only pre-hide the elements so the SSR HTML doesn't flash
- * them visible before hydration — the same trick as the wordmark's
- * .m-hero__wordmark-letter. Reduced-motion re-shows them instantly in
- * the reduced-motion block at the bottom of this file. */
 .m-hero__para,
 .m-hero__links li,
 .m-hero__bookcta {
   opacity: 0;
 }
 
-/* ---------- Menu-pill entrance — homepage only ----------
- * The fullscreen-menu trigger (SterlingGateKineticNavigation) reveals
- * here at the same 0.85 s delay the old CTA used, so the home-page load
- * sequence (wordmark → pitch → links → pill) stays unbroken. Scoped via
- * the .m-hero ~ .stg-root sibling selector so the SAME component on
- * /about, /services, /work (where it rides inside <ServicesHeader>, no
- * sibling .m-hero) keeps its instant reveal under <PageTransition>.
- *
- * `animation-fill-mode: both` applies the keyframe's `from` state during
- * the delay (no flash of visible pill before t = 0.85 s) and keeps the
- * `to` state after the tween completes. */
 .m-hero ~ .stg-root .nav-close-btn {
   animation: m-hero-menu-reveal 0.6s 0.85s ease-in-out both;
 }
@@ -340,14 +163,6 @@
   }
 }
 
-/* ---------- Urgency CTA — hero "Book A Call Now!" rainbow pill ----------
- * Magic UI "Rainbow Button" treatment, implemented in plain CSS against
- * the shared .m-hero__cta pill geometry: near-black body + a 2 px
- * transparent border filled by an animated 200%-size rainbow gradient
- * (background-clip: padding-box,border-box,border-box) plus a blurred
- * rainbow glow strip bleeding from the pill's bottom edge (::before).
- *
- * Rainbow palette (Magic UI defaults): */
 :root {
   --color-1: hsl(0 100% 63%);
   --color-2: hsl(270 100% 63%);
@@ -358,26 +173,20 @@
 
 .m-hero__bookcta {
   margin-top: clamp(1.25rem, 3vw, 2rem);
-  /* Slightly larger than the nav-scale pill — it's the hero's primary
-   * action, not chrome. */
+
   --cta-h: 3.25rem;
   padding: 0 4px 0 1.5rem;
   font-size: 1rem;
   font-weight: 600;
 
-  /* Override the shared pill's paper/difference treatment — this is the
-   * one deliberately LOUD pill on the page. */
   color: #ffffff;
   mix-blend-mode: normal;
 
-  /* Transparent border the rainbow gradient paints through. */
   border: 0.5px solid transparent;
   border-radius: 999px;
 
   background:
-    /* Body — near-black fill inside the padding box. */
     linear-gradient(#121213, #121213) padding-box,
-    /* Rainbow sweep — 200 % width, scrolled by the keyframes below. */
     linear-gradient(
       90deg,
       var(--color-1),
@@ -392,9 +201,6 @@
   animation: m-hero-rainbow 2s linear infinite;
 }
 
-/* Blurred rainbow glow bleeding from the pill's bottom edge (Magic UI's
- * ::before). z-index -1 keeps it behind the pill body; the pill's
- * z-index: 0 (from the shared .m-hero__cta block) makes that work. */
 .m-hero__bookcta::before {
   content: "";
   position: absolute;
@@ -425,10 +231,8 @@
   filter: brightness(1.15);
 }
 
-/* Arrow badge — white-on-dark (visible on the near-black pill body),
- * pulled 1 px smaller than the shared pill's badge. */
 .m-hero__bookcta .m-hero__cta-arrow {
-  --badge-inset: 4.5px; /* shared 4px inset + the requested 0.5px */
+  --badge-inset: 4.5px;
   width: calc(var(--cta-h) - 2 * var(--badge-inset));
   height: calc(var(--cta-h) - 2 * var(--badge-inset));
   flex: 0 0 calc(var(--cta-h) - 2 * var(--badge-inset));
@@ -445,7 +249,6 @@
   }
 }
 
-/* Urgency dot — a tiny red (#cc3a35) circle that pulses before the label. */
 .m-hero__cta-dot {
   flex: 0 0 0.5rem;
   width: 0.5rem;
@@ -476,8 +279,6 @@
   }
 }
 
-/* ---------- Centred pitch ---------- */
-
 .m-hero__pitch {
   display: flex;
   flex-direction: column;
@@ -490,33 +291,11 @@
   width: 100%;
   margin: 0 auto;
 
-  /* Push the paragraphs down off dead-centre — the flex centring keeps
-   * them centred inside the padded content box, so this shifts the
-   * whole group down by half the padding. (Bumped from 17 svh so the
-   * manifesto sits visibly lower in the hero.) */
   padding-top: clamp(8rem, 26svh, 22rem);
-
-  /* The pitch no longer carries the difference blend — it was narrowed
-   * to .m-hero__para-blend (below) so the urgency CTA renders its true
-   * #E36336 palette outside any invert group. */
 }
 
-/* Static, never-transformed blend wrapper around the paragraph only.
- * Same mechanics as before (blend on a static group, motion.p is the
- * animated child) — just narrowed so the CTA stays true-coloured. */
 .m-hero__para-blend {
   mix-blend-mode: difference;
-}
-
-.m-hero__icon {
-  width: 3rem;
-  height: 3rem;
-  /* No `color: inherit` here on purpose — see the .m-hero__para
-   * comment above. The SVG paths use `stroke="currentColor"`, so
-   * letting the :where() rule's color: #fff apply makes the stroke
-   * white, and the page-wide `mix-blend-mode: difference` (now
-   * covering `svg` in globals.css) runs against the canvas. */
-  margin-bottom: var(--space-xs);
 }
 
 .m-hero__para {
@@ -525,24 +304,13 @@
   font-size: clamp(1.875rem, 4.05vw, 3rem);
   line-height: 1.4;
   letter-spacing: -0.02em;
-  /* The .m-hero__para-blend wrapper is the difference blend group (see
-   * above); this <p> stays normal-blend so framer-motion can slide it. */
+
   mix-blend-mode: normal;
-  /* No `color: inherit` here on purpose. The text must stay pure white
-   * (#fff) so the .m-hero__pitch group's difference blend inverts it to
-   * dark ink on the near-white canvas. A `color: inherit` declaration
-   * (specificity 0,1,0) would beat the :where() rule (specificity 0) and
-   * pull in `var(--ink)` from the body — which, blended with difference
-   * against a near-white backdrop, produces near-white and renders the
-   * paragraph invisible on the liquid-metal hero. */
+
   margin: 0;
   max-width: 36ch;
 }
 
-/* Two-beat manifesto. The hero line ("Idea to Impact") runs 30 % larger
- * than the shared .m-hero__para base; the tagline runs smaller and is
- * forced onto one line (nowrap), its size scaling with viewport width so
- * it still fits a 390 px phone without wrapping. */
 .m-hero__para-line {
   display: block;
   font-size: 1.3em;
@@ -558,47 +326,15 @@
   white-space: nowrap;
 }
 
-/* ---------- Massive bottom wordmark ---------- */
-
-/* The bar is a positioning context; the wordmark itself is absolutely
- * centred on it so it stays anchored to viewport centre regardless of width.
- *
- * The reserved height tracks the responsive `eventclassics.in` wordmark.
- */
-
 .m-hero__wordmark-bar {
   position: relative;
   align-self: end;
   width: 100%;
-  /* The wordmark inside is `position: fixed`, so the bar no longer
-   * participates in layout for the glyph itself — it just reserves the
-   * vertical space the bottom of the hero needs so the grid row sizes
-   * correctly. Tracks the wordmark's font-size to always accommodate
-   * the type.
-   */
+
   height: clamp(2.25rem, 12.5vw, 24rem);
   line-height: 0.78;
 }
 
-/* Fixed full-viewport blend group for the wordmark. Carries the
- * per-pixel `difference` invert (white group → inverts against
- * whatever section is behind it) while the GSAP-transformed wordmark
- * inside stays `mix-blend-mode: normal`.
- *
- * Why the wrapper exists: blend + transform on the SAME element is
- * the known-broken case — the compositor ties the blend group to the
- * untransformed border box, so the transformed glyphs get clipped to
- * that box and the backdrop is sampled at the wrong position (the
- * "cropped during the header transition" bug we hit before). Putting
- * the blend on a static, full-viewport, never-transformed group and
- * animating only an inner child means the group always covers the
- * wordmark's whole travel envelope (bottom-centre at scale 1 →
- * top-left at scale 0.05) and the backdrop is sampled correctly on
- * every frame.
- *
- * z-index 300 keeps the wordmark above section content AND the fixed
- * nav (z-index 200), matching the previous layering. The group is
- * transparent except the glyphs and never receives pointer events. */
 .m-hero__wordmark-blend {
   position: fixed;
   inset: 0;
@@ -610,135 +346,20 @@
   pointer-events: none;
 }
 
-/* ── Menu-open override ───────────────────────────────────────────────
- * When the <SterlingGateKineticNavigation /> overlay is open
- * (data-nav="open"), the wordmark blend group would otherwise render
- * ON TOP of the menu overlay (z:300 vs z:250) — the morphing
- * "eventclassics.in" glyphs would invert against the menu panel and
- * stay visible through it, which is not supposed to happen.
- *
- * The menu trigger is a sibling of the wordmark blend group inside
- * the MonologHero fragment:
- *
- *   <nav class="m-hero__nav">
- *   <SterlingGateKineticNavigation />  → <div class="stg-root">
- *                                       └ <div data-nav="..." class="nav-overlay-wrapper">
- *   <div class="m-hero__wordmark-blend">
- *
- * So `.stg-root:has(...) ~ .m-hero__wordmark-blend` reaches the blend
- * group whenever the overlay wrapper inside the trigger's tree carries
- * data-nav="open". `.stg-root` is rendered by
- * SterlingGateKineticNavigation on every page — but the blend group
- * sibling only exists on the homepage (other pages use a static
- * .svc-head__brand inside the .svc-head band at z:200, already below
- * the overlay), so this rule is a no-op on /about /services /work.
- *
- * `:has()` is baseline in Chrome 105+, Safari 15.4+ and Firefox 121+
- * (early-2024), which the rest of the page already assumes (Tailwind
- * v4, next/image, Next 16 + Turbopack).
- *
- * TIMING NOTE — the close branch in sterling-gate-kinetic-navigation.tsx
- * does NOT flip data-nav to "closed" at the top of the function the way
- * the open branch sets it to "open". It defers the flip to a `.call()`
- * at the end of the close timeline, after display:none has been written.
- * That way the wordmark stays at z:200 for the whole close sweep and
- * only returns to z:300 once the overlay is actually gone — so it
- * never appears on top of the closing menu panel. The open branch still
- * sets data-nav="open" at the top (correct — the wordmark should hide
- * the moment the user clicks the trigger, before the menu slides in). */
 .stg-root:has(.nav-overlay-wrapper[data-nav="open"]) ~ .m-hero__wordmark-blend {
   z-index: 200;
 }
 
 .m-hero__wordmark-display {
-  /* Always `position: fixed`; only `transform` is animated (translate +
-   * scale) so the scroll-driven motion stays on the compositor and
-   * never triggers layout / paint. transform-origin is the element's
-   * top-left corner so x/y position that corner precisely. */
   position: fixed;
   top: 0;
   left: 0;
   transform-origin: 0 0;
 
-  /* Bottom offset (gap between the wordmark baseline and the
-   * viewport's bottom edge) — read by the GSAP animation in
-   * HeroWordmark.tsx via getComputedStyle and used in the transform
-   * below. Overridden per-breakpoint via the media query at the
-   * bottom of this file: 5 vw on mobile (≤ 768 px), 2.5 vw on
-   * desktop and tablet (> 768 px). */
   --wordmark-bottom-offset: 5vw;
 
-  /* Tighten the line-height below the bar's inherited 0.78 so the
-   * em-box's baseline sits flush with the line-box's bottom edge.
-   *
-   * The bar passes line-height: 0.78 down to the display span. With
-   * font-size 18 vw the line-box is 0.78 × 18 vw ≈ 14 vw, but the
-   * em-box is the full 18 vw — so the em-box overflows the line-box
-   * on both sides. The descender area (≈ 0.2 × font-size) sits below
-   * the visible baseline but inside the line-box, meaning the visible
-   * glyph row ends ~1.6 vw above the line-box bottom.
-   *
-   * The CSS transform anchors the *line-box* bottom at 100 vh −
-   * --wordmark-bottom-offset (it positions the line-box, not the
-   * glyphs), so without the line-height fix the CSS offset was
-   * rendering as a ~6.6 vw visible gap when the offset was 5 vw.
-   * GSAP ran into the same problem: its
-   * `y: viewportHeight - elementHeight - bottomPadding` was computing
-   * the line-box bottom, not the baseline.
-   *
-   * line-height: 0.6 (≈ 2 × 0.2 = the descender ratio) makes the
-   * em-box overflow symmetrically so the baseline lands exactly on
-   * the line-box's bottom edge. After this, the CSS offset equals
-   * the visible gap one-to-one across the whole 4 rem → 18 vw →
-   * 30 rem font-size range, the GSAP set() positions the baseline
-   * at 100 vh − --wordmark-bottom-offset (offsetHeight is now the
-   * line-box height), and the reduced-motion fallback (which never
-   * runs GSAP) also lands on the right number.
-   *
-   * Visually, the text rendering is unchanged — the em-box is what
-   * the font uses to lay out glyphs regardless of line-height. The
-   * change only affects the element's bounding rectangle, not the
-   * glyphs themselves.
-   */
   line-height: 0.6;
 
-  /* Initial visual position: bottom-centre of the viewport, with
-   * 5 vw of breathing room below the glyph row on mobile, 2.5 vw on
-   * desktop and tablet — the @media block at the bottom of this file
-   * overrides the transform for ≥ 769 px. The 5 vw mobile value mirrors
-   * the hero's horizontal padding so the wordmark sits inside the same
-   * 90 vw content area it fills horizontally.
-   *
-   * The offset is hard-coded in both transform declarations (here and
-   * in the media query) rather than read from --wordmark-bottom-offset
-   * via var(). var() inside a transform prevents the browser from
-   * recognising the value as a translate3d() and stops it from
-   * promoting the element to its own GPU composite layer on first
-   * paint — which defeats the entire "promote from first paint"
-   * reason this translate3d(... , 0) exists in the first place. Without
-   * the layer, the GSAP scrub animation jitters because every frame
-   * has to re-rasterise the text on the CPU instead of just compositing
-   * a pre-rasterised layer on the GPU.
-   *
-   * --wordmark-bottom-offset is still defined on this element so the
-   * GSAP set() in HeroWordmark.tsx can read the active per-breakpoint
-   * value via getComputedStyle — it's just not used in this transform.
-   *
-   * GSAP (see HeroWordmark.tsx) overrides this on mount with the same
-   * offset (it reads --wordmark-bottom-offset from the wordmark's
-   * computed style), then scrubs toward the top-left "sticky header"
-   * state as the hero scrolls out of view. Keeping the CSS baseline
-   * in sync means the pre-GSAP first paint and any
-   * prefers-reduced-motion fallback position the wordmark identically.
-   *
-   * Uses translate3d(... , 0) instead of translate() so the browser
-    * promotes this element to its own GPU composite layer from first
-    * paint, before GSAP ever runs. Without the third arg, the compositor
-    * only promotes the layer once a 3D transform is detected — and that
-    * detection can cause a one-frame paint on first scroll.
-    *
-    * `svh` deliberately uses the stable small viewport. Unlike `dvh`, it
-    * does not resize this anchor while mobile browser chrome retracts. */
   transform: translate3d(
     calc(50vw - 50%),
     calc(100svh - 100% - 5vw),
@@ -746,49 +367,19 @@
   );
 
   display: inline-block;
-  /* Helvetica Neue Heavy at 800 — the "eventclassics" wordmark face
-   * (hero + sticky header share this element). Helvetica Neue's
-   * "Heavy" cut gives the wordmark its characteristic dense, slightly
-   * condensed weight at this size. */
+
   font-family: var(--font-sans), sans-serif;
   font-weight: 800;
   font-style: normal;
-  /* Sized for the longer `eventclassics.in` string and its individually
-   * animated character boxes, leaving safe room at both viewport edges.
-   *
-   * The size shrink on scroll is done via `transform: scale()` in
-   * HeroWordmark, NOT by animating font-size — that would reflow every
-   * frame and tank the frame rate.
-   */
+
   font-size: clamp(2.25rem, 12.5vw, 24rem);
   letter-spacing: -0.05em;
   text-transform: none;
   white-space: nowrap;
-  /* Promote to its own layer so the scroll-driven transform stays on
-   * the GPU thread; this is the single biggest lever for 60fps.
-   *
-   * Intentionally NO `will-change: transform` — GSAP's own docs warn
-   * against it (see Top 5 ScrollTrigger Mistakes): "will-change can
-   * force excessive layer creation and eat up memory/GPU bandwidth."
-   * GSAP's `force3D: true` already promotes this element to its own
-   * GPU composite layer for the duration of the tween, so a permanent
-   * `will-change` hint is redundant overhead that lives on after the
-   * animation is done. */
 
-  /* The per-pixel invert lives on the .m-hero__wordmark-blend wrapper
-   * (see above) — the wordmark itself is plain white with normal
-   * blending so its scroll-driven transform never interacts with a
-   * blend group (blend + transform on the same element clips the
-   * glyphs / samples the wrong backdrop — the crop that solid ink
-   * used to avoid). Inside the static full-viewport blend group, the
-   * transform is safe: the group inverts the glyphs against the page
-   * backdrop on every frame while GSAP moves this child freely. */
   color: var(--paper);
   mix-blend-mode: normal;
 
-  /* Stabilise the transformed text on mobile GPUs — reduces the
-   * sub-pixel shimmer that makes the wordmark "wiggle" while its
-   * scroll-driven scale/translate runs at medium scroll speed. */
   backface-visibility: hidden;
 }
 
@@ -820,11 +411,6 @@
   transform: translateY(0);
 }
 
-/* Once the entry stagger completes, clear the per-letter transform so the
- * whole wordmark is a single rasterized text run. The retained
- * translateY(0) on every letter otherwise leaves ~N transformed
- * inline-block layers that shimmer under the parent's force3D scale
- * during scroll. Mirrors the reduced-motion end-state below. */
 .m-hero__wordmark-letter--settled {
   transform: none;
   transition: none;
@@ -838,17 +424,6 @@
   }
 }
 
-/* ---------- Desktop / tablet ---------- */
-
-/* On viewports wider than the mobile breakpoint the wordmark sits
- * closer to the viewport edge — 2.5 vw instead of 5 vw.
- *
- * The full transform is duplicated here rather than overridden via
- * --wordmark-bottom-offset because var() inside a transform breaks
- * GPU layer promotion (see the long comment on the base transform
- * above). The variable itself is still updated so the GSAP set() in
- * HeroWordmark.tsx reads the matching per-breakpoint value via
- * getComputedStyle. */
 @media (min-width: 769px) {
   .m-hero__wordmark-display {
     --wordmark-bottom-offset: 2.5vw;
@@ -860,39 +435,15 @@
   }
 }
 
-/* ---------- Mobile collapse (keeps everything centred) ---------- */
-
 @media (max-width: 768px) {
   .m-hero__nav {
     gap: var(--space-md);
   }
 
-  /* Drop the centre links below tablet — the nav still reads as a centred
-   * row with wordmark + actions; we never let a single-line affordance
-   * wrap (gate 49).
-   */
   .m-hero__links {
     display: none;
   }
 
-  /* ----- Mobile pitch: stable spacing above the wordmark -----
-   *
-   * Anchored from the BOTTOM rather than pushed down with padding-top, so
-   * the capped gap is measured to the paragraph's last line no matter how many
-   * lines it wraps to. A top-anchored version drifts by a whole line
-   * between a 360px and a 430px phone.
-   *
-   * --wordmark-stack reproduces the space the fixed wordmark occupies off
-   * the viewport bottom: its own line box (font-size × the 0.6
-   * line-height) plus the 5vw gap beneath it. Both terms are duplicated
-   * from .m-hero__wordmark-display — if either changes there, change it
-   * here too. Declared on :root so it survives at the document level
-   * (the menu pill is a body-level sibling, not a descendant of the pitch,
-   * so any future mobile offset that needs it can read the same value).
-   *
-   * `svh` is stable while mobile browser chrome opens and closes. The
-   * ordinary content gaps are capped in rem so they do not breathe with
-   * the viewport during a scroll. */
   :root {
     --wordmark-stack: calc(0.6 * clamp(2.25rem, 12.5vw, 24rem) + 5vw);
     --hero-copy-gap: clamp(6rem, 15svh, 8rem);
@@ -904,47 +455,24 @@
     right: 0;
     bottom: calc(var(--wordmark-stack) + var(--hero-copy-gap));
 
-    /* Replaced by the bottom anchor above. */
     padding-top: 0;
     margin-inline: auto;
   }
-
-  /* CTA sits one stable spacing unit below the paragraph's last line.
-   *
-   * The menu pill (.stg-root .nav-close-btn) stays a body-level sibling
-   * (see MonologHero.tsx) rather than moving inside the pitch, because
-   * nesting it under .m-hero would trap its z-index: 300 inside that
-   * section's z-index: 10 stacking context — the nav and pinned section
-   * visuals would then paint over the pill and swallow its clicks. The
-   * pill is `position: fixed` (mirroring about/services/work) and rides
-   * the viewport's top-right regardless of scroll. */
 }
 
-/* ---------- Reduced motion ---------- */
-
 @media (prefers-reduced-motion: reduce) {
-  /* Skip the load-in entrance: reveal the hero elements instantly. */
   .m-hero__para,
   .m-hero__links li,
   .m-hero__bookcta {
     opacity: 1;
   }
 
-  /* Skip the home-page-only menu-pill entrance animation; the pill's
-   * own nav-overlay open/close animation already honours this media
-   * query internally (sterling-gate-kinetic-navigation.tsx). */
   .m-hero ~ .stg-root .nav-close-btn {
     animation: none;
     opacity: 1;
   }
 
-  .m-hero__toggle,
   .m-hero__links a {
     transition: none;
-  }
-
-  .m-hero__toggle:hover,
-  .m-hero__toggle:active {
-    transform: none;
   }
 }

@@ -35,16 +35,12 @@ interface BrandEntry {
 }
 
 interface BrandsProps {
-  /** CMS `home-brands` global. Falls back to the hardcoded list. */
   data?: HomeBrandsData | null;
 }
 
 export function Brands({ data }: BrandsProps) {
   const label = data?.label ?? FALLBACK_LABEL;
 
-  /* CMS brands drive the grid when present; otherwise the full hardcoded
-   * list is used so the section never renders empty. Per-brand, each CMS
-   * field falls back to the matching hardcoded brand by position. */
   const brands: BrandEntry[] =
     data?.brands && data.brands.length > 0
       ? data.brands.map((entry, i) => {

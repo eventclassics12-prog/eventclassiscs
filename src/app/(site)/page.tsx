@@ -25,9 +25,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getGlobal<SiteSettingsData>("site-settings");
-  /* The previous static title was "EVENTCLASSICS — Idea to Impact" — the
-   * brand name in caps. The CMS brandName is "eventclassics.in"; using it
-   * keeps the tab title in sync with the brand shown across the site. */
+
   const brandName = site?.brandName?.trim() || "EVENTCLASSICS";
   return buildMetadata(site, {
     title: site?.seoTitle?.trim() || `${brandName} — Idea to Impact`,

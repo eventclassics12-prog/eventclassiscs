@@ -1,21 +1,9 @@
-/* Hallmark · /work — "Our Work" page.
- *
- * Editorial white canvas with a single blue accent: hairline label
- * strips, a statement panel, a motion marquee, GSAP-stacked 60vh
- * project cards (text left, image right, next card slides up from
- * below), a pill CTA bar, and a socials card marquee.
- *
- * Tokens come from globals.css: --paper, --ink, --font-sans, --font-mono.
- * One page-local accent: --wk-blue.
- */
-
 .wk {
   background: var(--paper);
   color: var(--ink);
   width: 100%;
 }
 
-/* Page accent + shared hairline */
 .wk {
   --wk-blue: var(--ink);
   --wk-hairline: color-mix(in oklch, var(--ink) 16%, transparent);
@@ -29,13 +17,10 @@
   mix-blend-mode: normal;
 }
 
-/* ───────── 1. Label strip ───────── */
-
 .wk__strip {
   display: flex;
   align-items: center;
   min-height: 2.75rem;
-  /* Clear the fixed ServicesHeader band at the top of the page */
   margin-top: clamp(3.75rem, 6vh, 5rem);
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
 }
@@ -54,7 +39,6 @@
   margin-top: 0;
 }
 
-/* Blue dot (reference-style section marker) */
 .wk__dot {
   width: 0.625rem;
   height: 0.625rem;
@@ -63,8 +47,6 @@
   background: var(--wk-blue);
   mix-blend-mode: normal;
 }
-
-/* ───────── 2. Hero: 3D carousel + statement ───────── */
 
 .wk__hero {
   display: flex;
@@ -82,19 +64,13 @@
   width: 100%;
   max-width: 64rem;
   flex: 0 0 auto;
-  /* cardWidth/perspective are em-based — shrinking the font shrinks the
-     whole 3D carousel proportionally */
   font-size: clamp(0.55rem, 0.6rem + 0.45vw, 0.8rem);
 }
 
-/* The Lightswind slider hardcodes min-h-[500px] on its root — relax it so
-   the reserve shrinks with the viewport (higher specificity than the
-   Tailwind utility, so the component file stays untouched). */
 .wk__hero-slider > div {
   min-height: min(500px, 52svh);
 }
 
-/* Shorter viewports: shrink harder so title + lede never get clipped */
 @media (max-height: 940px) {
   .wk__hero {
     padding-block: 3.75rem 0.25rem;
@@ -131,10 +107,6 @@
 }
 
 .wk__hero-text {
-  /* Left-aligned with the hero's padding-inline gutter, like the About
-   * hero. The hero keeps `align-items: center` for the carousel, so the
-   * text box stretches to the full row but is capped and pinned to the
-   * start edge. */
   align-self: stretch;
   flex: 0 0 auto;
   max-width: 44rem;
@@ -163,8 +135,6 @@
   mix-blend-mode: normal;
 }
 
-/* ───────── 3. Motion marquee ───────── */
-
 .wk__marquee {
   display: flex;
   overflow: hidden;
@@ -175,9 +145,6 @@
 .wk__marquee-group {
   display: flex;
   align-items: center;
-  /* Tight gap between Line1, the video figure and Line2 — the same
-   * value doubles as the trailing padding so the -100% loop stays
-   * seamless. Was 5vw, which left the parts floating in whitespace. */
   gap: clamp(1rem, 2.5vw, 2.25rem);
   flex: 0 0 auto;
   padding-right: clamp(1rem, 2.5vw, 2.25rem);
@@ -219,8 +186,6 @@
   }
 }
 
-/* ───────── 4. Project cards ───────── */
-
 .wk__cases {
   padding-bottom: clamp(var(--space-xl), 6vw, var(--space-3xl));
 }
@@ -229,16 +194,6 @@
   margin-bottom: clamp(2rem, 4vw, 4rem);
 }
 
-/* The card is full-bleed (no frame): paper copy panel left, image
- * panel right, vertical hairline divider. The incoming card's title
- * peeks over the current card's bottom (stackPeekPercent).
- *
- * The text column uses a DEFINITE clamp() track (not minmax with a
- * small minimum): a minmax(19rem, 30rem) track takes its minimum as
- * its base size and never grows when a fr sibling exists, so the
- * column collapsed to 19rem and the image swallowed the card. The
- * clamp track always takes its resolved width, hugging the 52ch copy
- * at every viewport instead of leaving a proportional void. */
 .wk-card {
   display: grid;
   grid-template-columns: clamp(26rem, 34vw, 36rem) minmax(0, 1fr);
@@ -262,17 +217,9 @@
 .wk-card__copy {
   display: flex;
   flex-direction: column;
-  /* Center the copy block vertically in the 90vh panel. Top-hanging
-   * left ~half the paper panel as empty space below the text, which
-   * read as detached/floating. Centering distributes the whitespace
-   * symmetrically so it feels intentional. The absolute corner number
-   * stays top-left as the panel's top anchor. */
   justify-content: center;
   min-width: 0;
   padding-top: clamp(4rem, 7vh, 6rem);
-  /* Left gutter matches the section strip + corner number (same 5vw
-   * expression) so the copy aligns with them; right gutter stays tight
-   * so the text sits close to the image. */
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl)) clamp(1rem, 2vw, 1.5rem);
   padding-bottom: clamp(1.5rem, 4vh, 3rem);
 }
@@ -288,9 +235,6 @@
   mix-blend-mode: normal;
 }
 
-/* Copy block: hangs below the title, left edge flush with the column.
- * The old 4vw hanging indent pushed the text away from the column edge
- * and left it floating detached between whitespace and the image. */
 .wk-card__lede {
   margin-top: clamp(1.5rem, 4vh, 3rem);
   margin-left: 0;
@@ -382,7 +326,6 @@
   mix-blend-mode: normal;
 }
 
-/* Reference-style centered control */
 .wk-card__read-more {
   display: flex;
   align-items: center;
@@ -431,7 +374,6 @@
   mix-blend-mode: normal;
 }
 
-/* Mobile: card stacks copy over image */
 @media (max-width: 900px) {
   .wk-card {
     grid-template-columns: minmax(0, 1fr);
@@ -446,7 +388,6 @@
     padding-top: clamp(2rem, 6vh, 4rem);
   }
 
-  /* The number overlays the image on mobile — keep it readable */
   .wk-card__corner {
     color: #fff;
     mix-blend-mode: normal;
@@ -456,8 +397,6 @@
     margin-left: 0;
   }
 }
-
-/* ───────── Reduced motion ───────── */
 
 @media (prefers-reduced-motion: reduce) {
   .wk__marquee-group {

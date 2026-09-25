@@ -10,20 +10,6 @@ import {
 } from "@/lib/cms";
 import "./ServicesPage.css";
 
-/**
- * Hallmark · /services page body.
- *
- * Laurenti-style numbered service blocks: a mono eyebrow + editorial
- * hero, then one row per service (number, title, kicker, description,
- * mono sub-items) separated by hairline dividers. Each row carries its
- * service image, revealed/kept full-bleed on the active row.
- *
- * CMS-driven: hero copy comes from the `page-services` global and the
- * service list from the shared `home-services` global, both via optional
- * props. Everything falls back to the built-in copy (SERVICES export)
- * so this surface stays in sync with the homepage Services section.
- */
-
 const HERO_VIDEO = "/videos/chrome-services-loop.mp4";
 const HERO_TITLE = "Four disciplines.\nOne brand system.";
 const HERO_LEDE =
@@ -39,12 +25,7 @@ interface SvcRow {
 }
 
 interface ServicesPageProps {
-  /** CMS `page-services` global (hero copy); falls back to built-in copy. */
   data?: PageServicesData | null;
-  /**
-   * CMS `home-services` global (shared service list); falls back to the
-   * built-in SERVICES export when absent or empty.
-   */
   servicesData?: HomeServicesData | null;
 }
 
@@ -83,7 +64,6 @@ export function ServicesPage({ data, servicesData }: ServicesPageProps) {
 
   return (
     <main className="svc">
-      {/* ───── Hero ───── */}
       <header className="svc__hero">
         <div className="svc__hero-grid">
           <div className="svc__hero-figure" aria-hidden="true">
@@ -112,7 +92,6 @@ export function ServicesPage({ data, servicesData }: ServicesPageProps) {
         </div>
       </header>
 
-      {/* ───── Numbered service rows ───── */}
       <section className="svc__list">
         {services.map((service, i) => {
           const active = selected === i;
@@ -167,5 +146,3 @@ export function ServicesPage({ data, servicesData }: ServicesPageProps) {
     </main>
   );
 }
-
-export default ServicesPage;

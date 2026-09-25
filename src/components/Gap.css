@@ -1,58 +1,26 @@
-/* Hallmark · "We close that gap" section.
- * "WE CLOSE" enters from the left into the upper lane; "THE GAP"
- * enters from the right into the lower lane.
- *
- * Section height: min-height: 200vh. ScrollTrigger range
- * "top top" → "center center" therefore gives ~50vh of scroll-driven
- * distance for the animation — long enough for the user to feel the
- * phrases sliding toward each other, short enough that it never drags.
- */
-
 .gap {
   position: relative;
   background: var(--ink);
-  /* Text colour + mix-blend-mode inherited from globals.css. */
 
   width: 100%;
-  /* Natural section height — entirely driven by the sticky wrapper.
-   * Sticky wrappers do participate in flow (they reserve their box
-   * height before sticking), so the section ends up 100 vh tall:
-   * the sticky wrapper itself. */
   min-height: 0;
 
   overflow-x: clip;
 }
 
-/* ---------- Sticky wrapper ---------- */
-
 .gap__sticky {
   position: sticky;
   top: 0;
-  /* z-index: 10 keeps the closing phrases + image + copy above
-   * subsequent sections while the closure animation is playing. */
   z-index: 10;
   height: 100vh;
   height: 100lvh;
   width: 100%;
 
-  /* Flex column. align-items: center is critical — without it, the
-   * default `stretch` makes `.gap__below` span the full viewport width
-   * regardless of its max-width, so the image + copy end up
-   * off-centre. */
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* ---------- Phrases (absolutely positioned at vertical centre) ---------- */
-
-/* The phrases sit at the vertical centre of the sticky wrapper (=
- * viewport centre while sticky is engaged), visually overlapping the
- * image. The display region is absolutely positioned with top: 50% +
- * translateY(-50%), so its own vertical centre lands on the viewport
- * centre. The phrase wrappers inside then position themselves at
- * top: 50% of this region — i.e. the viewport centre. z-index 2 sits
- * on top of the image + copy (z-index 1). */
 .gap__display {
   position: absolute;
   top: 50%;
@@ -63,24 +31,17 @@
   height: 2.2em;
   z-index: 2;
 
-  /* Same face as the eventclassics.in wordmark — Helvetica Neue Heavy
-   * (var(--font-sans) at 800), not the Oi display face. */
   font-family: var(--font-sans), sans-serif;
   font-weight: 800;
   font-style: normal;
-  /* Same scale as before — large display line that fills the band.
-   * Bumped 50 % over the original clamp(2.75rem, 9vw, 10rem). */
   font-size: clamp(4.125rem, 13.5vw, 15rem);
   line-height: 0.92;
   letter-spacing: -0.05em;
   text-align: center;
-  /* Colour + invert inherited from globals.css. */
 
   white-space: nowrap;
 }
 
-/* Each phrase keeps its own vertical lane while GSAP animates only the
- * inner span's horizontal position. */
 .gap__phrase-wrap {
   position: absolute;
   transform: translateY(-50%);
@@ -99,19 +60,8 @@
 .gap__phrase {
   display: inline-block;
   white-space: nowrap;
-  /* font-size / weight / letter-spacing inherit from .gap__display */
 }
 
-/* ---------- Bottom region: image + copy ---------- */
-
-/* flex: 1 1 auto so this region takes whatever vertical space remains
- * after the top region. Image + copy are vertically + horizontally
- * centred within it — they stay put (no animation) until the sticky
- * releases at the end of the section.
- *
- * No explicit width / margin-inline — the parent `.gap__sticky` has
- * `align-items: center`, which centres us horizontally. The `max-width`
- * caps the copy + image at a comfortable measure. */
 .gap__below {
   flex: 1 1 auto;
   display: flex;
@@ -129,14 +79,11 @@
   position: relative;
   display: block;
   width: clamp(180px, 22vw, 320px);
-  aspect-ratio: 3 / 4; /* portrait orientation matching a product photo */
+  aspect-ratio: 3 / 4;
   margin-block: clamp(1rem, 2vw, 1.5rem);
   transform: scale(0.45);
   transform-origin: center;
-  /* No `will-change` — GSAP's `force3D: true` on the scrub handles
-   * layer promotion transiently. See HeroWordmark.tsx for the policy. */
 
-  /* Soft drop shadow to lift the image off the page. */
   filter: drop-shadow(
     0 24px 48px color-mix(in oklch, var(--ink) 18%, transparent)
   );

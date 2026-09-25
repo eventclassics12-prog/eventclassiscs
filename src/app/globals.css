@@ -65,15 +65,12 @@
 }
 
 :root {
-  /* Match the two visual sources exactly: the hero shader's white and
-   * the decoded background of the footer logo video. */
   --paper:        #ffffff;
   --paper-edge:   var(--paper);
   --paper-elev:   var(--paper);
   --ink:          #000000;
   --ink-dim:      oklch(38% 0.005 240);
 
-  /* shadcn mirrors — kept so future shadcn primitives render correctly. */
   --background: var(--paper);
   --foreground: var(--ink);
   --card: var(--paper);
@@ -107,7 +104,6 @@
   --sidebar-border: oklch(88% 0.005 240);
   --sidebar-ring: oklch(38% 0.005 240);
 
-  /* Brand tokens — kept neutral-monochrome (no chromatic accent). */
   --brand-accent:        var(--ink);
   --brand-accent-hover:  oklch(25% 0.005 240);
   --brand-accent-ink:    var(--paper);
@@ -115,7 +111,6 @@
   --brand-error:         oklch(58% 0.20 25);
   --brand-success:       oklch(58% 0.14 152);
 
-  /* 4 pt spacing scale. */
   --space-2xs: 0.25rem;
   --space-xs:  0.5rem;
   --space-sm:  0.75rem;
@@ -125,10 +120,8 @@
   --space-2xl: 4.5rem;
   --space-3xl: 6.5rem;
 
-  /* Shared outer rhythm for editorial sections. */
   --section-space: clamp(3rem, 6vw, 6rem);
 
-  /* Easings + durations. */
   --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in:       cubic-bezier(0.4, 0, 1, 1);
   --ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
@@ -137,7 +130,6 @@
 }
 
 .dark {
-  /* Dark variant kept available for future pages that flip. */
   --paper:        oklch(11% 0.008 60);
   --paper-edge:   oklch(5%  0.005 60);
   --paper-elev:   oklch(18% 0.008 60);
@@ -151,37 +143,9 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Opt out of browser scroll anchoring. Chrome/Safari otherwise
-     * adjust the scroll position to keep an anchor node stable when
-     * ScrollTrigger inserts the KeepScrolling pin-spacer or refreshes
-     * trigger positions — that compensation is the "page drifts down
-     * slightly" jolt while scrolling. We own the scroll layout. */
     overflow-anchor: none;
   }
-  /* Per-pixel invert for every text element on every bg. White text +
-   * mix-blend-mode: difference means the compositor flips each glyph
-   * against whatever pixel sits behind it on every frame, so text
-   * stays continuously legible through section transitions (light
-   * bg → black ink, dark bg → light ink, gradient → blended). No JS
-   * in the loop — the GPU does it at compositor speed.
-   *
-   * :where() keeps specificity at 0 so any explicit colour on a
-   * section / component overrides this freely. SVG fill / stroke,
-   * borders, backgrounds, and shadows are deliberately NOT in this
-   * list — they should not blend.
-   *
-   * The one trap: mix-blend-mode only blends with the backdrop
-   * INSIDE the same stacking context. Any ancestor that creates a
-   * stacking context between this text and the section bg
-   * (z-index, transform, opacity < 1, filter, isolation, another
-   * blend mode) cuts the backdrop down to that ancestor's
-   * transparent interior, so the text blends with nothing and
-   * renders pure white regardless of bg — invisible on white.
-   * The fix is always at the ancestor (drop the z-index, drop the
-   * transform, move the blend to the container level like FAQ /
-   * the hero nav, or override this rule with explicit ink +
-   * mix-blend-mode: normal on the trapped node — the MonologHero
-   * wordmark is the canonical example of that last escape hatch). */
+
   :where(
     h1, h2, h3, h4, h5, h6,
     p, a, span, button, li, dt, dd,
@@ -198,17 +162,7 @@
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Page transitions — React <ViewTransition> crossfade between routes.
- * Each route's content is wrapped in <PageTransition />; on navigation the
- * browser snapshots the old page, fades it out, then fades the new page in.
- * Runs on the compositor (opacity keyframes only), so GSAP pinning,
- * Locomotive Scroll and the 3D/WebGL heroes never fight the animation.
- * ------------------------------------------------------------------------- */
-
 ::view-transition {
-  /* The snapshot overlay steals clicks for the duration of the animation —
-   * keep them passing through to the live page. */
   pointer-events: none;
 }
 
@@ -217,8 +171,6 @@
 }
 
 ::view-transition-new(.page-fade) {
-  /* Enter starts only once the exit has finished: no two opaque pages
-   * overlapping, no jitter when both are animating. */
   animation: 260ms ease-in 200ms both page-fade-in;
 }
 
@@ -232,9 +184,6 @@
   to { opacity: 1; }
 }
 
-/* Fade-only is already motion-safe (no positional movement) — but combine
- * the snapshot capture+animation into an instant swap for users who ask
- * the OS to minimise motion. */
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(.page-fade),
   ::view-transition-new(.page-fade) {

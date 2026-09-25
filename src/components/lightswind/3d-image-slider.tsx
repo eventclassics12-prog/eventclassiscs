@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { motion, useReducedMotion, useInView } from "framer-motion";
 
 const DEFAULT_DATA = [
@@ -19,23 +19,14 @@ const DEFAULT_DATA = [
 ];
 
 interface Slider3DProps {
-  /** Array of image URLs to display */
   images?: string[];
-  /** Duration of one full 360-degree rotation (in seconds) */
   duration?: number;
-  /** Width of each card. Can be px, rem, em, etc. */
   cardWidth?: string;
-  /** CSS aspect ratio of the cards */
   cardAspectRatio?: string;
-  /** CSS perspective value for the 3D container */
   perspective?: string;
-  /** Additional classes for the outermost container */
   containerClassName?: string;
-  /** Additional classes for the individual image elements */
   imageClassName?: string;
-  /** Direction of the rotation */
   rotationDirection?: "left" | "right";
-  /** Whether to apply a gradient fade mask on the edges */
   withMask?: boolean;
 }
 
@@ -56,7 +47,6 @@ export default function ImageSlider3D({
   const prefersReducedMotion = useReducedMotion();
   const animationDuration = prefersReducedMotion ? duration * 4 : duration;
 
-  // rotation angles based on direction
   const rotationValues = rotationDirection === "left" ? [0, 360] : [360, 0];
 
   const maskStyles = withMask

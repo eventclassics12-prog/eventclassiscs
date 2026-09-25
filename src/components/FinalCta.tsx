@@ -7,31 +7,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { mediaUrl, type PageServicesData } from "@/lib/cms";
 import "./FinalCta.css";
 
-/**
- * Hallmark · "Final CTA" section — image-unfold edition.
- *
- * Editorial close before the footer, Laurenti-style: as the section
- * scrolls in it is pinned and the moody ridge image unfolds from a
- * contained card (rounded clip) to a full-bleed canvas. The three-line
- * statement, kicker and CTA pill rise over the fully-unfolded image,
- * then the pin releases into the footer.
- *
- * The button re-uses the `.m-hero__cta` class for visual continuity
- * with the hero's pill; text keeps the global difference-blend so the
- * copy inverts cleanly against the dark photo in either direction.
- *
- * CMS-driven: lines, kicker, CTA label/href and the background image
- * come from the `page-services` global via the `data` prop, falling
- * back to the exact built-in copy when absent. Explicit `lines`/`cta`
- * props still take precedence when provided.
- */
-
 interface FinalCtaProps {
-  /** Three editorial lines stacked above the CTA. */
   lines?: ReadonlyArray<string>;
-  /** CTA label + href. */
   cta?: { label: string; href: string };
-  /** CMS `page-services` global; used when explicit props are absent. */
   data?: PageServicesData | null;
 }
 
@@ -61,8 +39,6 @@ export function FinalCta({ lines, cta, data }: FinalCtaProps) {
     const section = sectionRef.current;
     if (!section) return;
 
-    /* Reduced motion: no pin, no scrub — the section renders fully
-     * unfolded with all content visible (built-in default state). */
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
@@ -83,30 +59,15 @@ export function FinalCta({ lines, cta, data }: FinalCtaProps) {
           start: "top top",
           end: isMobile ? "+=100%" : "+=150%",
           pin: true,
-          /* Body is flex-col; ScrollTrigger auto-disables pin spacing
-           * under a flex parent, which would leave the scrub no room. */
           pinSpacing: true,
-          /* Desktop: 1:1 scroll → progress (the KeepScrolling build's
-           * finding that scrub windows read as lag). Mobile: short
-           * window to damp uneven native touch scroll events. */
           scrub: isMobile ? 0.2 : true,
           anticipatePin: 1,
         },
       });
 
-      /* Phase 1 — unfold: rounded contained card expands to full-bleed.
-       * clip-path animates on the compositor; no layout thrash mid-scrub.
-       *
-       * fromTo with explicit identical-structure strings: reading the CSS
-       * computed start back through GSAP's clipPath parser produced a
-       * mis-paired interpolation (the two horizontal insets diverged,
-       * making the mask slide left). Providing both ends verbatim keeps
-       * the value mapping symmetric. */
       tl.fromTo(
         media,
         {
-          /* Matches the `.final-cta__media` clip-path in FinalCta.css;
-           * keep the two in sync if the contained frame moves. */
           clipPath: isMobile
             ? "inset(9% 8% 9% 8% round 12px)"
             : "inset(11% 14% 11% 14% round 14px)",
@@ -117,7 +78,6 @@ export function FinalCta({ lines, cta, data }: FinalCtaProps) {
         },
       );
 
-      /* Phase 2 — content rises over the full-bleed image. */
       tl.from(content, { opacity: 0, y: 60, duration: 0.3 }, 0.62);
     }, section);
 

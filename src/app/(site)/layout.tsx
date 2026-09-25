@@ -1,9 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { helveticaNeue } from "@/styles/fonts";
 import { getGlobal, type SiteSettingsData } from "@/lib/cms-server";
 import { buildMetadata, organizationJsonLd } from "@/lib/seo";
 import "../globals.css";
+
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getGlobal<SiteSettingsData>("site-settings");
@@ -30,8 +34,6 @@ export default async function SiteLayout({
       className={`${helveticaNeue.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col text-foreground">
-        {/* Structured data: Organization — helps search engines
-            understand the brand entity behind the site. */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

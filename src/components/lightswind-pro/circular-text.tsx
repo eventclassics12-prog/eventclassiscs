@@ -5,25 +5,6 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./circular-text.css";
 
-/**
- * Lightswind UI · Circular Text — two concentric kinetic rings of
- * individual letter spans, scrubbed by scroll.
- *
- *   p 0     · fragment: letters sit on their polar orbits + random
- *             offsets (deltaX/deltaY, rotation ±45°), faded, scrambled.
- *   p 0→0.5 · assembly: offsets collapse to 0, rings snap into crisp
- *             legible circular phrases while counter-rotating
- *             (inner +120°, outer −90°).
- *   p 0.5→1 · fly-through: both rings scale massively outward (4.5×+),
- *             inner ring fades to 0, outer ring flies past the screen
- *             edges while still rotating.
- *
- * Architecture: each letter is a two-layer stack. The OUTER slot has no
- * transform and is driven by GSAP (scatter offsets in px, no %-parsing
- * conflicts). The INNER char carries a static orbital transform
- * (rotate(θ) translateY(-r)) baked at render time.
- */
-
 interface CircularTextProps {
   innerSentence?: string;
   outerSentence?: string;
@@ -31,17 +12,12 @@ interface CircularTextProps {
 
 interface RingConfig {
   radius: number;
-  /** Ring rotation across assembly (deg). */
   assembleSpin: number;
-  /** Extra spin while flying out (deg). */
   exitSpin: number;
-  /** Final scale of the fly-through. */
   exitScale: number;
-  /** Fade this ring out during expansion. */
   exitFade: boolean;
 }
 
-/* Deterministic PRNG so the scramble is stable across renders. */
 function mulberry32(seed: number) {
   let a = seed | 0;
   return () => {
@@ -60,9 +36,6 @@ type Letter = {
   key: string;
 };
 
-/* Static per-letter geometry: char i sits at angle (i/n)·2π on its
- * orbit, rotated angle + 90° so the baseline stays tangent and faces
- * outwards. Build executed at render — SSR-safe. */
 function buildLetters(sentence: string, radius: number): Letter[] {
   const letters = sentence.split("");
   const n = letters.length || 1;
@@ -132,7 +105,7 @@ export default function CircularText({
       const reduced = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
-      if (reduced) return; // letters keep the assembled static pose
+      if (reduced) return;
 
       const rings = [
         {
@@ -147,9 +120,6 @@ export default function CircularText({
         },
       ];
 
-      /* Fragmented initial state: random offsets layered on top of the
-       * orbital slots — GSAP owns these transforms, the char's static
-       * orbit transform stays untouched underneath. */
       const rand = mulberry32(7);
       rings.forEach((ring) => {
         const slots = gsap.utils.toArray<HTMLElement>(ring.sel, stage);
@@ -176,8 +146,6 @@ export default function CircularText({
         },
       });
 
-      /* Centre logo: fades in slowly while the letters assemble and
-       * stay fully visible during the fly-through. */
       timeline.fromTo(
         ".circular-text__logo img",
         { opacity: 0 },
@@ -185,10 +153,6 @@ export default function CircularText({
         0.45,
       );
 
-      /* Stage 1 → 2 · assembly: offsets collapse to zero while the
-       * rings counter-rotate into crisp legible phrases. Letters ride
-       * the ring rotation, so base slots do not need per-letter tweens
-       * for x/y — only the scatter layer resolves. */
       rings.forEach((ring) => {
         const slots = gsap.utils.toArray<HTMLElement>(ring.sel, stage);
         slots.forEach((slot) => {
@@ -205,7 +169,6 @@ export default function CircularText({
         );
       });
 
-      /* Stage 2 → 3 · radical expansion / fly-through. */
       rings.forEach((ring) => {
         timeline.to(
           ring.el,
@@ -244,7 +207,6 @@ export default function CircularText({
   return (
     <div className="circular-text" ref={wrapperRef}>
       <div className="circular-text__stage" ref={stageRef}>
-        {/* EC mark — the original logo image, fading in on scroll. */}
         <div className="circular-text__logo" aria-hidden="true">
           <img src="/logos/ec-mark.png" alt="" />
         </div>

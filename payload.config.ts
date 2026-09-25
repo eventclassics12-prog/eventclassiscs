@@ -1,7 +1,8 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { buildConfig } from 'payload'
-import { sqliteAdapter } from '@payloadcms/db-sqlite'
+import { postgresAdapter } from '@payloadcms/db-postgres'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 
 import { Users } from './src/payload/collections/Users'
@@ -61,11 +62,23 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  db: sqliteAdapter({
-    client: {
-      url: process.env.DATABASE_URL || 'file:./payload.db',
+  db: postgresAdapter({
+    pool: {
+      connectionString: process.env.DATABASE_URL || '',
     },
+    push: process.env.NODE_ENV !== 'production',
+    migrationDir: path.resolve(dirname, 'src/migrations'),
   }),
+  plugins: [
+    vercelBlobStorage({
+      enabled: !!process.env.BLOB_READ_WRITE_TOKEN,
+      collections: {
+        media: true,
+      },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+      clientUploads: true,
+    }),
+  ],
   routes: {
     admin: '/admin',
     api: '/payload-api',

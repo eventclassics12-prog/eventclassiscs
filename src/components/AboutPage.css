@@ -1,16 +1,3 @@
-/* Hallmark · /about page.
- *
- * Editorial layout adapted to the brand tokens (paper/ink, Archivo +
- * Bricolage, Source Sans mono labels). Mirrors the reference structure:
- * hero → full-bleed three-image band → offset founder story → dark
- * manifesto with hairline-divided principle entries.
- *
- * All text setzt explicit ink/paper with `mix-blend-mode: normal` — the
- * global difference-blend base rule would otherwise invert the copy
- * against the section canvas (white-on-white on paper, invisible on
- * ink).
- */
-
 .about {
   background: var(--paper);
   width: 100%;
@@ -24,12 +11,7 @@
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
 }
 
-/* ───────── 1. Hero ───────── */
-
 .about__hero {
-  /* Desktop + tablet: own the full first viewport; the image band only
-   * arrives after a scroll. `svh` so mobile browser chrome never clips
-   * the block. Content sits at the bottom of the viewport. */
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -39,9 +21,6 @@
   padding-bottom: 10vh;
 }
 
-/* Hero split: text left, glass EC shape right (desktop + medium).
- * Mobile: shape on top, text below — both pinned to the bottom of
- * the viewport. */
 .about__hero-grid {
   display: flex;
   flex-direction: column;
@@ -55,13 +34,6 @@
   align-self: center;
   display: grid;
   place-items: center;
-}
-
-.about__hero-figure-img {
-  display: block;
-  width: 100%;
-  height: auto;
-  mix-blend-mode: normal;
 }
 
 .about__hero-figure-video {
@@ -118,17 +90,11 @@
 }
 
 @media (max-width: 768px) {
-  /* Mobile: full first viewport too — content pinned to the bottom
-   * with 10vh bottom padding. */
   .about__hero {
     padding-top: clamp(var(--space-lg), 9vh, 8rem);
   }
 }
 
-/* ───────── 3. Founder story ───────── */
-
-/* Statement-like two-column layout: narrow left column for the section
- * title, wide right column for the founder copy + byline. */
 .about__story {
   padding-block: clamp(4rem, 9vw, 8rem);
 }
@@ -184,9 +150,6 @@
   font-size: clamp(0.875rem, 1vw, 0.9375rem);
   line-height: 1.5;
   letter-spacing: -0.005em;
-  /* Blockquote is in the global difference-blend selector list — opt
-   * the whole stack out explicitly, or the black ink inverts to white
-   * on the paper canvas. */
   mix-blend-mode: normal;
 }
 
@@ -237,8 +200,6 @@
   mix-blend-mode: normal;
 }
 
-/* ───────── 4. Dark manifesto ───────── */
-
 .about__manifesto {
   background: var(--ink);
   padding-block: clamp(4rem, 9vw, 7rem);
@@ -256,9 +217,6 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  /* Single column: stance and principles flow together — sticky would
-   * pin the stance over the scrolling principle text. Higher specificity
-   * to beat the base .about__stance rule declared later in this file. */
   .about__manifesto-inner .about__stance {
     position: static;
     top: auto;
@@ -282,8 +240,6 @@
   mix-blend-mode: normal;
 }
 
-/* Pill CTA — white on ink, arrow badge dark; mirrors the header pill
- * geometry minus the difference blend (this canvas is already dark). */
 .about__stance-cta {
   position: relative;
   display: inline-flex;
@@ -325,10 +281,6 @@
   background: var(--ink);
   color: var(--paper);
 
-  /* The global `:where(span, svg, ...)` base rule applies
-   * `mix-blend-mode: difference` to every span. Inside the white pill
-   * the compositor would flip the circle's black fill back to white.
-   * Setting `mix-blend-mode: normal` here keeps the black circle. */
   mix-blend-mode: normal;
 }
 
@@ -348,8 +300,6 @@
   outline: 2px solid var(--color-brand-focus);
   outline-offset: 2px;
 }
-
-/* ── Principle entries — right column, hairline dividers ── */
 
 .about__principles {
   display: flex;

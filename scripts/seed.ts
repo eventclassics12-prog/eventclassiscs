@@ -1,16 +1,3 @@
-/**
- * Seed the Payload CMS (SQLite) with the site's current content.
- *
- * Run once after `pnpm install`:
- *   pnpm dlx tsx scripts/seed.ts
- *
- * Uploads every image/video from `public/` into the Media collection and
- * fills all globals, so the site renders identically to the hardcoded
- * version — then everything is editable at /admin.
- *
- * Safe to re-run: existing media (matched by filename) and globals are
- * reused/overwritten, not duplicated.
- */
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { readFile } from 'node:fs/promises'
@@ -66,11 +53,6 @@ async function uploadMedia(
   return doc.id as number
 }
 
-/**
- * Download a journal cover generated off-machine and store it in the
- * Media collection (matched by filename, so re-runs reuse it). Returns
- * null when the download fails so the caller can keep a placeholder.
- */
 async function uploadMediaFromUrl(
   payload: Payload,
   url: string,
@@ -106,15 +88,10 @@ async function uploadMediaFromUrl(
 }
 
 async function setGlobal(payload: Payload, slug: string, data: Record<string, unknown>) {
-  // updateGlobal types `slug` as the union of globals registered in
-  // payload.config.ts; every call below passes one of those literals.
   await payload.updateGlobal({ slug: slug as 'site-settings', data, overrideAccess: true })
   console.log(`  ✓ global: ${slug}`)
 }
 
-/* ------------------------- journal (posts) ------------------------- */
-
-/** Minimal builders for Payload's serialized Lexical editor state. */
 type LexicalRun = string | { text: string; bold?: boolean }
 
 function lexicalText(text: string, bold: boolean) {
@@ -190,9 +167,6 @@ async function upsertPost(payload: Payload, post: SeedPost) {
     limit: 1,
     overrideAccess: true,
   })
-  // The inferred Payload create/update types are generated from the
-  // config; the lexical builders above shape the payload correctly at
-  // runtime, so the boundary is cast once here.
   const data = post as unknown as never
   if (existing.docs[0]) {
     await payload.update({
@@ -457,7 +431,6 @@ async function main() {
     ],
   })
 
-  // ── Page globals ─────────────────────
   await setGlobal(payload, 'page-about', {
     heroVideo: vidAbout,
     heroTitle: 'We’re a strategic brand-building partner for founders with momentum',
@@ -643,8 +616,6 @@ async function main() {
   })
 
   console.log('Seeding journal covers…')
-  // Cover art is hosted for the seed run; once stored in Media, re-runs
-  // reuse the record by filename and never hit the URL again.
   const coverBrandNotLogo =
     (await uploadMediaFromUrl(
       payload,

@@ -2,16 +2,7 @@ import type { PostData } from "@/lib/cms";
 import { JournalGrid } from "@/components/JournalGrid";
 import "./BlogPage.css";
 
-/**
- * Hallmark · /blog — the Journal index.
- *
- * Same editorial language as the rest of the site: paper canvas, ink
- * type, a hairline label strip, one oversized wordmark-style heading,
- * then the journal card grid. Minimal by design.
- */
-
 interface BlogPageProps {
-  /** Published posts, newest first. Only posts with a slug are rendered. */
   posts: PostData[];
 }
 
@@ -20,7 +11,6 @@ export function BlogPage({ posts }: BlogPageProps) {
 
   return (
     <main className="blog">
-      {/* Label strip — clears the fixed header, like .wk__strip */}
       <div className="blog__strip">
         <span className="blog__strip-label">Journal</span>
         <span

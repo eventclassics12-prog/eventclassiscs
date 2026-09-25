@@ -11,27 +11,6 @@ import { MailIcon, PhoneIcon, MapPinIcon } from "lucide-react";
 import type { PageContactData } from "@/lib/cms";
 import "./ContactSection.css";
 
-/**
- * Contact section — the form primitive mounted on the dedicated
- * `/contact-form` route.
- *
- * Single source of truth for the brand contact surface: it re-uses the
- * editorial email/location/socials surfaced in the footer, so the two
- * regions stay in sync. Every "Book a call" / "View Contact" CTA on
- * the site navigates here.
- *
- * Displayed text/labels are driven by the `page-contact` Payload
- * global (prop `data`), each with a fallback to the original copy.
- *
- * Form behaviour: posts to `/api/zoho/leads`, which forwards the
- * submission to Zoho CRM as a Lead. If the server route returns 503
- * (env vars missing — typical in local dev before Zoho creds are wired)
- * we fall back to the original `mailto:` handoff so the form keeps
- * working. Both paths land on `/thank-you`, which the user sees as
- * the confirmation surface. The inline state machine stays narrow
- * (idle → submitting → error) since the success case now lives on a
- * dedicated route and isn't rendered in place.
- */
 export function ContactSection({ data }: { data?: PageContactData | null }) {
   const router = useRouter();
   const [status, setStatus] = useState<"idle" | "submitting" | "error">(
@@ -76,11 +55,6 @@ export function ContactSection({ data }: { data?: PageContactData | null }) {
       });
 
       if (res.status === 503) {
-        // Server has no Zoho creds — open the user's mail client so
-        // the form keeps working during local development, then route
-        // to the confirmation page. `replace` (not push) drops the
-        // reset form from the history stack so Back goes wherever
-        // the visitor was before they hit Contact.
         const subject = encodeURIComponent(`Website enquiry — ${name}`);
         const body = encodeURIComponent(
           `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\n${message}`,

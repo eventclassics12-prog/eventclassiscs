@@ -8,12 +8,6 @@ type Args = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
-/**
- * Next 16 types `searchParams` values as possibly `undefined`; Payload's
- * admin views still expect the older `{ [key: string]: string | string[] }`
- * shape. Real query params are never undefined, so the boundary is
- * adapted once here instead of touching Payload's views.
- */
 const toLegacySearchParams = (
   searchParams: Args['searchParams'],
 ): Promise<{ [key: string]: string | string[] }> =>

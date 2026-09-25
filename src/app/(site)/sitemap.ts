@@ -2,13 +2,6 @@ import type { MetadataRoute } from 'next'
 import { getGlobal, getPosts, type SiteSettingsData } from '@/lib/cms-server'
 import { siteUrlOf } from '@/lib/seo'
 
-/**
- * XML sitemap — served at /sitemap.xml.
- *
- * Utility routes (/thank-you, /api/*) are intentionally excluded:
- * they carry no indexable content. Journal articles are added
- * dynamically from the Posts collection.
- */
 const ROUTES: ReadonlyArray<{
   path: string
   changeFrequency: 'weekly' | 'monthly' | 'yearly'

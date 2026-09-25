@@ -16,7 +16,6 @@ export const Media: CollectionConfig = {
       'Every image and video on the site lives here. Upload a new file, then pick it from the relevant section (Home → Success Stories, Pages → About, etc.).',
   },
   upload: {
-    // Files land inside Next.js `public/` so they are served as-is.
     staticDir: path.resolve(dirname, '../../../public/media'),
     mimeTypes: ['image/*', 'video/*'],
   },

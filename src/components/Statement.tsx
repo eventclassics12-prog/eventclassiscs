@@ -6,27 +6,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { HomeStatementData } from "@/lib/cms";
 import "./Statement.css";
 
-/**
- * Hallmark · editorial statement.
- *
- * Dark-bg two-column layout that sits after the Brands section. Left
- * column carries a stat block; right column carries the big editorial
- * copy; bottom-right holds the byline.
- */
-
 interface StatementProps {
-  /** CMS `home-statement` global — wins over the individual props below. */
   data?: HomeStatementData | null;
-  /** The big numeric stat (e.g. "15+"). */
   stat?: string;
-  /** Caption under the stat — what the number counts. */
   statCaption?: string;
-  /** Two paragraphs of editorial copy. */
   paragraphs?: ReadonlyArray<string>;
-  /** Author byline (display name + role). */
   bylineName?: string;
   bylineRole?: string;
-  /** Initial(s) shown in the byline avatar circle when no photo is provided. */
   bylineInitials?: string;
 }
 
@@ -58,11 +44,6 @@ export function Statement({
   const resolvedBylineRole = data?.bylineRole ?? bylineRole;
   const resolvedBylineInitials = data?.bylineInitials ?? bylineInitials;
 
-  /* Scroll-driven letter-by-letter opacity reveal: every character in the
-   * editorial copy is wrapped in `.statement__letter` and animated from
-   * opacity 0.1 → 1 with a letter-by-letter stagger, scrubbed to scroll
-   * position. The reveal completes as the text's top edge passes the
-   * viewport midpoint. prefers-reduced-motion skips the GSAP setup. */
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -79,12 +60,6 @@ export function Statement({
           stagger: 0.035,
           scrollTrigger: {
             trigger: ".statement__copy",
-            /* start: text top reaches the viewport's vertical midpoint
-             *       (already past center, fully in the upper viewport).
-             * end:   text top crosses the viewport top edge.
-             * The stagger distributes each letter's animation across this
-             * shorter scroll range, so letters reveal one after another
-             * as the section's midpoint clears the viewport center. */
             start: "top center",
             end: "top top",
             scrub: true,
@@ -100,14 +75,12 @@ export function Statement({
     <section className="statement" id="about">
       <div className="statement__inner">
         <div className="statement__left-column">
-          {/* Left column: stat block */}
           <div className="statement__left">
             <div className="statement__stat">{resolvedStat}</div>
             <p className="statement__caption">{resolvedStatCaption}</p>
           </div>
         </div>
 
-        {/* Right column: editorial copy */}
         <div className="statement__right">
           {resolvedParagraphs.map((p, i) => (
             <p key={i} className="statement__copy" aria-label={p}>
@@ -116,7 +89,6 @@ export function Statement({
           ))}
         </div>
 
-        {/* Bottom-right: byline */}
         <div className="statement__byline">
           <div className="statement__avatar" aria-hidden="true">
             {resolvedBylineInitials}
@@ -133,9 +105,6 @@ export function Statement({
 
 export default Statement;
 
-/* Split a paragraph into per-character spans so each letter is its own
- * animated target. Regular spaces preserve normal word wrapping while
- * inline letter spans prevent mobile lines from breaking mid-word. */
 function splitChars(text: string): ReactNode {
   return text.split("").map((char, i) => (
     <span key={i} className="statement__letter">

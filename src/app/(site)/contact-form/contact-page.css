@@ -1,11 +1,3 @@
-/* /contact-form page — editorial intro above the ContactSection.
- *
- * Lives in its own file because it's scoped to this route. The form
- * itself is in ContactSection.css; this file only owns the
- * "(GET IN TOUCH)" eyebrow + heading + lede block that introduces
- * the form on its own page.
- */
-
 .contact-page-intro {
   background: var(--paper);
   padding: clamp(4rem, 8vw, 7rem) 1.25rem clamp(2rem, 4vw, 3rem);

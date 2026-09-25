@@ -5,24 +5,6 @@ import CircularText from "./lightswind-pro/circular-text";
 import { mediaAlt, mediaUrl, type PageAboutData } from "@/lib/cms";
 import "./AboutPage.css";
 
-/**
- * Hallmark · /about page.
- *
- * Structure mirrors the founder-story reference:
- *   1. editorial hero — display headline + short lede
- *   2. radial letter assembly (CircularText)
- *   3. founder story — offset column, quote + body paragraphs,
- *      avatar + name + role footer
- *   4. dark manifesto — big two-line stance + pill CTA on the left,
- *      four hairline-divided principle entries on the right
- *
- * Copy is rewritten in the eventclassics brand voice ("Idea to Impact");
- * photos are generated monochrome imagery served from /public/about-*.
- *
- * CMS-driven: every value comes from the `page-about` global via the
- * `data` prop, falling back to the exact built-in copy when absent.
- */
-
 const FALLBACK_PRINCIPLES = [
   {
     title: "Embedded, no outsourced",
@@ -68,7 +50,6 @@ const MANIFESTO_CTA_LABEL = "Find out what we offer";
 const MANIFESTO_CTA_HREF = "/services";
 
 interface AboutPageProps {
-  /** CMS `page-about` global; every field falls back to the built-in copy. */
   data?: PageAboutData | null;
 }
 
@@ -81,7 +62,6 @@ export function AboutPage({ data }: AboutPageProps) {
 
   return (
     <main className="about">
-      {/* ───── 1. Editorial hero ───── */}
       <section className="about__hero">
         <div className="about__hero-grid">
           <div className="about__hero-figure" aria-hidden="true">
@@ -103,13 +83,11 @@ export function AboutPage({ data }: AboutPageProps) {
         </div>
       </section>
 
-      {/* ───── 2. Radial letter assembly ───── */}
       <CircularText
         innerSentence={data?.circularInner ?? undefined}
         outerSentence={data?.circularOuter ?? undefined}
       />
 
-      {/* ───── 3. Founder story ───── */}
       <section className="about__story">
         <div className="about__story-inner">
           <h2 className="about__story-title">
@@ -148,7 +126,6 @@ export function AboutPage({ data }: AboutPageProps) {
         </div>
       </section>
 
-      {/* ───── 4. Dark manifesto ───── */}
       <section className="about__manifesto">
         <div className="about__manifesto-inner">
           <div className="about__stance">

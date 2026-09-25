@@ -1,14 +1,3 @@
-/**
- * CMS data layer — client-safe half.
- *
- * Types and pure helpers (mediaUrl, mediaAlt, asMediaObject) that section
- * components — including client components — may import freely.
- *
- * Server-side fetching lives in `./cms-server` (which wraps Payload's
- * Node-only client). Never import `payload` — directly or transitively —
- * from this file, or the browser bundle breaks (`child_process`, …).
- */
-
 export interface CmsMedia {
   id: number | string
   url?: string | null
@@ -30,19 +19,12 @@ const APP_ORIGIN = (() => {
   }
 })()
 
-/**
- * Payload stores upload URLs as absolute (serverURL + path). `next/image`
- * only accepts relative src values (or configured remote hosts), so
- * same-origin URLs are returned as relative paths. Genuinely external
- * URLs are left untouched.
- */
 function toRelativeUrl(url: string): string {
   if (!url.startsWith('http://') && !url.startsWith('https://')) return url
   if (APP_ORIGIN && url.startsWith(APP_ORIGIN)) {
     return url.slice(APP_ORIGIN.length) || '/'
   }
-  // Dev fallback: Payload defaults serverURL to http://localhost:3000
-  // when NEXT_PUBLIC_SERVER_URL is unset.
+
   if (!APP_ORIGIN) {
     try {
       const parsed = new URL(url)
@@ -50,24 +32,13 @@ function toRelativeUrl(url: string): string {
         return parsed.pathname + parsed.search + parsed.hash
       }
     } catch {
-      /* not a parseable URL — return as-is */
     }
   }
   return url
 }
 
-/**
- * Uploads managed by the Media collection are written into Next.js
- * `public/media` (see its `staticDir`), so Next serves them as plain static
- * files. A same-origin Payload API file URL (`/payload-api/media/file/…`)
- * is therefore rewritten to `/media/<filename>`: it skips a needless
- * round-trip through the API and — critically — `next/image` cannot
- * reliably optimize the API-served bytes, which is why every CMS-driven
- * image rendered broken while plain static assets worked. Remote storage
- * URLs (S3, …) are left untouched.
- */
 function isLocalUpload(url: string | null | undefined): boolean {
-  if (!url) return true // only a filename to go on — assume a local upload
+  if (!url) return true
   if (!url.startsWith('http://') && !url.startsWith('https://')) return true
   if (APP_ORIGIN && url.startsWith(APP_ORIGIN)) return true
   try {
@@ -78,7 +49,6 @@ function isLocalUpload(url: string | null | undefined): boolean {
   }
 }
 
-/** Resolve an upload field (populated doc, id, or raw path) to a URL. */
 export function mediaUrl(media: CmsMediaField): string | undefined {
   if (!media) return undefined
   if (typeof media === 'string') return toRelativeUrl(media)
@@ -96,7 +66,6 @@ export function mediaAlt(media: CmsMediaField, fallback = ''): string {
   return fallback
 }
 
-/** Return the populated media object, or undefined when the field holds only an id/path. */
 export function asMediaObject(media: CmsMediaField): CmsMedia | undefined {
   return media && typeof media === 'object' ? media : undefined
 }
@@ -105,8 +74,6 @@ export interface NavLink {
   label: string
   href: string
 }
-
-/* ------------------------------ site ------------------------------ */
 
 export interface SiteSettingsData {
   brandName?: string | null
@@ -123,15 +90,13 @@ export interface SiteSettingsData {
   locationLine2?: string | null
   socialsLabel?: string | null
   socials?: { label: string; url: string }[] | null
-  /* SEO */
+
   siteUrl?: string | null
   seoTitle?: string | null
   seoDescription?: string | null
   seoKeywords?: string | null
   ogImage?: CmsMediaField
 }
-
-/* ------------------------------ home ------------------------------ */
 
 export interface HomeHeroData {
   brand?: string | null
@@ -199,8 +164,6 @@ export interface HomeFaqData {
   headline?: string | null
   faqs?: { question?: string | null; answer?: string | null }[] | null
 }
-
-/* ------------------------------ pages ----------------------------- */
 
 export interface TextPart {
   text?: string | null
@@ -283,8 +246,6 @@ export interface PageThankYouData {
   ctaHref?: string | null
 }
 
-/* ------------------------------ blog ------------------------------ */
-
 export interface PostData {
   id: number | string
   title?: string | null
@@ -292,9 +253,7 @@ export interface PostData {
   excerpt?: string | null
   coverImage?: CmsMediaField
   author?: string | null
-  /** ISO date string. Null/empty means the post is a draft (never listed). */
   publishedAt?: string | null
-  /** Serialized Lexical editor state from the Payload richText field. */
   content?: unknown
   seoTitle?: string | null
   seoDescription?: string | null

@@ -4,32 +4,16 @@ import { Fragment, useLayoutEffect, useRef, useState } from "react";
 import { mediaUrl, type HomeServicesData } from "@/lib/cms";
 import "./Services.css";
 
-/**
- * Hallmark · "What we can help with" services section.
- *
- * Three-column layout:
- *   col 1 (left)  · active service description.
- *   col 2 (middle) · "● What we can help with" header + services list.
- *                   Each row is dim by default; on hover it goes full
- *                   opacity and reveals a floating image to the right of
- *                   the list, vertically aligned to the hovered row.
- *   col 3 (right) · image for the active service.
- */
-
 interface Service {
   name: string;
-  /** Short tagline that sits between the name and the description. */
   kicker: string;
   description: string;
-  /** Small practice-area tags shown below the description. */
   subItems: ReadonlyArray<string>;
-  /** Background image served from /public/services/. */
   image: string;
   imageLabel: string;
 }
 
 interface ServicesProps {
-  /** CMS `home-services` global. Falls back to the hardcoded content. */
   data?: HomeServicesData | null;
 }
 
@@ -77,14 +61,9 @@ const FALLBACK_INTRO =
 const FALLBACK_LABEL = "What we can help with";
 
 export function Services({ data }: ServicesProps) {
-  /* Section intro — `\n` in the CMS value becomes a line break, matching
-   * the hardcoded two-line layout. */
   const introLines = (data?.intro ?? FALLBACK_INTRO).split("\n");
   const label = data?.label ?? FALLBACK_LABEL;
 
-  /* CMS services drive the list when present; otherwise the full hardcoded
-   * list is used. Per service, each CMS field falls back to the matching
-   * hardcoded service by position. */
   const services: Service[] =
     data?.services && data.services.length > 0
       ? data.services.map((s, i) => {
@@ -109,9 +88,6 @@ export function Services({ data }: ServicesProps) {
   const descriptionColRef = useRef<HTMLDivElement>(null);
   const imageColRef = useRef<HTMLDivElement>(null);
 
-  /* Keep the description and image centred on the active service row.
-   * offsetTop is layout-based, so transforms never feed back into the next
-   * measurement. */
   useLayoutEffect(() => {
     const descriptionCol = descriptionColRef.current;
     const imageCol = imageColRef.current;
@@ -145,12 +121,7 @@ export function Services({ data }: ServicesProps) {
   return (
     <section className="services" id="services">
       <div className="services__inner">
-        {/* ───── Col 1 — active service description ───── */}
         <div ref={descriptionColRef} className="services__left">
-          {/* Section-level intro — constant across services, sets the
-           * "we connect, not sell" framing. Lives above the per-service
-           * description block and reads as the section's positioning
-           * statement. */}
           <p className="services__intro">
             {introLines.map((line, i) => (
               <Fragment key={i}>
@@ -174,7 +145,6 @@ export function Services({ data }: ServicesProps) {
           </p>
         </div>
 
-        {/* ───── Col 2 — services list ───── */}
         <div className="services__right">
           <header className="services__label-row">
             <span className="services__dot" aria-hidden="true" />
@@ -210,7 +180,6 @@ export function Services({ data }: ServicesProps) {
           </ul>
         </div>
 
-        {/* ───── Col 3 — image aligned to the hovered service ───── */}
         <div ref={imageColRef} className="services__image-col" aria-hidden="true">
           {services.map((service, i) => (
             <div
@@ -232,5 +201,3 @@ export function Services({ data }: ServicesProps) {
     </section>
   );
 }
-
-export default Services;

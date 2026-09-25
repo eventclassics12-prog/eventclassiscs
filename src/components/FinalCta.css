@@ -1,26 +1,7 @@
-/* Hallmark · final CTA section — image-unfold edition.
- *
- * A pinned, viewport-tall stage. The moody ridge image sits behind a
- * clip-path mask that opens from a contained rounded card to full-bleed
- * as the section is scrubbed through (timeline driven by ScrollTrigger
- * in FinalCta.tsx). The editorial copy, kicker and CTA pill rise over
- * the fully-unfolded image.
- *
- * The clip containment is the CSS default so the reduced-motion /
- * no-JS path renders a nicely framed static image with all content
- * visible on top. Re-uses the hero's `.m-hero__cta` class for the
- * button so the contact affordance is the same component across the
- * page. */
-
 .final-cta {
-  /* White paper canvas: the contained image reads as a framed print on
-   * the page (Laurenti's framing) and keeps the section partner to the
-   * light press-editorial sections instead of a second dark block. */
   background: var(--paper);
 }
 
-/* Stage — one stable viewport. `svh` absorbs the mobile browser-UI
- * collapse that would otherwise end the pin with a snap. */
 .final-cta__stage {
   position: relative;
   height: 100svh;
@@ -28,13 +9,9 @@
   overflow: hidden;
 }
 
-/* Media layer sits at full stage size; the clip mask (animated during
- * the scrub) provides the contained-card → full-bleed transition. */
 .final-cta__media {
   position: absolute;
   inset: 0;
-  /* Contained starting frame: centered card with body breathing room
-   * around it, like a gallery print placed on the dark canvas. */
   clip-path: inset(11% 14% 11% 14% round 14px);
   will-change: clip-path;
 }
@@ -43,8 +20,6 @@
   object-fit: cover;
 }
 
-/* Scrim — keeps difference-blend copy legible over the photo's mid
- * tones without dimming the artwork into mush. */
 .final-cta__scrim {
   position: absolute;
   inset: 0;
@@ -94,9 +69,6 @@
   display: block;
 }
 
-/* Kicker — eyebrow-style label that sits between the editorial copy
- * and the CTA. Mirrors the eyebrow treatment used elsewhere on the
- * page (small caps, mono, dimmed). */
 .final-cta__kicker {
   margin: 0;
   color: color-mix(in oklch, var(--paper) 55%, transparent);
@@ -106,12 +78,6 @@
   text-transform: uppercase;
 }
 
-/* ── CTA pill ──
- * Full self-contained styling (mirrors .svc-head__cta / .m-hero__cta):
- * Pages that import MonologHero.css already ship .m-hero__cta rules, but
- * pages like /services don't — relying on the shared class used to leave
- * this pill with a transparent background there. Geometry, colours, the
- * difference blend and the -135° arrow hover are all declared here. */
 .final-cta__button {
   position: relative;
   inset: auto;
@@ -179,8 +145,6 @@
 }
 
 @media (max-width: 768px) {
-  /* Tighter containment on phones so the unfolded card still clears
-   * the thin scroll track before expanding. */
   .final-cta__media {
     clip-path: inset(9% 8% 9% 8% round 12px);
   }

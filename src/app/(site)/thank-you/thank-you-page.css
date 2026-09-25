@@ -1,19 +1,3 @@
-/* /thank-you page — confirmation hero on a plain paper canvas.
- *
- * Lives in its own file because the centered headline + CTA
- * composition is scoped to this route. The ContactSection submit
- * state machine is what lands the user here; the form-side styling
- * still lives in ContactSection.css.
- *
- * Stacking-context note: globals.css applies `mix-blend-mode:
- * difference` to every text element so it auto-inverts across light
- * and dark section backgrounds. `isolation: isolate` on this section
- * traps that blend inside the hero's own stacking context so the
- * foreground renders against this section rather than whatever sits
- * behind it. Each foreground element also sets `mix-blend-mode:
- * normal` explicitly, so the global rule can't repaint it.
- */
-
 .thank-you-hero {
   position: relative;
   isolation: isolate;
@@ -58,13 +42,6 @@
   max-width: 36ch;
 }
 
-/* Solid black pill — same fixed visual weight as the contact form's
- * submit button so the two read as one continuous flow. The Button
- * primitive in /ui/button.tsx defaults to var(--primary), which would
- * invert under .dark; hardcoding #000 keeps the terminal-action
- * weight constant. mix-blend-mode: normal is set inline as well, but
- * duplicated here so the rule holds if the anchor is restyled later.
- */
 .thank-you-hero__cta {
   display: inline-flex;
   align-items: center;

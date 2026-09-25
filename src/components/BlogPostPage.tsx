@@ -6,17 +6,8 @@ import { asMediaObject, mediaAlt, mediaUrl } from "@/lib/cms";
 import { formatPostDate, readingTimeOf } from "@/lib/blog";
 import "./BlogPostPage.css";
 
-/**
- * Hallmark · /blog/[slug] — a single journal article.
- *
- * Minimal editorial article: back link, meta row, one oversized
- * wordmark-style title, lede, cover image, then a centred 68ch
- * measure of rich text. Same paper/ink language as the rest of the site.
- */
-
 type RichTextData = Parameters<typeof RichText>[0]["data"];
 
-/** The Lexical field holds a root node with at least one child block. */
 function hasContent(content: unknown): content is RichTextData {
   if (!content || typeof content !== "object") return false;
   const root = (content as { root?: unknown }).root;
@@ -41,7 +32,6 @@ export function BlogPostPage({ post }: { post: PostData }) {
 
   return (
     <main className="bpost">
-      {/* Label strip — back link clears the fixed header */}
       <div className="bpost__strip">
         <BackLink className="bpost__back" />
       </div>

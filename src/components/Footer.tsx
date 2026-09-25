@@ -3,17 +3,6 @@ import type { SiteSettingsData } from "@/lib/cms";
 import { mediaUrl } from "@/lib/cms";
 import "./Footer.css";
 
-/**
- * Hallmark · site footer.
- *
- * Two-region layout on a dark canvas:
- *   left column  · large editorial nav list (Home, About Us, What We Do,
- *                 Our Work, FAQ) with hairline dividers.
- *   right column · looping logo video on top, then "(STUDIO DETAILS)" and
- *                 "(SOCIALS)" stacked side-by-side on desktop and
- *                 collapsing to a single column on mobile.
- */
-
 const NAV_ITEMS: ReadonlyArray<{ label: string; href: string }> = [
   { label: "Home",       href: "/" },
   { label: "About Us",   href: "/about" },
@@ -41,7 +30,6 @@ const SOCIAL_ITEMS: ReadonlyArray<{ label: string; href: string }> = [
 ];
 
 interface FooterProps {
-  /** Optional CMS site settings; falls back to the built-in copy. */
   site?: SiteSettingsData | null;
 }
 
@@ -69,11 +57,7 @@ export function Footer({ site }: FooterProps) {
   return (
     <footer className="footer" id="site-footer">
       <div className="footer__inner">
-        {/* ───── Nav (left column) ───── */}
         <nav className="footer__nav-col" aria-label="Site navigation">
-          {/* Compact brand: lowercase "eventclassics.in" wordmark sits
-           * above a single subdued line of brand copy. Keeps the
-           * mark small and quiet so the nav list dominates. */}
           <div className="footer__brand">
             <div className="footer__brand-name">{brandName}</div>
             <div className="footer__brand-tagline">
@@ -109,7 +93,6 @@ export function Footer({ site }: FooterProps) {
           </a>
         </nav>
 
-        {/* ───── Right column: logo on top, Details + Socials below ───── */}
         <div className="footer__right-col">
           <div className="footer__logo-wrap" aria-hidden="true">
             <video
@@ -127,7 +110,6 @@ export function Footer({ site }: FooterProps) {
             </video>
           </div>
 
-          {/* Studio details + Socials side by side */}
           <div className="footer__details-socials">
             <div className="footer__details">
               <span className="footer__micro-label">{studioDetailsLabel}</span>

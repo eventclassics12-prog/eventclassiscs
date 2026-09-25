@@ -1,14 +1,3 @@
-/* Hallmark · /blog — the Journal index.
- *
- * Same editorial language as the rest of the site: paper canvas, ink
- * type, a hairline label strip, one oversized wordmark-style heading
- * (weight 800, -0.05em — the eventclassics.in voice), then the
- * journal card grid.
- *
- * Tokens come from globals.css: --paper, --ink, --font-sans,
- * --space-md, --space-2xl.
- */
-
 .blog {
   --blog-hairline: color-mix(in oklch, var(--ink) 16%, transparent);
   --blog-dim: 0.58;
@@ -18,14 +7,11 @@
   font-family: var(--font-sans);
 }
 
-/* ───────── Label strip ───────── */
-
 .blog__strip {
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-height: 2.75rem;
-  /* Clear the fixed ServicesHeader band at the top of the page */
   margin-top: clamp(3.75rem, 6vh, 5rem);
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
 }
@@ -41,8 +27,6 @@
 .blog__strip-count {
   opacity: var(--blog-dim);
 }
-
-/* ───────── Hero ───────── */
 
 .blog__hero {
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
@@ -66,15 +50,11 @@
   opacity: var(--blog-dim);
 }
 
-/* ───────── Card grid ───────── */
-
 .blog__grid-wrap {
   padding: clamp(2rem, 5vh, 3.5rem)
     clamp(var(--space-md), 5vw, var(--space-2xl))
     clamp(4rem, 10vh, 7rem);
 }
-
-/* ───────── Empty state ───────── */
 
 .blog__empty {
   margin: 0;

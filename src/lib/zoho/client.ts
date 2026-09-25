@@ -1,30 +1,14 @@
-/**
- * Zoho CRM v8 client — server-side only.
- *
- * Keeps `client_id`, `client_secret`, and `refresh_token` out of the
- * browser bundle (Zoho explicitly forbids exposing tokens client-side)
- * and caches the short-lived access token in module scope so the OAuth
- * endpoint isn't hit on every form submission.
- *
- * Auth flow: refresh_token grant → access_token (1h TTL) → Bearer-style
- * header `Zoho-oauthtoken <token>` on every API call.
- */
-
 import type { LeadInput } from "./validation";
 
 const ACCOUNTS_DOMAIN =
   process.env.ZOHO_ACCOUNTS_DOMAIN ?? "https://accounts.zoho.in";
 const API_DOMAIN = process.env.ZOHO_API_DOMAIN ?? "https://www.zohoapis.in";
 
-const SKEW_MS = 30_000; // refresh slightly before expiry to avoid races
+const SKEW_MS = 30_000;
 const AUTH_TIMEOUT_MS = 10_000;
 const API_TIMEOUT_MS = 15_000;
 
-/** Module-scoped cache. One per server instance. Cleared on cold start
- * (acceptable for low-volume contact-form traffic). */
 let cached: { token: string; expiresAt: number } | null = null;
-
-/* ── Errors ─────────────────────────────────────────────────────────── */
 
 export class ZohoConfigError extends Error {
   constructor(message: string) {
@@ -44,8 +28,6 @@ export class ZohoApiError extends Error {
     this.name = "ZohoApiError";
   }
 }
-
-/* ── Access token ───────────────────────────────────────────────────── */
 
 export async function getAccessToken(): Promise<string> {
   if (cached && cached.expiresAt > Date.now() + SKEW_MS) {
@@ -94,24 +76,13 @@ export async function getAccessToken(): Promise<string> {
   return cached.token;
 }
 
-/** Test-only hook — never call from production code paths. */
-export function _resetAccessTokenCache(): void {
-  cached = null;
-}
-
-/* ── Leads ──────────────────────────────────────────────────────────── */
-
 const LEAD_SOURCE = "Website Contact Form";
 const COMPANY = "Event Classics";
 
-/** Create a Lead record in Zoho CRM. Returns the new record id. */
 export async function createLead(
   input: LeadInput,
   accessToken: string,
 ): Promise<string> {
-  // Zoho requires Last_Name on Leads. The form only collects a single
-  // `name` field; split on the first whitespace run, fall back to an em
-  // dash if the user only typed a first name.
   const tokens = input.name.trim().split(/\s+/);
   const firstName = tokens[0] ?? "";
   const lastName = tokens.length > 1 ? tokens.slice(1).join(" ") : "—";
@@ -134,8 +105,6 @@ export async function createLead(
     },
     body: JSON.stringify({
       data: [record],
-      // Don't fire any workflow / approval / blueprint on insert — keeps
-      // the form submission quiet until the studio wires automations.
       trigger: [],
     }),
     signal: AbortSignal.timeout(API_TIMEOUT_MS),

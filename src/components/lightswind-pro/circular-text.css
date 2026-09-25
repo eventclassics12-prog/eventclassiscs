@@ -1,13 +1,3 @@
-/* Lightswind UI · circular text — kinetic radial rings.
- *
- * Pitch-black canvas, faint gray dot grid, HUD labels pinned at the
- * bottom. Two concentric rings of letter spans are positioned with
- * polar math and animated by GSAP (see the TSX header for the motion
- * model). Glyph colour is set explicitly (mix-blend-mode: normal) —
- * the global difference-blend rule would otherwise fight the dark
- * canvas during opacity tweens.
- */
-
 .circular-text {
   position: relative;
   height: 350vh;
@@ -22,7 +12,6 @@
   will-change: transform;
 }
 
-/* Centre logo (`ec` mark) — fades in as the letters assemble. */
 .circular-text__logo {
   position: absolute;
   left: 50%;
@@ -41,8 +30,6 @@
   opacity: 0;
 }
 
-/* Ring containers are zero-size pivots at the exact centre; rotating
- * or scaling them orbits / blows up every letter at once. */
 .circular-text__ring {
   position: absolute;
   left: 50%;
@@ -52,7 +39,6 @@
   will-change: transform, opacity;
 }
 
-/* Outer slot: GSAP-driven scatter layer (always px, never %). */
 .circular-text__slot {
   position: absolute;
   left: 0;
@@ -62,8 +48,6 @@
   will-change: transform, opacity;
 }
 
-/* Char: static orbital transform baked inline
- * (translate(-50%,-50%) rotate(θ) translateY(-r)). */
 .circular-text__char {
   position: absolute;
   left: 0;
@@ -76,14 +60,6 @@
   mix-blend-mode: normal;
   will-change: transform;
   backface-visibility: hidden;
-}
-
-.circular-text__char--cyan {
-  color: #22d3ee;
-}
-
-.circular-text__char--orange {
-  color: #f97316;
 }
 
 @media (prefers-reduced-motion: reduce) {
