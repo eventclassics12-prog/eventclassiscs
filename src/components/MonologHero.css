@@ -445,13 +445,13 @@
   }
 }
 
-/* Urgency dot — a tiny white circle that pulses before the label. */
+/* Urgency dot — a tiny red (#cc3a35) circle that pulses before the label. */
 .m-hero__cta-dot {
   flex: 0 0 0.5rem;
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 50%;
-  background: var(--color-paper);
+  background: #cc3a35;
   mix-blend-mode: normal;
   animation: m-hero-cta-pulse 1.6s var(--ease-in-out) infinite;
 }

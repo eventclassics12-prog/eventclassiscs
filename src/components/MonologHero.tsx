@@ -5,6 +5,7 @@ import Link from "next/link";
 import SterlingGateKineticNavigation from "./ui/sterling-gate-kinetic-navigation";
 import { LiquidMetalBg } from "./LiquidMetalBg";
 import { HeroWordmark } from "./HeroWordmark";
+import type { SiteSettingsData } from "@/lib/cms";
 import "./MonologHero.css";
 
 /**
@@ -40,6 +41,8 @@ interface MonologHeroProps {
   navLinks?: ReadonlyArray<{ label: string; href: string }>;
   /** Headline paragraph. */
   para1?: string;
+  /** Optional CMS site settings — passed to the fullscreen menu pill. */
+  site?: SiteSettingsData | null;
 }
 
 const DEFAULT_LINKS = [
@@ -54,6 +57,7 @@ export function MonologHero({
   brand = "eventclassics.in",
   navLinks = DEFAULT_LINKS,
   para1 = "Idea to Impact\n\nPROCESS. PRECISION. PERFORMANCE.",
+  site,
 }: MonologHeroProps) {
   const reduce = useReducedMotion() ?? false;
 
@@ -200,7 +204,7 @@ export function MonologHero({
        * here without leaking into the about/services/work pages, where
        * the same pill rides inside <ServicesHeader> and must reveal with
        * the page transition instead. */}
-      <SterlingGateKineticNavigation />
+      <SterlingGateKineticNavigation site={site} />
 
       {/* Fixed full-viewport blend group for the wordmark — rendered
        * outside the hero section for the same stacking-context reason

@@ -1,6 +1,7 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useLayoutEffect, useRef, useState } from "react";
+import { mediaUrl, type HomeServicesData } from "@/lib/cms";
 import "./Services.css";
 
 /**
@@ -25,6 +26,11 @@ interface Service {
   /** Background image served from /public/services/. */
   image: string;
   imageLabel: string;
+}
+
+interface ServicesProps {
+  /** CMS `home-services` global. Falls back to the hardcoded content. */
+  data?: HomeServicesData | null;
 }
 
 export const SERVICES: ReadonlyArray<Service> = [
@@ -66,7 +72,37 @@ export const SERVICES: ReadonlyArray<Service> = [
   },
 ];
 
-export function Services() {
+const FALLBACK_INTRO =
+  "We don\u2019t sell services.\nWe connect the pieces that make a brand work.";
+const FALLBACK_LABEL = "What we can help with";
+
+export function Services({ data }: ServicesProps) {
+  /* Section intro — `\n` in the CMS value becomes a line break, matching
+   * the hardcoded two-line layout. */
+  const introLines = (data?.intro ?? FALLBACK_INTRO).split("\n");
+  const label = data?.label ?? FALLBACK_LABEL;
+
+  /* CMS services drive the list when present; otherwise the full hardcoded
+   * list is used. Per service, each CMS field falls back to the matching
+   * hardcoded service by position. */
+  const services: Service[] =
+    data?.services && data.services.length > 0
+      ? data.services.map((s, i) => {
+          const fallback = SERVICES[i % SERVICES.length];
+          return {
+            name: s.name ?? fallback.name,
+            kicker: s.kicker ?? fallback.kicker,
+            description: s.description ?? fallback.description,
+            subItems:
+              s.subItems && s.subItems.length > 0
+                ? s.subItems.map((item) => item.value ?? "")
+                : [...fallback.subItems],
+            image: mediaUrl(s.image) ?? fallback.image,
+            imageLabel: s.imageLabel ?? fallback.imageLabel,
+          };
+        })
+      : SERVICES.map((s) => ({ ...s, subItems: [...s.subItems] }));
+
   const [selectedService, setSelectedService] = useState(0);
 
   const itemRefs = useRef<Array<HTMLLIElement | null>>([]);
@@ -116,21 +152,24 @@ export function Services() {
            * description block and reads as the section's positioning
            * statement. */}
           <p className="services__intro">
-            We don&rsquo;t sell services.
-            <br />
-            We connect the pieces that make a brand work.
+            {introLines.map((line, i) => (
+              <Fragment key={i}>
+                {i > 0 && <br />}
+                {line}
+              </Fragment>
+            ))}
           </p>
 
           <p className="services__description" aria-live="polite">
-            <strong>{SERVICES[selectedService].name}.</strong>
+            <strong>{services[selectedService].name}.</strong>
             <em className="services__kicker">
-              {SERVICES[selectedService].kicker}
+              {services[selectedService].kicker}
             </em>
             <span className="services__description-body">
-              {SERVICES[selectedService].description}
+              {services[selectedService].description}
             </span>
             <span className="services__subitems">
-              {SERVICES[selectedService].subItems.join(" · ")}
+              {services[selectedService].subItems.join(" · ")}
             </span>
           </p>
         </div>
@@ -139,11 +178,11 @@ export function Services() {
         <div className="services__right">
           <header className="services__label-row">
             <span className="services__dot" aria-hidden="true" />
-            <span className="services__label-text">What we can help with</span>
+            <span className="services__label-text">{label}</span>
           </header>
 
           <ul className="services__list">
-            {SERVICES.map((s, i) => (
+            {services.map((s, i) => (
               <li
                 key={s.name}
                 ref={(el) => {
@@ -173,7 +212,7 @@ export function Services() {
 
         {/* ───── Col 3 — image aligned to the hovered service ───── */}
         <div ref={imageColRef} className="services__image-col" aria-hidden="true">
-          {SERVICES.map((service, i) => (
+          {services.map((service, i) => (
             <div
               key={service.name}
               className={`services__hover-image ${

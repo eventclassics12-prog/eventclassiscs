@@ -2,24 +2,17 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
-import { Oi } from "next/font/google";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { mediaUrl, type HomeGapData } from "@/lib/cms";
 import "./Gap.css";
-
-const oi = Oi({
-  weight: "400",
-  style: "normal",
-  subsets: ["latin"],
-  variable: "--font-oi",
-});
 
 /**
  * Hallmark · "We close that gap" section.
  *
  * The display is split into two rows: "WE CLOSE" enters from the left
  * and "THE GAP" enters from the right. Each phrase finishes centred in
- * its own vertical lane, so the large Oi letterforms never overlap.
+ * its own vertical lane, so the large wordmark letterforms never overlap.
  *
  * Math
  *   Let:
@@ -46,11 +39,16 @@ const oi = Oi({
  */
 
 interface GapProps {
+  /** CMS `home-gap` global — wins over the individual props below. */
+  data?: HomeGapData | null;
   copy?: string;
 }
 
 const DEFAULT_COPY =
   "Between what you've built and what the market thinks you've built.";
+const DEFAULT_PHRASE_LEFT = "WE CLOSE";
+const DEFAULT_PHRASE_RIGHT = "THE GAP";
+const DEFAULT_IMAGE = "/gap.png";
 
 /* How much each phrase overflows the viewport edge at the start, as a
  * fraction of viewport width. 8 vw gives a clearly off-screen feel
@@ -58,7 +56,12 @@ const DEFAULT_COPY =
  * the CSS left/right offsets in Gap.css. */
 const OVERFLOW_RATIO = 0.08;
 
-export function Gap({ copy = DEFAULT_COPY }: GapProps) {
+export function Gap({ data, copy = DEFAULT_COPY }: GapProps) {
+  const phraseLeft = data?.phraseLeft ?? DEFAULT_PHRASE_LEFT;
+  const phraseRight = data?.phraseRight ?? DEFAULT_PHRASE_RIGHT;
+  const imageSrc = mediaUrl(data?.image) ?? DEFAULT_IMAGE;
+  const resolvedCopy = data?.copy ?? copy;
+
   const sectionRef = useRef<HTMLElement>(null);
   const leftPhraseRef = useRef<HTMLSpanElement>(null);
   const rightPhraseRef = useRef<HTMLSpanElement>(null);
@@ -97,11 +100,16 @@ export function Gap({ copy = DEFAULT_COPY }: GapProps) {
       "(prefers-reduced-motion: reduce)",
     ).matches;
     if (prefersReduced) {
-      /* Snap both phrases to their centred, two-row positions. */
-      const { leftTargetX, rightTargetX } = measure();
-      gsap.set(leftPhrase, { x: leftTargetX, force3D: true });
-      gsap.set(rightPhrase, { x: rightTargetX, force3D: true });
-      gsap.set(image, { scale: 1, force3D: true });
+      /* Snap both phrases to their centred, two-row positions.
+       * Re-snap after fonts arrive — see the fonts.ready note below. */
+      const snap = () => {
+        const { leftTargetX, rightTargetX } = measure();
+        gsap.set(leftPhrase, { x: leftTargetX, force3D: true });
+        gsap.set(rightPhrase, { x: rightTargetX, force3D: true });
+        gsap.set(image, { scale: 1, force3D: true });
+      };
+      snap();
+      document.fonts?.ready.then(() => snap());
       return;
     }
 
@@ -167,6 +175,18 @@ export function Gap({ copy = DEFAULT_COPY }: GapProps) {
 
     setupAnimation();
 
+    /* Re-measure once the webfonts arrive. setupAnimation() bakes the
+     * phrases' rendered widths into the tween targets, and Helvetica
+     * Neue Heavy is wider than the fallback it swaps in over — if the
+     * first measurement runs before the font loads, both phrases land
+     * off-centre in their final position ("WE CLOSE" shifted right,
+     * "THE GAP" shifted left). Rebuilding after document.fonts.ready
+     * re-measures with the real glyph metrics, same as HeroWordmark. */
+    document.fonts?.ready.then(() => {
+      setupAnimation();
+      ScrollTrigger.refresh();
+    });
+
     /* Rebuild only for real width/orientation changes. Mobile browser
      * chrome fires height-only resize events while scrolling; rebuilding a
      * ScrollTrigger during that gesture is the visible layout jump. */
@@ -211,7 +231,7 @@ export function Gap({ copy = DEFAULT_COPY }: GapProps) {
         {/* Top region — phrases area. flex: 0 0 auto with a fixed-ish
          * height; phrases are absolutely positioned inside, vertically
          * centred within the region. */}
-        <div className={`gap__display ${oi.variable}`}>
+        <div className="gap__display">
           {/* Each phrase-wrap carries the off-screen overflow via CSS
            * (left: -8vw / right: -8vw) AND owns the vertical-centring
            * transform. GSAP only animates the inner `.gap__phrase`'s
@@ -219,12 +239,12 @@ export function Gap({ copy = DEFAULT_COPY }: GapProps) {
            * tween, and the overflow is in place from first paint. */}
           <span className="gap__phrase-wrap gap__phrase-wrap--left">
             <span ref={leftPhraseRef} className="gap__phrase">
-              WE CLOSE
+              {phraseLeft}
             </span>
           </span>
           <span className="gap__phrase-wrap gap__phrase-wrap--right">
             <span ref={rightPhraseRef} className="gap__phrase">
-              THE GAP
+              {phraseRight}
             </span>
           </span>
         </div>
@@ -235,7 +255,7 @@ export function Gap({ copy = DEFAULT_COPY }: GapProps) {
         <div className="gap__below">
           <div ref={imageRef} className="gap__image" aria-hidden="true">
             <Image
-              src="/gap.png"
+              src={imageSrc}
               alt=""
               fill
               sizes="(max-width: 768px) 60vw, 22vw"
@@ -243,7 +263,7 @@ export function Gap({ copy = DEFAULT_COPY }: GapProps) {
             />
           </div>
 
-          <p className="gap__copy">{copy}</p>
+          <p className="gap__copy">{resolvedCopy}</p>
         </div>
       </div>
     </section>

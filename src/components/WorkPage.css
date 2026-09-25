@@ -175,9 +175,12 @@
 .wk__marquee-group {
   display: flex;
   align-items: center;
-  gap: clamp(2rem, 5vw, 4.5rem);
+  /* Tight gap between Line1, the video figure and Line2 — the same
+   * value doubles as the trailing padding so the -100% loop stays
+   * seamless. Was 5vw, which left the parts floating in whitespace. */
+  gap: clamp(1rem, 2.5vw, 2.25rem);
   flex: 0 0 auto;
-  padding-right: clamp(2rem, 5vw, 4.5rem);
+  padding-right: clamp(1rem, 2.5vw, 2.25rem);
   animation: wk-marquee 38s linear infinite;
 }
 
@@ -228,10 +231,17 @@
 
 /* The card is full-bleed (no frame): paper copy panel left, image
  * panel right, vertical hairline divider. The incoming card's title
- * peeks over the current card's bottom (stackPeekPercent). */
+ * peeks over the current card's bottom (stackPeekPercent).
+ *
+ * The text column uses a DEFINITE clamp() track (not minmax with a
+ * small minimum): a minmax(19rem, 30rem) track takes its minimum as
+ * its base size and never grows when a fr sibling exists, so the
+ * column collapsed to 19rem and the image swallowed the card. The
+ * clamp track always takes its resolved width, hugging the 52ch copy
+ * at every viewport instead of leaving a proportional void. */
 .wk-card {
   display: grid;
-  grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
+  grid-template-columns: clamp(26rem, 34vw, 36rem) minmax(0, 1fr);
   height: 100%;
   background: var(--paper);
   overflow: hidden;
@@ -252,9 +262,18 @@
 .wk-card__copy {
   display: flex;
   flex-direction: column;
+  /* Center the copy block vertically in the 90vh panel. Top-hanging
+   * left ~half the paper panel as empty space below the text, which
+   * read as detached/floating. Centering distributes the whitespace
+   * symmetrically so it feels intentional. The absolute corner number
+   * stays top-left as the panel's top anchor. */
+  justify-content: center;
   min-width: 0;
-  padding-top: clamp(5.5rem, 11vh, 8.5rem);
-  padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl)) clamp(1rem, 2.5vw, 2rem);
+  padding-top: clamp(4rem, 7vh, 6rem);
+  /* Left gutter matches the section strip + corner number (same 5vw
+   * expression) so the copy aligns with them; right gutter stays tight
+   * so the text sits close to the image. */
+  padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl)) clamp(1rem, 2vw, 1.5rem);
   padding-bottom: clamp(1.5rem, 4vh, 3rem);
 }
 
@@ -269,10 +288,12 @@
   mix-blend-mode: normal;
 }
 
-/* Hanging copy column (reference puts it ~1/3 down, indented) */
+/* Copy block: hangs below the title, left edge flush with the column.
+ * The old 4vw hanging indent pushed the text away from the column edge
+ * and left it floating detached between whitespace and the image. */
 .wk-card__lede {
-  margin-top: clamp(2.5rem, 7vh, 5rem);
-  margin-left: clamp(0rem, 4vw, 4rem);
+  margin-top: clamp(1.5rem, 4vh, 3rem);
+  margin-left: 0;
   max-width: 52ch;
   display: flex;
   flex-direction: column;

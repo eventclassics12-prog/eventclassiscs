@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type { HomeKeepScrollingData } from "@/lib/cms";
 import "./KeepScrolling.css";
 
 /**
@@ -20,12 +21,13 @@ import "./KeepScrolling.css";
  * crossfade reveals Success Stories underneath.
  */
 
-/* Non-breaking gaps keep the separator at both ends of the spacing-fitted
- * run; a trailing regular space may be collapsed by SVG text layout. */
-const REPEAT = "KEEP SCROLLING\u00A0•\u00A0";
+/* Non-breaking spaces keep the bullet separator glued to the label at both
+ * ends of the spacing-fitted run; a trailing regular space may be collapsed
+ * by SVG text layout. The full marching run is built per render from the
+ * CMS label, so it stays editable — with the default label it is identical
+ * to the previous hardcoded "KEEP SCROLLING • " run. */
+const DEFAULT_LABEL = "KEEP SCROLLING";
 const TEXT_REPETITIONS = 3;
-const SCROLL_TEXT = REPEAT.repeat(TEXT_REPETITIONS);
-const SCROLL_GLYPHS = Array.from(SCROLL_TEXT);
 const MARCH_CIRCUIT_SECONDS = 22;
 
 /* Stadium geometry — identical to a grid pill (100 × 200, corner radius
@@ -99,11 +101,22 @@ for (let col = 0; col < COL_COUNT; col++) {
   GRID_COLS.push({ col, pills });
 }
 
-export function KeepScrolling() {
+interface KeepScrollingProps {
+  /** CMS `home-keep-scrolling` global — `label` drives the marching text. */
+  data?: HomeKeepScrollingData | null;
+}
+
+export function KeepScrolling({ data }: KeepScrollingProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const probeRef = useRef<SVGTextElement>(null);
   const glyphRefs = useRef<(SVGTextElement | null)[]>([]);
+
+  /* Marching-text run, derived from the CMS label. An empty CMS label
+   * falls back to the default so the perimeter never goes blank. */
+  const label = (data?.label ?? DEFAULT_LABEL).trim() || DEFAULT_LABEL;
+  const scrollText = `${label}\u00A0•\u00A0`.repeat(TEXT_REPETITIONS);
+  const scrollGlyphs = useMemo(() => Array.from(scrollText), [scrollText]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -192,14 +205,14 @@ export function KeepScrolling() {
 
       const cumulative = [0];
       try {
-        for (let index = 1; index <= SCROLL_GLYPHS.length; index += 1) {
+        for (let index = 1; index <= scrollGlyphs.length; index += 1) {
           cumulative.push(probe.getSubStringLength(0, index));
         }
       } catch {
         /* Extremely old SVG engines: equal spacing still preserves the
          * seamless loop, only the kerning becomes less typographic. */
         cumulative.length = 1;
-        for (let index = 1; index <= SCROLL_GLYPHS.length; index += 1) {
+        for (let index = 1; index <= scrollGlyphs.length; index += 1) {
           cumulative.push(index);
         }
       }
@@ -208,7 +221,7 @@ export function KeepScrolling() {
       if (!(naturalLength > 0)) return;
 
       const scale = perimeter / naturalLength;
-      glyphCentres = SCROLL_GLYPHS.map(
+      glyphCentres = scrollGlyphs.map(
         (_, index) => ((cumulative[index] + cumulative[index + 1]) * 0.5) * scale,
       );
       layoutReady = true;
@@ -440,7 +453,7 @@ export function KeepScrolling() {
       ctx.revert();
       section.style.removeProperty("z-index");
     };
-  }, []);
+  }, [scrollGlyphs]);
 
   return (
     <section ref={sectionRef} className="keep-scrolling" aria-label="Keep scrolling">
@@ -498,7 +511,7 @@ export function KeepScrolling() {
           {/* Every character owns a wrapped distance on the closed path.
             * There are no duplicated runs or textPath endpoints to collide. */}
           <g className="keep-scrolling__text" data-ks-text>
-            {SCROLL_GLYPHS.map((glyph, index) => (
+            {scrollGlyphs.map((glyph, index) => (
               <text
                 key={`${glyph}-${index}`}
                 ref={(node) => {
@@ -523,7 +536,7 @@ export function KeepScrolling() {
           y="-10000"
           aria-hidden="true"
         >
-          {SCROLL_TEXT}
+          {scrollText}
         </text>
         </svg>
 

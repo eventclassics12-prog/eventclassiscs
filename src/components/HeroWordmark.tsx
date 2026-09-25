@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type { HomeHeroData } from "@/lib/cms";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -87,10 +88,17 @@ const TARGET_FONT_SIZE = 24; // px — final wordmark size (≈ header-logo scal
 const BLUR_OVERSCAN = 12; // px — keeps the initial filter bloom inside the blend group
 
 interface HeroWordmarkProps {
-  text: string;
+  /** Explicit wordmark text — takes precedence over the CMS value. */
+  text?: string;
+  /** CMS `home-hero` global; `brand` supplies the wordmark text. */
+  data?: HomeHeroData | null;
 }
 
-export function HeroWordmark({ text }: HeroWordmarkProps) {
+/** Fallback wordmark — the pre-CMS hardcoded brand. */
+const DEFAULT_BRAND = "eventclassics.in";
+
+export function HeroWordmark({ text, data }: HeroWordmarkProps) {
+  const resolvedText = text ?? data?.brand ?? DEFAULT_BRAND;
   const wordmarkRef = useRef<HTMLDivElement>(null);
   const [isActive, setIsActive] = useState(false);
   const [settled, setSettled] = useState(false);
@@ -108,10 +116,68 @@ export function HeroWordmark({ text }: HeroWordmarkProps) {
    * end-state via CSS. */
   useEffect(() => {
     if (!isActive) return;
-    const settleMs = text.length * 20 + 250;
+    const settleMs = resolvedText.length * 20 + 250;
     const timer = setTimeout(() => setSettled(true), settleMs);
     return () => clearTimeout(timer);
-  }, [isActive, text]);
+  }, [isActive, resolvedText]);
+
+  /* Hide the fixed wordmark SYNCHRONOUSLY, in the capture phase, the
+   * instant an internal navigation starts.
+   *
+   * Why synchronous DOM, not React state: <ViewTransition> freezes the
+   * old page into a static snapshot the moment navigation begins and
+   * keeps showing that frozen frame until the destination route is
+   * ready. A state update only re-renders the live DOM *behind* the
+   * frozen snapshot, so the big "eventclassics.in" stays visible at
+   * the viewport bottom for the entire load — the "stuck text" bug.
+   * The snapshot is captured after the click task completes, and this
+   * capture-phase listener runs before React's own click handling, so
+   * a direct style write here is guaranteed to be in the snapshot.
+   * The transition is killed inline too: a CSS fade could otherwise be
+   * captured mid-flight and frozen as a ghost.
+   *
+   * App Router exposes no navigation-start event, so we watch for
+   * plain left-clicks on same-origin links at the document level —
+   * that covers the header nav, the fullscreen menu, the footer, and
+   * in-content links. Skipped: new-tab/modifier clicks (no navigation
+   * happens here), downloads, external links, and same-page hash jumps
+   * (e.g. /#faq) which never leave the page. Remounting (back button,
+   * clicking Home) renders a fresh element, so nothing stays hidden. */
+  useEffect(() => {
+    const onClickCapture = (event: MouseEvent) => {
+      if (
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      )
+        return;
+      const target = event.target as HTMLElement | null;
+      const anchor = target?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!anchor) return;
+      if (anchor.hasAttribute("download")) return;
+      if (anchor.getAttribute("target") === "_blank") return;
+      const rawHref = anchor.getAttribute("href");
+      if (!rawHref || !rawHref.startsWith("/")) return;
+      let url: URL;
+      try {
+        url = new URL(rawHref, window.location.href);
+      } catch {
+        return;
+      }
+      if (url.origin !== window.location.origin) return;
+      // Same-page hash link — scrolls, doesn't navigate away.
+      if (url.pathname === window.location.pathname && url.hash) return;
+      const el = wordmarkRef.current;
+      if (el) {
+        el.style.transition = "none";
+        el.style.opacity = "0";
+      }
+    };
+    document.addEventListener("click", onClickCapture, true);
+    return () => document.removeEventListener("click", onClickCapture, true);
+  }, []);
 
   useEffect(() => {
     const wordmark = wordmarkRef.current;
@@ -314,8 +380,8 @@ export function HeroWordmark({ text }: HeroWordmarkProps) {
 
   return (
     <div ref={wordmarkRef} className="m-hero__wordmark-display">
-      <span className="m-hero__wordmark-load" aria-label={text}>
-        {Array.from(text).map((character, index) => (
+      <span className="m-hero__wordmark-load" aria-label={resolvedText}>
+        {Array.from(resolvedText).map((character, index) => (
           <span
             key={`${character}-${index}`}
             aria-hidden="true"

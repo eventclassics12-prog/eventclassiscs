@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { mediaUrl, type PageServicesData } from "@/lib/cms";
 import "./FinalCta.css";
 
 /**
@@ -18,6 +19,11 @@ import "./FinalCta.css";
  * The button re-uses the `.m-hero__cta` class for visual continuity
  * with the hero's pill; text keeps the global difference-blend so the
  * copy inverts cleanly against the dark photo in either direction.
+ *
+ * CMS-driven: lines, kicker, CTA label/href and the background image
+ * come from the `page-services` global via the `data` prop, falling
+ * back to the exact built-in copy when absent. Explicit `lines`/`cta`
+ * props still take precedence when provided.
  */
 
 interface FinalCtaProps {
@@ -25,16 +31,30 @@ interface FinalCtaProps {
   lines?: ReadonlyArray<string>;
   /** CTA label + href. */
   cta?: { label: string; href: string };
+  /** CMS `page-services` global; used when explicit props are absent. */
+  data?: PageServicesData | null;
 }
 
-export function FinalCta({
-  lines = [
-    "Your business has already done the hard part.",
-    "You've built something worth noticing.",
-    "Now make sure the market sees it.",
-  ],
-  cta = { label: "Book a call", href: "/contact-form" },
-}: FinalCtaProps) {
+const DEFAULT_LINES = [
+  "Your business has already done the hard part.",
+  "You've built something worth noticing.",
+  "Now make sure the market sees it.",
+] as const;
+
+const DEFAULT_CTA = { label: "Book a call", href: "/contact-form" };
+const DEFAULT_KICKER = "Start a conversation";
+const DEFAULT_IMAGE = "/cta-scale.jpg";
+
+export function FinalCta({ lines, cta, data }: FinalCtaProps) {
+  const resolvedLines: ReadonlyArray<string> =
+    lines ??
+    data?.finalCtaLines?.map((line) => line.text ?? "") ??
+    DEFAULT_LINES;
+  const ctaLabel = cta?.label ?? data?.finalCtaLabel ?? DEFAULT_CTA.label;
+  const ctaHref = cta?.href ?? data?.finalCtaHref ?? DEFAULT_CTA.href;
+  const kicker = data?.finalCtaKicker ?? DEFAULT_KICKER;
+  const imageSrc = mediaUrl(data?.finalCtaImage) ?? DEFAULT_IMAGE;
+
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -111,7 +131,7 @@ export function FinalCta({
       <div className="final-cta__stage">
         <div className="final-cta__media" data-fc-media aria-hidden="true">
           <Image
-            src="/cta-scale.jpg"
+            src={imageSrc}
             alt=""
             fill
             sizes="100vw"
@@ -123,17 +143,17 @@ export function FinalCta({
 
         <div className="final-cta__inner" data-fc-content>
           <p className="final-cta__copy">
-            {lines.map((line, i) => (
+            {resolvedLines.map((line, i) => (
               <span key={i} className="final-cta__line">
                 {line}
               </span>
             ))}
           </p>
 
-          <p className="final-cta__kicker">Start a conversation</p>
+          <p className="final-cta__kicker">{kicker}</p>
 
-          <a className="m-hero__cta final-cta__button" href={cta.href}>
-            <span className="m-hero__cta-label">{cta.label}</span>
+          <a className="m-hero__cta final-cta__button" href={ctaHref}>
+            <span className="m-hero__cta-label">{ctaLabel}</span>
             <span className="m-hero__cta-arrow" aria-hidden="true">
               <svg
                 width="14"

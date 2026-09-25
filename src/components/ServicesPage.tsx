@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { pad2 } from "@/lib/utils";
 import { SERVICES } from "./Services";
+import {
+  mediaUrl,
+  type HomeServicesData,
+  type PageServicesData,
+} from "@/lib/cms";
 import "./ServicesPage.css";
 
 /**
@@ -13,12 +18,68 @@ import "./ServicesPage.css";
  * mono sub-items) separated by hairline dividers. Each row carries its
  * service image, revealed/kept full-bleed on the active row.
  *
- * Copy, images and data are reused verbatim from the homepage Services
- * section (SERVICES export) so both surfaces stay in sync.
+ * CMS-driven: hero copy comes from the `page-services` global and the
+ * service list from the shared `home-services` global, both via optional
+ * props. Everything falls back to the built-in copy (SERVICES export)
+ * so this surface stays in sync with the homepage Services section.
  */
 
-export function ServicesPage() {
+const HERO_VIDEO = "/videos/chrome-services-loop.mp4";
+const HERO_TITLE = "Four disciplines.\nOne brand system.";
+const HERO_LEDE =
+  "Strategy, identity, distribution and content \u2014 built as one connected system, not four disconnected vendors.";
+
+interface SvcRow {
+  name: string;
+  kicker: string;
+  description: string;
+  subItems: string[];
+  image: string;
+  imageLabel: string;
+}
+
+interface ServicesPageProps {
+  /** CMS `page-services` global (hero copy); falls back to built-in copy. */
+  data?: PageServicesData | null;
+  /**
+   * CMS `home-services` global (shared service list); falls back to the
+   * built-in SERVICES export when absent or empty.
+   */
+  servicesData?: HomeServicesData | null;
+}
+
+function normalizeCmsServices(
+  rows: NonNullable<HomeServicesData["services"]>,
+): SvcRow[] {
+  return rows.map((s) => ({
+    name: s.name ?? "",
+    kicker: s.kicker ?? "",
+    description: s.description ?? "",
+    subItems: (s.subItems ?? []).map((it) => it.value ?? ""),
+    image: mediaUrl(s.image) ?? "",
+    imageLabel: s.imageLabel ?? "",
+  }));
+}
+
+export function ServicesPage({ data, servicesData }: ServicesPageProps) {
   const [selected, setSelected] = useState(0);
+
+  const heroVideo = mediaUrl(data?.heroVideo) ?? HERO_VIDEO;
+  const titleLines = (data?.heroTitle ?? HERO_TITLE).split("\n");
+  const heroLede = data?.heroLede ?? HERO_LEDE;
+
+  const cmsRows = servicesData?.services;
+  const services: SvcRow[] =
+    cmsRows && cmsRows.length > 0
+      ? normalizeCmsServices(cmsRows)
+      : SERVICES.map((s) => ({
+          name: s.name,
+          kicker: s.kicker,
+          description: s.description,
+          subItems: [...s.subItems],
+          image: s.image,
+          imageLabel: s.imageLabel,
+        }));
 
   return (
     <main className="svc">
@@ -28,7 +89,7 @@ export function ServicesPage() {
           <div className="svc__hero-figure" aria-hidden="true">
             <video
               className="svc__hero-figure-video"
-              src="/videos/chrome-services-loop.mp4"
+              src={heroVideo}
               autoPlay
               loop
               muted
@@ -39,21 +100,21 @@ export function ServicesPage() {
 
           <div className="svc__hero-text">
             <h1 className="svc__title">
-              Four disciplines.
-              <br />
-              One brand system.
+              {titleLines.map((line, i) => (
+                <Fragment key={i}>
+                  {i > 0 && <br />}
+                  {line}
+                </Fragment>
+              ))}
             </h1>
-            <p className="svc__lede">
-              Strategy, identity, distribution and content — built as one
-              connected system, not four disconnected vendors.
-            </p>
+            <p className="svc__lede">{heroLede}</p>
           </div>
         </div>
       </header>
 
       {/* ───── Numbered service rows ───── */}
       <section className="svc__list">
-        {SERVICES.map((service, i) => {
+        {services.map((service, i) => {
           const active = selected === i;
           return (
             <article

@@ -63,11 +63,14 @@
   height: 2.2em;
   z-index: 2;
 
-  font-family: var(--font-oi), serif;
-  font-weight: 400;
+  /* Same face as the eventclassics.in wordmark — Helvetica Neue Heavy
+   * (var(--font-sans) at 800), not the Oi display face. */
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 800;
   font-style: normal;
-  /* Same scale as before — large display line that fills the band. */
-  font-size: clamp(2.75rem, 9vw, 10rem);
+  /* Same scale as before — large display line that fills the band.
+   * Bumped 50 % over the original clamp(2.75rem, 9vw, 10rem). */
+  font-size: clamp(4.125rem, 13.5vw, 15rem);
   line-height: 0.92;
   letter-spacing: -0.05em;
   text-align: center;

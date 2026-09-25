@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
+import type { HomeFaqData } from "@/lib/cms";
 import "./FAQ.css";
 
 /**
@@ -22,7 +23,12 @@ interface FAQItem {
   answer: string;
 }
 
-const FAQS: ReadonlyArray<FAQItem> = [
+interface FAQProps {
+  /** CMS `home-faq` global. Falls back to the hardcoded content. */
+  data?: HomeFaqData | null;
+}
+
+const FALLBACK_FAQS: ReadonlyArray<FAQItem> = [
   {
     question: "Who actually works on our project?",
     answer:
@@ -64,8 +70,36 @@ const FAQS: ReadonlyArray<FAQItem> = [
   },
 ];
 
-export function FAQ() {
+const FALLBACK_LABEL = "FAQs";
+const FALLBACK_CTA_HEADING = "Still have questions?\nChat with us";
+const FALLBACK_CTA_BUTTON = "Book a call with us";
+const FALLBACK_CTA_HREF = "/contact-form";
+const FALLBACK_HEADLINE = "Here's what you should know before working with us.";
+
+export function FAQ({ data }: FAQProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const label = data?.label ?? FALLBACK_LABEL;
+  /* `\n` in the CMS heading becomes a line break, matching the hardcoded
+   * two-line layout. */
+  const ctaHeadingLines = (data?.ctaHeading ?? FALLBACK_CTA_HEADING).split("\n");
+  const ctaButtonLabel = data?.ctaButtonLabel ?? FALLBACK_CTA_BUTTON;
+  const ctaHref = data?.ctaHref ?? FALLBACK_CTA_HREF;
+  const headline = data?.headline ?? FALLBACK_HEADLINE;
+
+  /* CMS FAQs drive the accordion when present; otherwise the full
+   * hardcoded list is used. Per item, each CMS field falls back to the
+   * matching hardcoded FAQ by position. */
+  const faqs: FAQItem[] =
+    data?.faqs && data.faqs.length > 0
+      ? data.faqs.map((f, i) => {
+          const fallback = FALLBACK_FAQS[i % FALLBACK_FAQS.length];
+          return {
+            question: f.question ?? fallback.question,
+            answer: f.answer ?? fallback.answer,
+          };
+        })
+      : [...FALLBACK_FAQS];
 
   const toggle = (i: number) => {
     setOpenIndex((current) => (current === i ? null : i));
@@ -76,18 +110,21 @@ export function FAQ() {
       <div className="faq__inner">
         <header className="faq__label-row">
           <span className="faq__dot" aria-hidden="true" />
-          <span className="faq__label">FAQs</span>
+          <span className="faq__label">{label}</span>
         </header>
 
         <aside className="faq__support">
           <div className="faq__cta">
             <h3 className="faq__cta-heading">
-              Still have questions?
-              <br />
-              Chat with us
+              {ctaHeadingLines.map((line, i) => (
+                <Fragment key={i}>
+                  {i > 0 && <br />}
+                  {line}
+                </Fragment>
+              ))}
             </h3>
-            <a className="m-hero__cta faq__cta-button" href="/contact-form">
-              <span className="m-hero__cta-label">Book a call with us</span>
+            <a className="m-hero__cta faq__cta-button" href={ctaHref}>
+              <span className="m-hero__cta-label">{ctaButtonLabel}</span>
               <span className="m-hero__cta-arrow" aria-hidden="true">
                 <svg
                   width="14"
@@ -110,12 +147,10 @@ export function FAQ() {
 
         {/* ───── Col 2 — headline + accordion ───── */}
         <div className="faq__right">
-          <h2 className="faq__headline">
-            Here&apos;s what you should know before working with us.
-          </h2>
+          <h2 className="faq__headline">{headline}</h2>
 
           <ul className="faq__list">
-            {FAQS.map((faq, i) => {
+            {faqs.map((faq, i) => {
               const isOpen = openIndex === i;
               return (
                 <li

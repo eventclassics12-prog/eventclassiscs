@@ -19,6 +19,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { CustomEase } from "gsap/CustomEase";
+import type { SiteSettingsData } from "@/lib/cms";
 import "./sterling-gate-kinetic-navigation.css";
 
 if (typeof window !== "undefined" && !gsap.parseEase("main")) {
@@ -30,17 +31,20 @@ if (typeof window !== "undefined" && !gsap.parseEase("main")) {
 }
 gsap.defaults({ ease: gsap.parseEase("main") ? "main" : "power2.out", duration: 0.7 });
 
-const MENU_LINKS: ReadonlyArray<{
+interface MenuLink {
   label: string;
   href: string;
   shape: string;
   fade?: boolean;
-}> = [
+}
+
+const FALLBACK_MENU_LINKS: ReadonlyArray<MenuLink> = [
   { label: "Home", href: "/", shape: "1" },
   { label: "About Us", href: "/about", shape: "2" },
   { label: "What We Do", href: "/services", shape: "3" },
   { label: "Our Work", href: "/work", shape: "4" },
-  { label: "FAQ", href: "/#faq", shape: "5", fade: true },
+  { label: "Journal", href: "/blog", shape: "5" },
+  { label: "FAQ", href: "/#faq", shape: "1", fade: true },
 ];
 
 /* The terminal CTA at the bottom of the menu overlay. Mirrors the
@@ -58,12 +62,34 @@ const MENU_LINKS: ReadonlyArray<{
  * paper-bg difference-blended pill would invert to black and swallow
  * its own dark label. The menu CTA therefore uses solid colours
  * (dark fill + light text — the inverse of the menu's own palette). */
-const MENU_CTA = {
+const FALLBACK_MENU_CTA = {
   label: "Book a call with us",
   href: "/contact-form",
 } as const;
 
-export function SterlingGateKineticNavigation() {
+export function SterlingGateKineticNavigation({
+  site,
+}: {
+  /** Optional CMS site settings; falls back to the built-in copy. */
+  site?: SiteSettingsData | null;
+}) {
+  /* Resolve the menu links + CTA from CMS site settings, falling back to
+   * the built-in copy. CMS links get ambient shapes by position (the
+   * overlay ships five shapes, so numbering wraps) and keep the FAQ
+   * fade treatment on the "/#faq" link. */
+  const links: ReadonlyArray<MenuLink> = site?.navLinks?.length
+    ? site.navLinks.map((link, index) => ({
+        label: link.label,
+        href: link.href,
+        shape: String((index % 5) + 1),
+        fade: link.href === "/#faq",
+      }))
+    : FALLBACK_MENU_LINKS;
+  const cta = {
+    label: site?.footerContactButtonLabel ?? FALLBACK_MENU_CTA.label,
+    href: site?.footerContactHref ?? FALLBACK_MENU_CTA.href,
+  };
+
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -424,7 +450,7 @@ export function SterlingGateKineticNavigation() {
 
             <div className="menu-content-wrapper">
               <ul className="menu-list" role="list">
-                {MENU_LINKS.map((link) => (
+                {links.map((link) => (
                   <li
                     key={link.label}
                     className="menu-list-item"
@@ -452,10 +478,10 @@ export function SterlingGateKineticNavigation() {
               <div className="menu-cta-wrap">
                 <a
                   className="menu-cta"
-                  href={MENU_CTA.href}
+                  href={cta.href}
                   onClick={closeMenu}
                 >
-                  <span className="menu-cta-label">{MENU_CTA.label}</span>
+                  <span className="menu-cta-label">{cta.label}</span>
                   <span className="menu-cta-arrow" aria-hidden="true">
                     <svg
                       width="16"

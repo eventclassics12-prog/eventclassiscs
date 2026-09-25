@@ -232,11 +232,12 @@
 
   font-family: var(--font-sans), sans-serif;
   font-weight: 700;
-  /* min(7vw, 9.5vh) — the height half keeps the list (plus the CTA that
-   * now sits below it in flow) inside short viewports, e.g. a wide but
-   * 700px-tall window: width-only sizing pushed the stack past the
-   * overlay edge and clipped the pill. */
-  font-size: clamp(2.25rem, min(7vw, 9.5vh), 5.5rem);
+  /* min(5.5vw, 7vh) — the height half keeps the six-link list (plus the
+   * CTA that sits below it in flow) inside short viewports, e.g. a wide
+   * but 700px-tall window: width-only sizing pushed the stack past the
+   * overlay edge and clipped the pill. Scaled down so nothing overflows
+   * at the bottom. */
+  font-size: clamp(1.75rem, min(5.5vw, 7vh), 4rem);
   letter-spacing: -0.035em;
   line-height: 1.16;
 

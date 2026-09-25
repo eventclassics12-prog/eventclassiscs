@@ -5,6 +5,7 @@ import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { pad2 } from "@/lib/utils";
+import { mediaUrl, type HomeSuccessStoriesData } from "@/lib/cms";
 import "./SuccessStories.css";
 
 /**
@@ -27,15 +28,22 @@ interface Project {
   image: string;
 }
 
+interface SuccessStoriesProps {
+  /** CMS `home-success-stories` global. Falls back to hardcoded content. */
+  data?: HomeSuccessStoriesData | null;
+}
+
 /* Vertical travel of the image inside its frame, as a percentage of the
  * image element's own height. The image is rendered taller than the frame
  * (see PARALLAX_OVERSCAN in the CSS) so this slide never exposes an edge. */
 const PARALLAX_SHIFT = 8;
-const SUCCESS_VIDEO = "/videos/success-stories-mammoth.webm";
+const FALLBACK_VIDEO = "/videos/success-stories-mammoth.webm";
+const FALLBACK_LABEL = "Success Stories";
+const FALLBACK_PAGER_TAG = "SS";
 const DESKTOP_VIDEO_HOVER =
   "(min-width: 901px) and (hover: hover) and (pointer: fine)";
 
-const PROJECTS: ReadonlyArray<Project> = [
+const FALLBACK_PROJECTS: ReadonlyArray<Project> = [
   {
     title: "IQVIA",
     description:
@@ -70,8 +78,29 @@ const PROJECTS: ReadonlyArray<Project> = [
   },
 ];
 
-export function SuccessStories() {
-  const total = PROJECTS.length;
+export function SuccessStories({ data }: SuccessStoriesProps) {
+  const label = data?.label ?? FALLBACK_LABEL;
+  const pagerTag = data?.pagerTag ?? FALLBACK_PAGER_TAG;
+  const videoSrc = mediaUrl(data?.video) ?? FALLBACK_VIDEO;
+
+  /* CMS projects drive the rows when present; otherwise the full hardcoded
+   * list is used. Per project, each CMS field falls back to the matching
+   * hardcoded project by position. */
+  const projects: Project[] =
+    data?.projects && data.projects.length > 0
+      ? data.projects.map((p, i) => {
+          const fallback = FALLBACK_PROJECTS[i % FALLBACK_PROJECTS.length];
+          return {
+            title: p.title ?? fallback.title,
+            description: p.description ?? fallback.description,
+            stat: p.stat ?? fallback.stat,
+            statCaption: p.statCaption ?? fallback.statCaption,
+            image: mediaUrl(p.image) ?? fallback.image,
+          };
+        })
+      : [...FALLBACK_PROJECTS];
+
+  const total = projects.length;
   const sectionRef = useRef<HTMLElement>(null);
 
   /* Desktop uses one stable cursor plane: the left 20% pauses playback and
@@ -293,7 +322,7 @@ export function SuccessStories() {
          * below. */}
         <div className="success-stories__label-col">
           <span className="success-stories__dot" aria-hidden="true" />
-          <span className="success-stories__label">Success Stories</span>
+          <span className="success-stories__label">{label}</span>
         </div>
 
         {/* Col 2 + Col 3 — every project's image and text share a row,
@@ -306,7 +335,7 @@ export function SuccessStories() {
          * would outrank the stacking media query, which is what previously
          * dropped each figure into an implicit content-sized column and
          * collapsed it to height 0 below 960px. */}
-        {PROJECTS.map((project, i) => (
+        {projects.map((project, i) => (
           <Fragment key={project.title}>
             {i > 0 && (
               <div
@@ -343,7 +372,7 @@ export function SuccessStories() {
                 preload="metadata"
                 poster={project.image}
               >
-                <source src={SUCCESS_VIDEO} type="video/webm" />
+                <source src={videoSrc} type="video/webm" />
               </video>
             </figure>
 
@@ -355,7 +384,7 @@ export function SuccessStories() {
                 className="success-stories__pager"
                 aria-label={`Case ${i + 1} of ${total}`}
               >
-                <span className="success-stories__pager-tag">SS</span>
+                <span className="success-stories__pager-tag">{pagerTag}</span>
                 <span className="success-stories__pager-arrow" aria-hidden="true">
                   →
                 </span>
