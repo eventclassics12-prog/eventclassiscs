@@ -59,11 +59,11 @@ export function mediaUrl(media: CmsMediaField): string | undefined {
   return media.url ? toRelativeUrl(media.url) : undefined
 }
 
-export function mediaAlt(media: CmsMediaField, fallback = ''): string {
+export function mediaAlt(media: CmsMediaField, fallback: string | null | undefined = ''): string {
   if (media && typeof media === 'object' && typeof media !== 'number') {
-    return media.alt ?? fallback
+    return media.alt ?? fallback ?? ''
   }
-  return fallback
+  return fallback ?? ''
 }
 
 export function asMediaObject(media: CmsMediaField): CmsMedia | undefined {
