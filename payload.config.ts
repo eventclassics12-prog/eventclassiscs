@@ -30,6 +30,31 @@ import {
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+// TEMPORARY DEBUG — remove after diagnosing blob token mismatch
+function debugBlobToken(): void {
+  const token = process.env.BLOB_READ_WRITE_TOKEN
+  if (!token) {
+    // eslint-disable-next-line no-console
+    console.warn('[blob-debug] BLOB_READ_WRITE_TOKEN is not set')
+    return
+  }
+  const parts = token.split('_')
+  const parsedStoreId = parts[3] ?? '(missing)'
+  const envStoreId = process.env.BLOB_STORE_ID ?? '(missing)'
+  // eslint-disable-next-line no-console
+  console.log('[blob-debug] token length:', token.length)
+  // eslint-disable-next-line no-console
+  console.log('[blob-debug] split parts count:', parts.length)
+  // eslint-disable-next-line no-console
+  console.log('[blob-debug] parsed storeId from token:', parsedStoreId)
+  // eslint-disable-next-line no-console
+  console.log('[blob-debug] BLOB_STORE_ID env value:', envStoreId)
+  // eslint-disable-next-line no-console
+  console.log('[blob-debug] match?:', parsedStoreId === envStoreId)
+}
+
+debugBlobToken()
+
 export default buildConfig({
   admin: {
     user: 'users',
@@ -76,7 +101,7 @@ export default buildConfig({
         media: true,
       },
       token: process.env.BLOB_READ_WRITE_TOKEN,
-      clientUploads: true,
+      clientUploads: false,
     }),
   ],
   routes: {
