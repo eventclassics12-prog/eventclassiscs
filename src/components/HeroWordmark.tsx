@@ -143,11 +143,26 @@ export function HeroWordmark({ text, data }: HeroWordmarkProps) {
         scale: targetScale,
         ease: "none",
         force3D: true,
+        // Snap scale to 3 decimals per frame. targetScale is fractional
+        // (e.g. 0.512) and the scrub interpolation produces non-integer values
+        // (0.999, 0.998, ...) every frame. The fractional matrix forces the
+        // GPU to bilinear-filter the wordmark on every composite; combined
+        // with the parent's mix-blend-mode: difference (full-viewport re-
+        // composite per frame) that shows up as mobile jitter. Rounding the
+        // interpolated value removes the sub-pixel rasterization work.
+        modifiers: {
+          scale: (value) => Math.round(value * 1000) / 1000,
+        },
         scrollTrigger: {
           trigger: hero,
           start: "top top",
           end: "bottom top",
-          scrub: isMobile ? 0.2 : true,
+          // Bump mobile scrub from 0.2 to 0.5 — the previous 0.2 added a
+          // second smoothing layer on top of Lenis's own lerp, and the two
+          // layers chasing the same signal produced micro-oscillations
+          // visible as jitter. 0.5 still tracks scroll tightly but is more
+          // resistant to sub-pixel scroll input noise from mobile touch.
+          scrub: isMobile ? 0.5 : true,
         },
       });
 
