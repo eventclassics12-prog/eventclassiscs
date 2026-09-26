@@ -21,15 +21,9 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       typeof window !== "undefined" &&
       window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
-    gsap.ticker.lagSmoothing(0);
-
+    // Leave GSAP's default lagSmoothing(500, 33) in place — on mobile the JS thread
+    // drops frames, and disabling smoothing turns every miss into visible jank.
     const scroll = new LocomotiveScroll({
-      initCustomTicker: (render) => {
-        gsap.ticker.add(render);
-      },
-      destroyCustomTicker: (render) => {
-        gsap.ticker.remove(render);
-      },
       scrollCallback: () => {
         ScrollTrigger.update();
       },
@@ -133,7 +127,6 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       document.removeEventListener("click", onClick, true);
       window.removeEventListener("popstate", killAllTriggers, true);
       scroll.destroy();
-      gsap.ticker.lagSmoothing(500, 33);
     };
   }, [router, pathname]);
 

@@ -18,3 +18,11 @@
   width: 100% !important;
   height: 100% !important;
 }
+
+/* Static fallback for mobile — mirrors the shader's white tint with a
+   light gradient so the hero backdrop stays visually similar without
+   burning GPU cycles on a continuous WebGL fragment shader. */
+.liquid-metal-bg--static {
+  background:
+    radial-gradient(ellipse at 30% 0%, #ffffff 0%, #f5f5f7 55%, #ebebed 100%);
+}

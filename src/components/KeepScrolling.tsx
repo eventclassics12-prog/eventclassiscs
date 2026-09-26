@@ -23,7 +23,6 @@ const STADIUM_BOUNDS = {
 };
 
 const DESKTOP_ZOOM_FINAL = 7;
-const MOBILE_ZOOM_FINAL = 2.75;
 
 const PILL_W = 100;
 const PILL_H = 200;
@@ -81,9 +80,11 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
     if (!section || !path || !probe) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isMobileDevice = window.matchMedia("(max-width: 768px)").matches;
     const perimeter = path.getTotalLength();
     let glyphCentres: number[] = [];
     let phase = 0;
+    let lastDrawnPhase = -1;
     let frameId: number | null = null;
     let previousTime = 0;
     let isInView = false;
@@ -136,7 +137,12 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
       if (previousTime > 0) {
         const deltaSeconds = Math.min((time - previousTime) / 1000, 0.05);
         phase = (phase + (perimeter * deltaSeconds) / MARCH_CIRCUIT_SECONDS) % perimeter;
-        positionGlyphs();
+        // Skip the per-glyph SVG attribute writes when the phase has moved less than
+        // one pixel — every write forces a layout pass on the SVG text nodes.
+        if (Math.abs(phase - lastDrawnPhase) >= 1) {
+          lastDrawnPhase = phase;
+          positionGlyphs();
+        }
       }
       previousTime = time;
       frameId = requestAnimationFrame(tick);
@@ -144,6 +150,10 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
 
     const startMarch = () => {
       if (frameId !== null || !layoutReady || !isInView || reducedMotion) return;
+      // On mobile, glyphs are positioned once and held — no perpetual rAF loop,
+      // no setAttribute writes per frame. The pinned zoom/handoff that gave the
+      // march its visual purpose is also disabled in the mobile matchMedia branch.
+      if (isMobileDevice) return;
       previousTime = 0;
       frameId = requestAnimationFrame(tick);
     };
@@ -315,15 +325,28 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
       };
 
       mm.add("(max-width: 768px)", () => {
-        buildStage({
-          pinEnd: "+=248%",
-          zoomStart: 0.4,
-          zoomScale: MOBILE_ZOOM_FINAL,
-          whiteoutStart: 0.82,
-          whiteoutDuration: 0.16,
-          handoffDuration: 0.24,
-          driftEnd: "+=300%",
+        // No pin, no scrub, no column drift on mobile — the section just reveals
+        // once when it scrolls into view, then sits. Glyphs are positioned statically
+        // (the rAF march is gated by isMobileDevice in startMarch above).
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: "top 80%",
+            once: true,
+          },
         });
+        tl.from(grid, { opacity: 0, duration: 0.4, force3D: true }, 0)
+          .from(
+            zoom,
+            {
+              scale: 0.9,
+              svgOrigin: `${STADIUM_CX} ${STADIUM_CY}`,
+              duration: 0.6,
+              ease: "power2.out",
+              force3D: true,
+            },
+            0,
+          );
       });
 
       mm.add("(min-width: 769px)", () => {
