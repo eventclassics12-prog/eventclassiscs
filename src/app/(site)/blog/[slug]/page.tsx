@@ -13,6 +13,8 @@ import { mediaUrl } from "@/lib/cms";
 import { postDescription } from "@/lib/blog";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
+export const dynamic = "force-dynamic";
+
 interface BlogPostRouteProps {
   params: Promise<{ slug: string }>;
 }

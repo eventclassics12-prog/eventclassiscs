@@ -5,6 +5,8 @@ import { getGlobal, type SiteSettingsData } from "@/lib/cms-server";
 import { buildMetadata, organizationJsonLd } from "@/lib/seo";
 import "../globals.css";
 
+export const dynamic = "force-dynamic";
+
 export const viewport: Viewport = {
   themeColor: "#ffffff",
 };
