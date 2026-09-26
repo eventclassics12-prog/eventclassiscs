@@ -1,30 +1,20 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useLayoutEffect, useRef, useState } from "react";
+import { mediaUrl, type HomeServicesData } from "@/lib/cms";
 import "./Services.css";
-
-/**
- * Hallmark · "What we can help with" services section.
- *
- * Three-column layout:
- *   col 1 (left)  · active service description.
- *   col 2 (middle) · "● What we can help with" header + services list.
- *                   Each row is dim by default; on hover it goes full
- *                   opacity and reveals a floating image to the right of
- *                   the list, vertically aligned to the hovered row.
- *   col 3 (right) · image for the active service.
- */
 
 interface Service {
   name: string;
-  /** Short tagline that sits between the name and the description. */
   kicker: string;
   description: string;
-  /** Small practice-area tags shown below the description. */
   subItems: ReadonlyArray<string>;
-  /** Background image served from /public/services/. */
   image: string;
   imageLabel: string;
+}
+
+interface ServicesProps {
+  data?: HomeServicesData | null;
 }
 
 export const SERVICES: ReadonlyArray<Service> = [
@@ -66,16 +56,38 @@ export const SERVICES: ReadonlyArray<Service> = [
   },
 ];
 
-export function Services() {
+const FALLBACK_INTRO =
+  "We don\u2019t sell services.\nWe connect the pieces that make a brand work.";
+const FALLBACK_LABEL = "What we can help with";
+
+export function Services({ data }: ServicesProps) {
+  const introLines = (data?.intro ?? FALLBACK_INTRO).split("\n");
+  const label = data?.label ?? FALLBACK_LABEL;
+
+  const services: Service[] =
+    data?.services && data.services.length > 0
+      ? data.services.map((s, i) => {
+          const fallback = SERVICES[i % SERVICES.length];
+          return {
+            name: s.name ?? fallback.name,
+            kicker: s.kicker ?? fallback.kicker,
+            description: s.description ?? fallback.description,
+            subItems:
+              s.subItems && s.subItems.length > 0
+                ? s.subItems.map((item) => item.value ?? "")
+                : [...fallback.subItems],
+            image: mediaUrl(s.image) ?? fallback.image,
+            imageLabel: s.imageLabel ?? fallback.imageLabel,
+          };
+        })
+      : SERVICES.map((s) => ({ ...s, subItems: [...s.subItems] }));
+
   const [selectedService, setSelectedService] = useState(0);
 
   const itemRefs = useRef<Array<HTMLLIElement | null>>([]);
   const descriptionColRef = useRef<HTMLDivElement>(null);
   const imageColRef = useRef<HTMLDivElement>(null);
 
-  /* Keep the description and image centred on the active service row.
-   * offsetTop is layout-based, so transforms never feed back into the next
-   * measurement. */
   useLayoutEffect(() => {
     const descriptionCol = descriptionColRef.current;
     const imageCol = imageColRef.current;
@@ -109,41 +121,38 @@ export function Services() {
   return (
     <section className="services" id="services">
       <div className="services__inner">
-        {/* ───── Col 1 — active service description ───── */}
         <div ref={descriptionColRef} className="services__left">
-          {/* Section-level intro — constant across services, sets the
-           * "we connect, not sell" framing. Lives above the per-service
-           * description block and reads as the section's positioning
-           * statement. */}
           <p className="services__intro">
-            We don&rsquo;t sell services.
-            <br />
-            We connect the pieces that make a brand work.
+            {introLines.map((line, i) => (
+              <Fragment key={i}>
+                {i > 0 && <br />}
+                {line}
+              </Fragment>
+            ))}
           </p>
 
           <p className="services__description" aria-live="polite">
-            <strong>{SERVICES[selectedService].name}.</strong>
+            <strong>{services[selectedService].name}.</strong>
             <em className="services__kicker">
-              {SERVICES[selectedService].kicker}
+              {services[selectedService].kicker}
             </em>
             <span className="services__description-body">
-              {SERVICES[selectedService].description}
+              {services[selectedService].description}
             </span>
             <span className="services__subitems">
-              {SERVICES[selectedService].subItems.join(" · ")}
+              {services[selectedService].subItems.join(" · ")}
             </span>
           </p>
         </div>
 
-        {/* ───── Col 2 — services list ───── */}
         <div className="services__right">
           <header className="services__label-row">
             <span className="services__dot" aria-hidden="true" />
-            <span className="services__label-text">What we can help with</span>
+            <span className="services__label-text">{label}</span>
           </header>
 
           <ul className="services__list">
-            {SERVICES.map((s, i) => (
+            {services.map((s, i) => (
               <li
                 key={s.name}
                 ref={(el) => {
@@ -171,9 +180,8 @@ export function Services() {
           </ul>
         </div>
 
-        {/* ───── Col 3 — image aligned to the hovered service ───── */}
         <div ref={imageColRef} className="services__image-col" aria-hidden="true">
-          {SERVICES.map((service, i) => (
+          {services.map((service, i) => (
             <div
               key={service.name}
               className={`services__hover-image ${
@@ -193,5 +201,3 @@ export function Services() {
     </section>
   );
 }
-
-export default Services;

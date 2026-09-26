@@ -1,12 +1,3 @@
-/* Hallmark · Success Stories section.
- * White-bg three-column grid:
- *   col 1  · sticky "Success Stories" label
- *   col 2  · stacked project images
- *   col 3  · stacked project text blocks
- * Each project's image and text share a grid row, so they scroll past in
- * lock-step as the user moves down the page.
- */
-
 .success-stories {
   position: relative;
   background: var(--paper);
@@ -15,11 +6,6 @@
   padding-block: var(--section-space);
 }
 
-/* ScrollTrigger's spacer includes both the pin duration and the pinned
- * section's own stable 100lvh footprint. Once the animation ends,
- * that last footprint is otherwise seen as a full blank viewport. Apply
- * the overlap only after GSAP has created the spacer, avoiding any
- * pre-hydration overlap, and give the first content a restrained inset. */
 .pin-spacer + .success-stories {
   margin-block-start: -100vh;
   margin-block-start: -100lvh;
@@ -32,35 +18,21 @@
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
 
   display: grid;
-  /* Three columns sized as 15% / 55% / 30% of the content width. Using
-   * `fr` (3 / 11 / 6 = 20fr) keeps the proportions stable across viewports
-   * while leaving room for the column gap to be subtracted from the fr
-   * total — pure percentages would overflow once the gap is added. */
   grid-template-columns: 3fr 11fr 6fr;
   column-gap: clamp(2rem, 4vw, 4rem);
-  /* Tight — each fragment is an image+text row, so vertical breathing
-   * comes from this gap times the rows-per-project (×2 with dividers). */
   row-gap: clamp(2rem, 4vw, 3.5rem);
   align-items: start;
 }
 
 @media (max-width: 960px) {
-  /* Stack everything on narrow viewports; the sticky label becomes a
-   * regular block sitting above the project stack. */
   .success-stories__inner {
     grid-template-columns: minmax(0, 1fr);
     row-gap: clamp(4rem, 8vw, 6rem);
   }
 }
 
-/* ---------- Grid placement ----------
- * Kept here rather than inline so the ≤960px rule below can unwind it into
- * a single auto-flowed column. Each project element carries only its row
- * index as `--ss-row`. */
-
 .success-stories__label-col {
   grid-column: 1;
-  /* `1 / -1` spans row 1 to the last auto-generated row. */
   grid-row: 1 / -1;
 }
 
@@ -80,8 +52,6 @@
 }
 
 @media (max-width: 960px) {
-  /* One column: drop every explicit placement and let the DOM order
-   * (label, then divider/image/text per project) flow naturally. */
   .success-stories__label-col,
   .success-stories__divider,
   .success-stories__image-figure,
@@ -91,15 +61,11 @@
   }
 }
 
-/* ---------- Col 1 — sticky label ---------- */
-
 .success-stories__label-col {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
 
-  /* Stays in view while the user scrolls through projects. `top` is the
-   * offset from the viewport top once stuck. */
   position: sticky;
   top: clamp(1.5rem, 3vw, 2.5rem);
   align-self: start;
@@ -129,26 +95,16 @@
   mix-blend-mode: normal;
 }
 
-/* ---------- Divider row (between projects, cols 2–3 only) ---------- */
-
 .success-stories__divider {
   border-top: 1px solid color-mix(in oklch, var(--ink) 12%, transparent);
   align-self: center;
 }
 
-/* ---------- Col 2 — image ---------- */
-
 .success-stories__image-figure {
   margin: 0;
 
-  /* Extra height the image carries beyond this frame, split evenly top and
-   * bottom. GSAP slides the image by ±8% of its OWN height — 8% of 124% is
-   * ~9.9% of the frame, comfortably inside the 12% of slack on each side, so
-   * no edge is ever revealed at either end of the scroll. Raising the shift
-   * in SuccessStories.tsx means raising this to match. */
   --ss-image-overscan: 12%;
 
-  /* Containing block for the `fill` image below. */
   position: relative;
   isolation: isolate;
   aspect-ratio: 4 / 3;
@@ -176,15 +132,6 @@
   opacity: 1;
 }
 
-/* Parallax target. Sized taller than the figure and centred on it, giving
- * the slide `--ss-image-overscan` of slack at each edge. Also the containing
- * block for the `fill` image inside it.
- *
- * No `will-change` — the GSAP scrub uses `force3D: true` which
- * promotes the layer transiently during animation, then releases it.
- * Outside the scrub the frame is static. A permanent hint would pin
- * 4 GPU layers (one per project image) for the page lifetime. See
- * HeroWordmark.tsx / LiquidMetalBg.css for the same policy. */
 .success-stories__image-frame {
   position: absolute;
   z-index: 0;
@@ -213,8 +160,6 @@
   transition:
     opacity 420ms ease-out,
     transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
-  /* No `will-change` — the CSS transition handles layer promotion
-   * transiently. 4 videos × permanent hint = 4 pinned GPU layers. */
 }
 
 .success-stories__video--playing {
@@ -222,8 +167,6 @@
   transform: translate3d(0, 0, 0) scale(1);
 }
 
-/* No scroll-driven motion — sit the image flush in its frame instead of
- * leaving it parked at the -8% start position of a tween that never runs. */
 @media (prefers-reduced-motion: reduce) {
   .success-stories__image-frame {
     top: 0;
@@ -237,15 +180,12 @@
   }
 }
 
-/* ---------- Col 3 — text block ---------- */
-
 .success-stories__text-block {
   margin: 0;
   display: flex;
   flex-direction: column;
   gap: clamp(1rem, 1.8vw, 1.5rem);
 
-  /* Start every project's pager/title on the same top line as its image. */
   align-self: start;
 }
 

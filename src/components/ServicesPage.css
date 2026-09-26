@@ -1,16 +1,7 @@
-/* Hallmark · /services page.
- * Numbered service rows (Laurenti-style 01/02/03) on the white paper
- * canvas, following the editorial language of Statement / Services:
- * explicit ink + mix-blend-mode: normal (the global difference-blend
- * base rule would otherwise leave text white-on-white), mono eyebrows,
- * hairline dividers, dim-until-hover gated on (hover: hover).
- */
-
 .svc {
   position: relative;
   background: var(--paper);
   width: 100%;
-  /* No top padding: the hero owns the full first viewport itself. */
   padding-block: 0 calc(var(--section-space) * 1.5);
   overflow: hidden;
 }
@@ -22,14 +13,7 @@
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
 }
 
-/* ───────── Hero ─────────
- * Mirrors the About hero: full first viewport, content pinned to the
- * bottom, text left / chrome figure right on desktop; figure stacked
- * above text on mobile. Explicit mix-blend-mode: normal everywhere. */
-
 .svc__hero {
-  /* Own the first viewport minus the page's bottom padding; `svh` so
-   * mobile browser chrome never clips the block. */
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -107,8 +91,6 @@
   mix-blend-mode: normal;
 }
 
-/* ───────── Numbered rows ───────── */
-
 .svc__list {
   display: flex;
   flex-direction: column;
@@ -117,7 +99,6 @@
 
 .svc__row {
   display: grid;
-  /* number · copy · image columns */
   grid-template-columns: clamp(3rem, 6vw, 7rem) minmax(0, 1fr) minmax(0, 22rem);
   gap: clamp(1.25rem, 4vw, 4rem);
   align-items: center;
@@ -136,8 +117,6 @@
   mix-blend-mode: normal;
   transition: opacity 220ms var(--ease-out);
 }
-
-/* ─── Copy column ─── */
 
 .svc__copy {
   display: flex;
@@ -186,8 +165,6 @@
   mix-blend-mode: normal;
 }
 
-/* ─── Image column ─── */
-
 .svc__image-wrap {
   position: relative;
   width: 100%;
@@ -218,10 +195,6 @@
   text-transform: uppercase;
   letter-spacing: 0.18em;
 }
-
-/* ─── Hover / selection state ───
- * Rows dim rest state on hover-capable pointers (echoing the homepage
- * Services list), with an "unfolded" image on the active row. */
 
 @media (hover: hover) {
   .svc__row {
@@ -274,8 +247,6 @@
   }
 }
 
-/* ───────── Mobile ───────── */
-
 @media (max-width: 900px) {
   .svc__row {
     grid-template-columns: clamp(2.5rem, 8vw, 4rem) minmax(0, 1fr);
@@ -288,7 +259,6 @@
   }
 
   .svc__row:not(.svc__row--active) .svc__image-wrap {
-    /* Touch devices have no hover: keep all images presentable. */
     opacity: 1;
     filter: none;
   }

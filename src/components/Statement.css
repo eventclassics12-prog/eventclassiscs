@@ -1,11 +1,5 @@
-/* Hallmark · editorial statement.
- * Dark canvas, two-column layout: narrow left column for the stat,
- * wide right column for the big editorial copy, bottom-right byline.
- */
-
 .statement {
   background: var(--ink);
-  /* Text colour + mix-blend-mode inherited from globals.css. */
 
   width: 100%;
   padding-block: var(--section-space);
@@ -25,7 +19,6 @@
   column-gap: clamp(2rem, 5vw, 5rem);
 }
 
-/* Collapse to single column on narrow viewports */
 @media (max-width: 768px) {
   .statement__inner {
     grid-template-columns: minmax(0, 1fr);
@@ -42,8 +35,6 @@
   flex-direction: column;
   gap: clamp(1.5rem, 3vw, 2.5rem);
 }
-
-/* ---------- Stat block (left column) ---------- */
 
 .statement__left {
   display: flex;
@@ -70,8 +61,6 @@
   max-width: 22ch;
 }
 
-/* ---------- Editorial copy (right column) ---------- */
-
 .statement__right {
   grid-area: right;
   display: flex;
@@ -86,13 +75,11 @@
   font-size: clamp(1.4rem, 2.8vw, 2.75rem);
   line-height: 1.1;
   letter-spacing: -0.025em;
-  /* Colour + invert inherited from globals.css. */
+
   margin: 0;
   max-width: 22ch;
 }
 
-/* Each character remains an inline span so GSAP can scrub opacity without
- * introducing a line-break opportunity between every pair of letters. */
 .statement__letter {
   display: inline;
   opacity: 0.1;
@@ -114,15 +101,11 @@
   }
 }
 
-/* Reduced-motion: no scroll-driven reveal — letters stay fully legible
- * from the start. */
 @media (prefers-reduced-motion: reduce) {
   .statement__letter {
     opacity: 1;
   }
 }
-
-/* ---------- Byline (under the statement copy, left-aligned) ---------- */
 
 .statement__byline {
   grid-area: byline;
@@ -131,10 +114,6 @@
   justify-content: flex-start;
   gap: var(--space-sm);
 
-  /* The byline is made of <div>s, which the globals :where() invert rule
-   * (h1–h6, p, span, …) doesn't reach — so it would inherit dark ink on
-   * this dark section. Explicit white keeps the name, role and the
-   * avatar initial legible. */
   color: var(--paper);
 
   padding-top: 0;
@@ -145,7 +124,6 @@
   height: 2.75rem;
   border-radius: 50%;
   background: linear-gradient(135deg, oklch(40% 0.04 60), oklch(30% 0.05 30));
-  /* Colour + invert inherited from globals.css. */
 
   display: flex;
   align-items: center;
@@ -170,7 +148,6 @@
   font-weight: 500;
   font-size: 0.9375rem;
   letter-spacing: -0.005em;
-  /* Colour + invert inherited from globals.css. */
 }
 
 .statement__byline-role {

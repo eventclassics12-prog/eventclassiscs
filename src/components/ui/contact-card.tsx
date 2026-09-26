@@ -12,7 +12,6 @@ type ContactInfoProps = React.ComponentProps<'div'> & {
 };
 
 type ContactCardProps = React.ComponentProps<'div'> & {
-    // Content props
     title?: string;
     description?: string;
     contactInfo?: ContactInfoProps[];

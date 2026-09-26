@@ -5,19 +5,8 @@ import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { pad2 } from "@/lib/utils";
+import { mediaUrl, type HomeSuccessStoriesData } from "@/lib/cms";
 import "./SuccessStories.css";
-
-/**
- * Hallmark · "Success Stories" section.
- *
- * White-bg three-column grid:
- *   col 1  · sticky "Success Stories" label, fixed for the section's height
- *   col 2  · stacked project images
- *   col 3  · stacked project text blocks (pager + title + description + stat)
- *
- * CSS Grid auto-flows each project's image and text into the same row, so
- * they scroll past in lock-step as the user moves through the section.
- */
 
 interface Project {
   title: string;
@@ -27,15 +16,18 @@ interface Project {
   image: string;
 }
 
-/* Vertical travel of the image inside its frame, as a percentage of the
- * image element's own height. The image is rendered taller than the frame
- * (see PARALLAX_OVERSCAN in the CSS) so this slide never exposes an edge. */
+interface SuccessStoriesProps {
+  data?: HomeSuccessStoriesData | null;
+}
+
 const PARALLAX_SHIFT = 8;
-const SUCCESS_VIDEO = "/videos/success-stories-mammoth.webm";
+const FALLBACK_VIDEO = "/videos/success-stories-mammoth.webm";
+const FALLBACK_LABEL = "Success Stories";
+const FALLBACK_PAGER_TAG = "SS";
 const DESKTOP_VIDEO_HOVER =
   "(min-width: 901px) and (hover: hover) and (pointer: fine)";
 
-const PROJECTS: ReadonlyArray<Project> = [
+const FALLBACK_PROJECTS: ReadonlyArray<Project> = [
   {
     title: "IQVIA",
     description:
@@ -70,14 +62,28 @@ const PROJECTS: ReadonlyArray<Project> = [
   },
 ];
 
-export function SuccessStories() {
-  const total = PROJECTS.length;
+export function SuccessStories({ data }: SuccessStoriesProps) {
+  const label = data?.label ?? FALLBACK_LABEL;
+  const pagerTag = data?.pagerTag ?? FALLBACK_PAGER_TAG;
+  const videoSrc = mediaUrl(data?.video) ?? FALLBACK_VIDEO;
+
+  const projects: Project[] =
+    data?.projects && data.projects.length > 0
+      ? data.projects.map((p, i) => {
+          const fallback = FALLBACK_PROJECTS[i % FALLBACK_PROJECTS.length];
+          return {
+            title: p.title ?? fallback.title,
+            description: p.description ?? fallback.description,
+            stat: p.stat ?? fallback.stat,
+            statCaption: p.statCaption ?? fallback.statCaption,
+            image: mediaUrl(p.image) ?? fallback.image,
+          };
+        })
+      : [...FALLBACK_PROJECTS];
+
+  const total = projects.length;
   const sectionRef = useRef<HTMLElement>(null);
 
-  /* Desktop uses one stable cursor plane: the left 20% pauses playback and
-   * the right 80% plays whichever story is most visible. Mobile keeps the
-   * visibility-only behaviour. Moving through the image/text gap therefore
-   * never interrupts playback, and pausing preserves the current frame. */
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -196,18 +202,6 @@ export function SuccessStories() {
     };
   }, []);
 
-  /* Parallax — each image slides vertically inside its fixed frame, scrubbed
-   * 1:1 to that frame's travel through the viewport.
-   *
-   * Why GSAP ScrollTrigger and not CSS `animation-timeline: view()`: the CSS
-   * scroll-driven timeline is still Chromium-only (Safari and Firefox have no
-   * stable support as of 2026), and the section already runs GSAP +
-   * ScrollTrigger in KeepScrolling/HeroWordmark, so this adds no new bytes and
-   * keeps one scroll-driver authoritative for the whole page.
-   *
-   * `start: "top bottom"` / `end: "bottom top"` maps the full traversal —
-   * frame entering the bottom edge → leaving the top edge — onto the tween,
-   * so the drift reads continuously rather than snapping at a boundary. */
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -221,20 +215,6 @@ export function SuccessStories() {
       );
       if (frames.length === 0) return;
 
-      /* One timeline + ONE scrollTrigger for all four frames (the old
-       * build had 4 parallel triggers, each reading scroll progress
-       * every frame — on a 120 Hz display that's 4× the per-frame
-       * progress math, and every one of those triggers re-measures on
-       * refresh). The section-level trigger maps the section's full
-       * traversal onto a 0…1 timeline; each frame's tween is placed at
-       * the fraction of the section where that frame enters the
-       * viewport and spans exactly its own height fraction — provably
-       * identical to the old per-frame mapping, with one progress
-       * calculation per frame instead of four.
-       *
-       * Positions are baked from layout, so a window resize rebuilds
-       * the timeline via the ScrollTrigger "refresh" event (the same
-       * event per-frame triggers used to self-correct on). */
       let tl: gsap.core.Timeline | null = null;
 
       const buildTimeline = () => {
@@ -249,7 +229,7 @@ export function SuccessStories() {
           },
         });
         frames.forEach((imageEl) => {
-          const a = imageEl.offsetTop; // offset within the section
+          const a = imageEl.offsetTop;
           const h = imageEl.offsetHeight;
           tl!.fromTo(
             imageEl,
@@ -286,27 +266,12 @@ export function SuccessStories() {
   return (
     <section ref={sectionRef} className="success-stories" id="success-stories">
       <div className="success-stories__inner">
-        {/* Col 1 — sticky label only. Spans every row in the section so
-         * the label stays in view for the entire section's scroll height
-         * (project rows + divider rows). Placement lives in CSS so the
-         * ≤960px breakpoint can unwind it — see the note on the row vars
-         * below. */}
         <div className="success-stories__label-col">
           <span className="success-stories__dot" aria-hidden="true" />
-          <span className="success-stories__label">Success Stories</span>
+          <span className="success-stories__label">{label}</span>
         </div>
 
-        {/* Col 2 + Col 3 — every project's image and text share a row,
-         * separated from the previous project by a divider row that spans
-         * only cols 2 + 3 (the label column stays clear). Project rows
-         * are odd (1, 3, 5, 7); divider rows are even (2, 4, 6).
-         *
-         * Only the row INDEX is passed inline (as a custom property); the
-         * column and row assignment itself is CSS. Inline grid placement
-         * would outrank the stacking media query, which is what previously
-         * dropped each figure into an implicit content-sized column and
-         * collapsed it to height 0 below 960px. */}
-        {PROJECTS.map((project, i) => (
+        {projects.map((project, i) => (
           <Fragment key={project.title}>
             {i > 0 && (
               <div
@@ -319,11 +284,6 @@ export function SuccessStories() {
               className="success-stories__image-figure"
               style={{ "--ss-row": i * 2 + 1 } as CSSProperties}
             >
-              {/* The frame div — not the <Image> — is the parallax target.
-               * next/image `fill` injects inline `inset:0; height:100%`, which
-               * outranks any class selector, so the overscan has to live on a
-               * wrapper the image can fill instead. The wrapper is taller than
-               * the figure so it slides without revealing an edge. */}
               <div className="success-stories__image-frame" data-ss-parallax="">
                 <Image
                   src={project.image}
@@ -343,7 +303,7 @@ export function SuccessStories() {
                 preload="metadata"
                 poster={project.image}
               >
-                <source src={SUCCESS_VIDEO} type="video/webm" />
+                <source src={videoSrc} type="video/webm" />
               </video>
             </figure>
 
@@ -355,7 +315,7 @@ export function SuccessStories() {
                 className="success-stories__pager"
                 aria-label={`Case ${i + 1} of ${total}`}
               >
-                <span className="success-stories__pager-tag">SS</span>
+                <span className="success-stories__pager-tag">{pagerTag}</span>
                 <span className="success-stories__pager-arrow" aria-hidden="true">
                   →
                 </span>

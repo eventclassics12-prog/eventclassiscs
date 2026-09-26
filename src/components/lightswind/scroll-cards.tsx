@@ -10,50 +10,20 @@ interface CardData {
   id: number | string;
   image?: string;
   alt?: string;
-  /**
-   * Optional rich card content. When provided, the card renders this
-   * instead of a bare <img> — the element still receives the same
-   * scroll-driven stack animation.
-   */
   content?: ReactNode;
 }
 
 export interface ScrollCardsProps {
   cards: CardData[];
-  /**
-   * Defines the direction from which the next card enters.
-   * @default "bottom"
-   */
   direction?: "bottom" | "top" | "left" | "right";
   className?: string;
   containerClassName?: string;
   imageClassName?: string;
-  /** Height utility class for the stage (e.g. "h-[60vh]"). */
   heightClass?: string;
-  /**
-   * ScrollTrigger start position. Use "top <offset>" when a fixed
-   * header would otherwise cover the pinned stage.
-   * @default "top top"
-   */
   startOffset?: string;
-  /**
-   * Where the incoming card starts along its entrance axis, in %.
-   * Below 100 the next card's top edge is already visible at the
-   * stage bottom ("stacked peek" look). Reference style: ~84.
-   * @default 100
-   */
   stackPeekPercent?: number;
-  /** Padding utility for the trigger (e.g. "p-0" for full-bleed). */
   paddingClass?: string;
-  /**
-   * The scale the current card scales down to.
-   * @default 0.7
-   */
   cardScale?: number;
-  /**
-   * The rotation the current card rotates to.
-   * @default 5
-   */
   cardRotation?: number;
 }
 
@@ -86,7 +56,6 @@ export function ScrollCards({
 
       gsap.set(imageElements[0], { x: "0%", y: "0%", scale: 1, rotation: 0 });
 
-      // Determine initial offset based on direction
       const getInitialOffset = () => {
         switch (direction) {
           case "top":

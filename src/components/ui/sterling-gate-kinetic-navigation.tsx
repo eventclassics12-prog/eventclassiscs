@@ -1,73 +1,62 @@
 "use client";
 
-/*
- * Sterling Gate — kinetic fullscreen navigation.
- *
- * Mounted inside ServicesHeader in place of the CTA pill: the trigger
- * reuses the pill's exact geometry (2.75rem height, arrow badge) so the
- * header band keeps its proportions, and the GSAP-animated fullscreen
- * overlay carries the primary navigation.
- *
- * Adaptation notes (existing design system wins over stock styling):
- * - Monochrome ink/paper tokens only — the stock indigo/violet shape
- *   fills were re-tinted to ink alphas.
- * - Links are real Next.js routes; navigation closes the overlay.
- * - Scroll locks while open; Escape and overlay click close it.
- */
-
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { CustomEase } from "gsap/CustomEase";
+import type { SiteSettingsData } from "@/lib/cms";
 import "./sterling-gate-kinetic-navigation.css";
 
 if (typeof window !== "undefined" && !gsap.parseEase("main")) {
   try {
     CustomEase.create("main", "0.65, 0.01, 0.05, 0.99");
   } catch {
-    /* CustomEase unavailable — timeline falls back to defaults below */
   }
 }
 gsap.defaults({ ease: gsap.parseEase("main") ? "main" : "power2.out", duration: 0.7 });
 
-const MENU_LINKS: ReadonlyArray<{
+interface MenuLink {
   label: string;
   href: string;
   shape: string;
   fade?: boolean;
-}> = [
+}
+
+const FALLBACK_MENU_LINKS: ReadonlyArray<MenuLink> = [
   { label: "Home", href: "/", shape: "1" },
   { label: "About Us", href: "/about", shape: "2" },
   { label: "What We Do", href: "/services", shape: "3" },
   { label: "Our Work", href: "/work", shape: "4" },
-  { label: "FAQ", href: "/#faq", shape: "5", fade: true },
+  { label: "Journal", href: "/blog", shape: "5" },
+  { label: "FAQ", href: "/#faq", shape: "1", fade: true },
 ];
 
-/* The terminal CTA at the bottom of the menu overlay. Mirrors the
- * "Book a call with us" pill in the FAQ support column (see FAQ.tsx +
- * the shared `.m-hero__cta` utility in MonologHero.css) so the contact
- * affordance reads as the same component across the site.
- *
- * Navigates to the dedicated `/contact-form` route so the same CTA
- * works regardless of which page the menu was opened from.
- *
- * Reuses the pill geometry (--cta-h, 999 px radius, 8 px arrow badge
- * inset) but NOT the shared `.m-hero__cta` class — that class carries
- * `mix-blend-mode: difference` to invert cleanly against arbitrary
- * section backgrounds, and the menu overlay is paper-toned, so a
- * paper-bg difference-blended pill would invert to black and swallow
- * its own dark label. The menu CTA therefore uses solid colours
- * (dark fill + light text — the inverse of the menu's own palette). */
-const MENU_CTA = {
+const FALLBACK_MENU_CTA = {
   label: "Book a call with us",
   href: "/contact-form",
 } as const;
 
-export function SterlingGateKineticNavigation() {
+export function SterlingGateKineticNavigation({
+  site,
+}: {
+  site?: SiteSettingsData | null;
+}) {
+  const links: ReadonlyArray<MenuLink> = site?.navLinks?.length
+    ? site.navLinks.map((link, index) => ({
+        label: link.label,
+        href: link.href,
+        shape: String((index % 5) + 1),
+        fade: link.href === "/#faq",
+      }))
+    : FALLBACK_MENU_LINKS;
+  const cta = {
+    label: site?.footerContactButtonLabel ?? FALLBACK_MENU_CTA.label,
+    href: site?.footerContactHref ?? FALLBACK_MENU_CTA.href,
+  };
+
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Shape hover: the right-hand ambient art swaps per hovered link.
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -140,10 +129,6 @@ export function SterlingGateKineticNavigation() {
     };
   }, []);
 
-  // Open / close animation. One persistent timeline ref: on unmount we
-  // kill the running tween (no gsap.context here — a .revert() on each
-  // effect cleanup wipes the open timeline's inline styles, which made
-  // the close animation invisible).
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
   useEffect(() => {
@@ -194,11 +179,6 @@ export function SterlingGateKineticNavigation() {
           "<+=0.35"
         );
 
-      /* Terminal CTA — joins the link stagger but with a shorter
-       * translate distance and no rotation, so it reads as a button
-       * landing into place rather than an editorial link sliding in.
-       * Placed right after the last link to land just after the
-       * stagger finishes. */
       if (menuCta) {
         tl.fromTo(
           menuCta,
@@ -217,22 +197,6 @@ export function SterlingGateKineticNavigation() {
         );
       }
     } else {
-      // NOTE: `data-nav` is intentionally NOT flipped to "closed" at the
-      // top of this branch the way the open branch sets it to "open".
-      // Any CSS that targets `.nav-overlay-wrapper[data-nav="open"]`
-      // (see the homepage wordmark-blend override in MonologHero.css,
-      // which drops the morphing wordmark behind the menu panel) needs
-      // the open flag to stay set for the FULL close sweep — otherwise
-      // the wordmark snaps back on top of the menu the instant the user
-      // clicks close, while the backdrop layers are still sliding off.
-      // We flip the flag inside the timeline's final .call() below,
-      // after display:none has been written — which is the moment the
-      // overlay is actually gone and the wordmark is allowed to return.
-
-      // Mirror of the open sequence, played backwards: the badge flips,
-      // the links drop back out with reversed stagger, the backdrop
-      // layers sweep off from 'end', and the dark page-tint is released
-      // last so the exit stays visible against a light canvas.
       tl.to(menuButtonTexts, { yPercent: 0, stagger: 0.2 })
         .to(menuButtonIcon, { rotate: 0 }, "<")
         .to(
@@ -246,10 +210,6 @@ export function SterlingGateKineticNavigation() {
           "<+=0.05"
         );
 
-      /* Terminal CTA — drops out and fades in parallel with the link
-       * reverse stagger (same "<" alignment, no extra delay). The
-       * arrow rotation is tweened in reverse too so the close mirror
-       * is consistent with the open sequence. */
       if (menuCta) {
         tl.to(
           menuCta,
@@ -268,11 +228,6 @@ export function SterlingGateKineticNavigation() {
           "<+=0.3"
         )
         .to(menu, { xPercent: -120 }, "<")
-        /* Overlay tint fades IN PARALLEL with the panel sweep ("<" =
-         * same start as the panel slide) instead of after it. It used
-         * to be released last (">+0.15"), which left a translucent
-         * black film hanging over the page for ~0.5 s after the panels
-         * were already gone — read as a lingering black shadow. */
         .to(overlay, { autoAlpha: 0, duration: 0.575 }, "<")
         .set(bgPanels, { xPercent: 0 })
         .set(menu, { xPercent: 0 })
@@ -285,7 +240,6 @@ export function SterlingGateKineticNavigation() {
     };
   }, [isMenuOpen]);
 
-  // Scroll lock + Escape.
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -349,13 +303,6 @@ export function SterlingGateKineticNavigation() {
           <div className="overlay" onClick={closeMenu} />
           <nav className="menu-content" aria-label="Fullscreen">
             <div className="menu-bg">
-              {/* Two backdrop layers only. The third (darkest, 13 %
-               * foreground-mixed "first" layer) used to live here as the
-               * first-in / last-out panel of the open/close stagger, but
-               * it added visual noise that read as a third teardown step
-               * on close without earning its weight on open — removed.
-               * `bgPanels` queries `.querySelectorAll(".backdrop-layer")`
-               * and now picks up exactly these two. */}
               <div className="backdrop-layer second" />
               <div className="backdrop-layer" />
 
@@ -424,7 +371,7 @@ export function SterlingGateKineticNavigation() {
 
             <div className="menu-content-wrapper">
               <ul className="menu-list" role="list">
-                {MENU_LINKS.map((link) => (
+                {links.map((link) => (
                   <li
                     key={link.label}
                     className="menu-list-item"
@@ -443,19 +390,13 @@ export function SterlingGateKineticNavigation() {
                 ))}
               </ul>
 
-              {/* Terminal CTA — in the flex flow right below the link
-               * list (see CSS note: absolute bottom-corner pinning was
-               * removed because the pill collided with the list on
-               * short viewports). `closeMenu` fires alongside the
-               * anchor navigation so the menu plays its close sweep
-               * instead of jumping to the section while still pinned. */}
               <div className="menu-cta-wrap">
                 <a
                   className="menu-cta"
-                  href={MENU_CTA.href}
+                  href={cta.href}
                   onClick={closeMenu}
                 >
-                  <span className="menu-cta-label">{MENU_CTA.label}</span>
+                  <span className="menu-cta-label">{cta.label}</span>
                   <span className="menu-cta-arrow" aria-hidden="true">
                     <svg
                       width="16"

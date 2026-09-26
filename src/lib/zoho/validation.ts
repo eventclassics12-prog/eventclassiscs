@@ -1,15 +1,5 @@
-/**
- * Hand-rolled validators for the `/api/zoho/leads` request body.
- *
- * No third-party dep: the form has four fields with simple constraints
- * (presence, max length, email shape) and the schema is unlikely to grow
- * past a handful of fields. Zod would be overkill here.
- */
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Field length caps. Zoho limits phone to 30 chars and Email to a long
- * single line; we cap name/message to sensible UI bounds. */
 export const MAX_FIELD = {
   name: 80,
   email: 120,
@@ -28,8 +18,6 @@ export type ParseResult =
   | { ok: true; data: LeadInput }
   | { ok: false; reason: string };
 
-/** Validate the parsed JSON body of a lead submission. Pure function —
- * no I/O, safe to call from a Route Handler. */
 export function parseLeadInput(raw: unknown): ParseResult {
   if (typeof raw !== "object" || raw === null) {
     return { ok: false, reason: "body must be a JSON object" };

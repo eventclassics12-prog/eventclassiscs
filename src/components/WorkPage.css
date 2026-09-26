@@ -1,21 +1,9 @@
-/* Hallmark · /work — "Our Work" page.
- *
- * Editorial white canvas with a single blue accent: hairline label
- * strips, a statement panel, a motion marquee, GSAP-stacked 60vh
- * project cards (text left, image right, next card slides up from
- * below), a pill CTA bar, and a socials card marquee.
- *
- * Tokens come from globals.css: --paper, --ink, --font-sans, --font-mono.
- * One page-local accent: --wk-blue.
- */
-
 .wk {
   background: var(--paper);
   color: var(--ink);
   width: 100%;
 }
 
-/* Page accent + shared hairline */
 .wk {
   --wk-blue: var(--ink);
   --wk-hairline: color-mix(in oklch, var(--ink) 16%, transparent);
@@ -29,13 +17,10 @@
   mix-blend-mode: normal;
 }
 
-/* ───────── 1. Label strip ───────── */
-
 .wk__strip {
   display: flex;
   align-items: center;
   min-height: 2.75rem;
-  /* Clear the fixed ServicesHeader band at the top of the page */
   margin-top: clamp(3.75rem, 6vh, 5rem);
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
 }
@@ -54,7 +39,6 @@
   margin-top: 0;
 }
 
-/* Blue dot (reference-style section marker) */
 .wk__dot {
   width: 0.625rem;
   height: 0.625rem;
@@ -63,8 +47,6 @@
   background: var(--wk-blue);
   mix-blend-mode: normal;
 }
-
-/* ───────── 2. Hero: 3D carousel + statement ───────── */
 
 .wk__hero {
   display: flex;
@@ -82,19 +64,13 @@
   width: 100%;
   max-width: 64rem;
   flex: 0 0 auto;
-  /* cardWidth/perspective are em-based — shrinking the font shrinks the
-     whole 3D carousel proportionally */
   font-size: clamp(0.55rem, 0.6rem + 0.45vw, 0.8rem);
 }
 
-/* The Lightswind slider hardcodes min-h-[500px] on its root — relax it so
-   the reserve shrinks with the viewport (higher specificity than the
-   Tailwind utility, so the component file stays untouched). */
 .wk__hero-slider > div {
   min-height: min(500px, 52svh);
 }
 
-/* Shorter viewports: shrink harder so title + lede never get clipped */
 @media (max-height: 940px) {
   .wk__hero {
     padding-block: 3.75rem 0.25rem;
@@ -131,10 +107,6 @@
 }
 
 .wk__hero-text {
-  /* Left-aligned with the hero's padding-inline gutter, like the About
-   * hero. The hero keeps `align-items: center` for the carousel, so the
-   * text box stretches to the full row but is capped and pinned to the
-   * start edge. */
   align-self: stretch;
   flex: 0 0 auto;
   max-width: 44rem;
@@ -163,8 +135,6 @@
   mix-blend-mode: normal;
 }
 
-/* ───────── 3. Motion marquee ───────── */
-
 .wk__marquee {
   display: flex;
   overflow: hidden;
@@ -175,9 +145,9 @@
 .wk__marquee-group {
   display: flex;
   align-items: center;
-  gap: clamp(2rem, 5vw, 4.5rem);
+  gap: clamp(1rem, 2.5vw, 2.25rem);
   flex: 0 0 auto;
-  padding-right: clamp(2rem, 5vw, 4.5rem);
+  padding-right: clamp(1rem, 2.5vw, 2.25rem);
   animation: wk-marquee 38s linear infinite;
 }
 
@@ -216,8 +186,6 @@
   }
 }
 
-/* ───────── 4. Project cards ───────── */
-
 .wk__cases {
   padding-bottom: clamp(var(--space-xl), 6vw, var(--space-3xl));
 }
@@ -226,12 +194,9 @@
   margin-bottom: clamp(2rem, 4vw, 4rem);
 }
 
-/* The card is full-bleed (no frame): paper copy panel left, image
- * panel right, vertical hairline divider. The incoming card's title
- * peeks over the current card's bottom (stackPeekPercent). */
 .wk-card {
   display: grid;
-  grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
+  grid-template-columns: clamp(26rem, 34vw, 36rem) minmax(0, 1fr);
   height: 100%;
   background: var(--paper);
   overflow: hidden;
@@ -252,9 +217,10 @@
 .wk-card__copy {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   min-width: 0;
-  padding-top: clamp(5.5rem, 11vh, 8.5rem);
-  padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl)) clamp(1rem, 2.5vw, 2rem);
+  padding-top: clamp(4rem, 7vh, 6rem);
+  padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl)) clamp(1rem, 2vw, 1.5rem);
   padding-bottom: clamp(1.5rem, 4vh, 3rem);
 }
 
@@ -269,10 +235,9 @@
   mix-blend-mode: normal;
 }
 
-/* Hanging copy column (reference puts it ~1/3 down, indented) */
 .wk-card__lede {
-  margin-top: clamp(2.5rem, 7vh, 5rem);
-  margin-left: clamp(0rem, 4vw, 4rem);
+  margin-top: clamp(1.5rem, 4vh, 3rem);
+  margin-left: 0;
   max-width: 52ch;
   display: flex;
   flex-direction: column;
@@ -361,7 +326,6 @@
   mix-blend-mode: normal;
 }
 
-/* Reference-style centered control */
 .wk-card__read-more {
   display: flex;
   align-items: center;
@@ -410,7 +374,6 @@
   mix-blend-mode: normal;
 }
 
-/* Mobile: card stacks copy over image */
 @media (max-width: 900px) {
   .wk-card {
     grid-template-columns: minmax(0, 1fr);
@@ -425,7 +388,6 @@
     padding-top: clamp(2rem, 6vh, 4rem);
   }
 
-  /* The number overlays the image on mobile — keep it readable */
   .wk-card__corner {
     color: #fff;
     mix-blend-mode: normal;
@@ -435,8 +397,6 @@
     margin-left: 0;
   }
 }
-
-/* ───────── Reduced motion ───────── */
 
 @media (prefers-reduced-motion: reduce) {
   .wk__marquee-group {

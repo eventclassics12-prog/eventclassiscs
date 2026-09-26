@@ -1,0 +1,43 @@
+.contact-page-intro {
+  background: var(--paper);
+  padding: clamp(4rem, 8vw, 7rem) 1.25rem clamp(2rem, 4vw, 3rem);
+  border-bottom: 1px solid
+    color-mix(in oklab, var(--ink) 6%, transparent);
+}
+
+.contact-page-intro__inner {
+  max-width: 72rem;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contact-page-intro__heading {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 1.5rem + 4vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  max-width: 22ch;
+}
+
+.contact-page-intro__lede {
+  font-size: clamp(1rem, 0.9rem + 0.4vw, 1.125rem);
+  line-height: 1.55;
+  color: var(--ink-dim);
+  max-width: 60ch;
+}
+
+.contact-page-intro__lede a {
+  color: var(--brand-accent, #e36336);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.contact-page-intro__lede a:hover {
+  color: var(
+    --brand-accent-hover,
+    color-mix(in oklab, #e36336 88%, #000 12%)
+  );
+}

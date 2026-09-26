@@ -1,0 +1,65 @@
+.blog {
+  --blog-hairline: color-mix(in oklch, var(--ink) 16%, transparent);
+  --blog-dim: 0.58;
+  background: var(--paper);
+  color: var(--ink);
+  width: 100%;
+  font-family: var(--font-sans);
+}
+
+.blog__strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.75rem;
+  margin-top: clamp(3.75rem, 6vh, 5rem);
+  padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
+}
+
+.blog__strip-label,
+.blog__strip-count {
+  color: var(--ink);
+  font-weight: 600;
+  font-size: clamp(0.875rem, 0.95vw, 1rem);
+  letter-spacing: -0.02em;
+}
+
+.blog__strip-count {
+  opacity: var(--blog-dim);
+}
+
+.blog__hero {
+  padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
+  padding-block: clamp(1.5rem, 4vh, 3rem) clamp(2.5rem, 6vh, 4.5rem);
+}
+
+.blog__title {
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-size: clamp(3.5rem, 10vw, 8.5rem);
+}
+
+.blog__lede {
+  margin: clamp(1.25rem, 3vh, 2rem) 0 0;
+  max-width: 46ch;
+  font-size: clamp(1.05rem, 1.35vw, 1.3rem);
+  line-height: 1.7;
+  letter-spacing: 0;
+  opacity: var(--blog-dim);
+}
+
+.blog__grid-wrap {
+  padding: clamp(2rem, 5vh, 3.5rem)
+    clamp(var(--space-md), 5vw, var(--space-2xl))
+    clamp(4rem, 10vh, 7rem);
+}
+
+.blog__empty {
+  margin: 0;
+  padding: clamp(3rem, 8vh, 6rem)
+    clamp(var(--space-md), 5vw, var(--space-2xl));
+  font-size: 1.05rem;
+  opacity: var(--blog-dim);
+}

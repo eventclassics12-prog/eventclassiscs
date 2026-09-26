@@ -1,11 +1,3 @@
-/* Hallmark · site footer.
- * Two-region layout on a dark canvas:
- *   left column  · large editorial nav list
- *   right column · looping logo video on top, then "(STUDIO DETAILS)"
- *                 and "(SOCIALS)" stacked side-by-side on desktop and
- *                 collapsing to a single column on mobile.
- */
-
 .footer {
   position: relative;
   background: var(--ink);
@@ -21,8 +13,6 @@
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
 
   display: grid;
-  /* Left column ~35 %, right column ~65 % (logo on top, details+socials
-   * below). */
   grid-template-columns: minmax(0, 7fr) minmax(0, 13fr);
   column-gap: clamp(2rem, 4vw, 4rem);
   row-gap: clamp(1.5rem, 3vw, 3rem);
@@ -35,18 +25,12 @@
   }
 }
 
-/* ───────── Nav column (left) ───────── */
-
 .footer__nav-col {
   display: flex;
   flex-direction: column;
   gap: clamp(1.5rem, 2.5vw, 2rem);
 }
 
-/* Brand block — sits above the nav list. Compact lowercase
- * "eventclassics.in" wordmark + a single subdued tagline. Lives in
- * the nav column so it reads as the first thing the eye lands on in
- * the footer. Kept small + quiet so the nav list dominates. */
 .footer__brand {
   display: flex;
   flex-direction: column;
@@ -107,8 +91,6 @@
   outline: none;
 }
 
-/* The supplied magnetic wrapper fills the otherwise-empty area below the
- * footer navigation, so pointer movement near the CTA can attract it. */
 .footer__magnetic-zone {
   position: relative;
   min-height: clamp(8rem, 24svh, 13rem);
@@ -156,9 +138,6 @@
     background-color var(--dur-normal) var(--ease-out),
     color var(--dur-normal) var(--ease-out);
 
-  /* Full self-contained pill styling (mirrors .m-hero__cta) — pages
-   * without MonologHero.css (e.g. /services) would otherwise render
-   * this with a transparent background. */
   display: inline-flex;
   align-items: center;
   gap: 0.875rem;
@@ -181,7 +160,6 @@
   white-space: nowrap;
 }
 
-/* Text-only button (arrow/circle removed) — no badge hooks needed. */
 .footer .footer__contact-button > span {
   color: currentColor;
   mix-blend-mode: normal;
@@ -214,15 +192,12 @@
   text-underline-offset: 0.18em;
 }
 
-/* ───────── Right column ───────── */
-
 .footer__right-col {
   display: flex;
   flex-direction: column;
   gap: clamp(1.25rem, 3svh, 2.25rem);
 }
 
-/* Logo video — top of the right column. */
 .footer__logo-wrap {
   position: relative;
   width: 100%;
@@ -236,7 +211,6 @@
   object-fit: contain;
 }
 
-/* Studio details + Socials — side by side on desktop, stacked on mobile. */
 .footer__details-socials {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -251,8 +225,6 @@
   text-transform: uppercase;
   letter-spacing: 0.18em;
 }
-
-/* ───── Studio details ───── */
 
 .footer__details {
   min-width: 0;
@@ -308,8 +280,6 @@
   line-height: 1.5;
   max-width: 24ch;
 }
-
-/* ───── Socials ───── */
 
 .footer__socials {
   display: flex;

@@ -5,27 +5,12 @@ import { useState } from "react";
 import { pad2 } from "@/lib/utils";
 import { ScrollCards } from "@/components/lightswind/scroll-cards";
 import ImageSlider3D from "@/components/lightswind/3d-image-slider";
+import { mediaAlt, mediaUrl, type PageWorkData, type TextPart } from "@/lib/cms";
 import "./WorkPage.css";
-
-/**
- * Hallmark · /work — "Our Work".
- *
- * Reference-style editorial layout (white canvas, blue accent):
- *   1. strip    · mono "Our Work" label between hairlines + blue dot
- *   2. intro    · statement panel ("Great work is built on evidence…")
- *   3. marquee  · looping "That's our work in motion" band with an
- *                 inline looping video figure
- *   4. cases    · "Projects" strip + GSAP ScrollCards stack — each
- *                 project is a 60vh card (text left, image right) that
- *                 slides up from the bottom over the previous card
- *   5. cta      · pill bar ("Great work works best when we connect." +
- *                 blue "Book a call")
- *   6. socials  · "Latest on socials" image-card marquee
- */
 
 interface WorkProject {
   title: string;
-  kicker: Array<[string, string?]>; // [text, tone] · tone "blue" highlights
+  kicker: Array<[string, string?]>;
   intro: string;
   body: string;
   includes: ReadonlyArray<string>;
@@ -104,6 +89,37 @@ const PROJECTS: ReadonlyArray<WorkProject> = [
   },
 ];
 
+const fromParts = (parts: TextPart[]): Array<[string, string?]> =>
+  parts.map((part) => [part.text ?? "", part.highlight ? "blue" : undefined]);
+
+type CmsWorkProject = NonNullable<NonNullable<PageWorkData["projects"]>[number]>;
+
+function resolveProjects(
+  data: PageWorkData | null | undefined,
+): ReadonlyArray<WorkProject> {
+  const cmsProjects = (data?.projects ?? []).filter(
+    (p): p is CmsWorkProject => Boolean(p && (p.title || p.image)),
+  );
+  if (cmsProjects.length === 0) return PROJECTS;
+  return cmsProjects.map((p, i) => {
+    const fallback = PROJECTS[i % PROJECTS.length];
+    const kickerParts = p.kickerParts ?? [];
+    const includes = (p.includes ?? [])
+      .map((item) => item.value ?? "")
+      .filter((value) => value.length > 0);
+    return {
+      title: p.title ?? fallback.title,
+      kicker: kickerParts.length > 0 ? fromParts(kickerParts) : fallback.kicker,
+      intro: p.intro ?? fallback.intro,
+      body: p.body ?? fallback.body,
+      includes: includes.length > 0 ? includes : fallback.includes,
+      caption: p.caption ?? fallback.caption,
+      image: mediaUrl(p.image) ?? fallback.image,
+      alt: p.alt ?? mediaAlt(p.image) ?? fallback.alt,
+    };
+  });
+}
+
 function Kicker({ parts }: { parts: WorkProject["kicker"] }) {
   return (
     <>
@@ -120,11 +136,49 @@ function Kicker({ parts }: { parts: WorkProject["kicker"] }) {
   );
 }
 
+function MarqueeLine2({ parts }: { parts: TextPart[] }) {
+  if (parts.length === 0) {
+    return (
+      <>
+        We listen. We think. <span className="wk__accent">We ship.</span>{" "}
+        That&rsquo;s our work in motion.
+      </>
+    );
+  }
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.highlight ? (
+          <span key={i} className="wk__accent">
+            {part.text}
+          </span>
+        ) : (
+          <span key={i}>{part.text}</span>
+        ),
+      )}
+    </>
+  );
+}
+
 function BlueDot() {
   return <span className="wk__dot" aria-hidden="true" />;
 }
 
-function ProjectCard({ project, index }: { project: WorkProject; index: number }) {
+interface ProjectCardLabels {
+  includesLabel: string;
+  readMoreLabel: string;
+  readLessLabel: string;
+}
+
+function ProjectCard({
+  project,
+  index,
+  labels,
+}: {
+  project: WorkProject;
+  index: number;
+  labels: ProjectCardLabels;
+}) {
   const [expanded, setExpanded] = useState(false);
   const isOpen = expanded;
   const onToggle = () => setExpanded((v) => !v);
@@ -153,7 +207,7 @@ function ProjectCard({ project, index }: { project: WorkProject; index: number }
             id={`wk-more-${index}`}
           >
             <div className="wk-card__more-inner" aria-hidden={!isOpen}>
-              <p className="wk-card__includes-label">Includes:</p>
+              <p className="wk-card__includes-label">{labels.includesLabel}</p>
               <ul className="wk-card__includes">
                 {project.includes.map((item) => (
                   <li key={item}>{item}</li>
@@ -169,7 +223,7 @@ function ProjectCard({ project, index }: { project: WorkProject; index: number }
             aria-controls={`wk-more-${index}`}
             onClick={onToggle}
           >
-            {isOpen ? "Read less" : "Read more"}
+            {isOpen ? labels.readLessLabel : labels.readMoreLabel}
             <span className="wk-card__plus" aria-hidden="true">
               {isOpen ? "–" : "+"}
             </span>
@@ -184,15 +238,25 @@ function ProjectCard({ project, index }: { project: WorkProject; index: number }
   );
 }
 
-export function WorkPage() {
+export function WorkPage({ data }: { data?: PageWorkData | null }) {
+  const projects = resolveProjects(data);
+  const labels: ProjectCardLabels = {
+    includesLabel: data?.includesLabel ?? "Includes:",
+    readMoreLabel: data?.readMoreLabel ?? "Read more",
+    readLessLabel: data?.readLessLabel ?? "Read less",
+  };
+  const marqueeLine1 = data?.marqueeLine1 ?? "We build. We refine.";
+  const marqueeVideoSrc =
+    mediaUrl(data?.marqueeVideo) ?? "/videos/success-stories-mammoth.webm";
+
   const marquee: ReactNode = (
     <>
       {[0, 1].map((copy) => (
         <div className="wk__marquee-group" key={copy} aria-hidden={copy === 1}>
-          <p className="wk__marquee-text">We build. We refine.</p>
+          <p className="wk__marquee-text">{marqueeLine1}</p>
           <span className="wk__marquee-figure" aria-hidden="true">
             <video
-              src="/videos/success-stories-mammoth.webm"
+              src={marqueeVideoSrc}
               autoPlay
               loop
               muted
@@ -201,43 +265,45 @@ export function WorkPage() {
             />
           </span>
           <p className="wk__marquee-text">
-            We listen. We think. <span className="wk__accent">We ship.</span>{" "}
-            That&rsquo;s our work in motion.
+            <MarqueeLine2 parts={data?.marqueeLine2 ?? []} />
           </p>
         </div>
       ))}
     </>
   );
 
-  const projectCards = PROJECTS.map((project, i) => ({
+  const projectCards = projects.map((project, i) => ({
     id: project.title,
-    content: <ProjectCard project={project} index={i} />,
+    content: <ProjectCard project={project} index={i} labels={labels} />,
   }));
 
   return (
     <main className="wk">
-      {/* ───── 1. Hero: 3D carousel + statement ───── */}
       <section className="wk__hero" aria-label="Our work highlights">
         <div className="wk__hero-slider">
           <ImageSlider3D
-            images={Array.from({ length: 12 }, (_, i) => PROJECTS[i % PROJECTS.length].image)}
+            images={Array.from(
+              { length: 12 },
+              (_, i) => projects[i % projects.length].image,
+            )}
           />
         </div>
         <div className="wk__hero-text">
           <h1 className="wk__title">
-            Selected work from teams with momentum
+            {data?.heroTitle ?? "Selected work from teams with momentum"}
           </h1>
           <p className="wk__lede">
-            A senior brand team embedded directly into each project — fast-moving,
-            reactive work that gets your product shipped and noticed.
+            {data?.heroLede ??
+              "A senior brand team embedded directly into each project — fast-moving, reactive work that gets your product shipped and noticed."}
           </p>
         </div>
       </section>
 
-      {/* ───── 2. Project cards (GSAP stacking) ───── */}
       <section className="wk__cases" aria-label="Case studies">
         <div className="wk__strip wk__strip--cases">
-          <span className="wk__strip-label">Projects</span>
+          <span className="wk__strip-label">
+            {data?.projectsLabel ?? "Projects"}
+          </span>
           <BlueDot />
         </div>
 
@@ -250,17 +316,13 @@ export function WorkPage() {
           paddingClass="p-0"
           cardScale={0.9}
           cardRotation={2}
-          containerClassName="h-full w-full max-w-none aspect-auto rounded-none bg-transparent shadow-none overflow-visible"
+          containerClassName="h-full w-full sm:w-full lg:w-full max-w-none aspect-auto md:aspect-auto rounded-none bg-transparent shadow-none overflow-visible"
         />
       </section>
 
-      {/* ───── 3. Motion marquee ───── */}
       <section className="wk__marquee" aria-label="Studio work in motion">
         {marquee}
       </section>
-
     </main>
   );
 }
-
-export default WorkPage;
