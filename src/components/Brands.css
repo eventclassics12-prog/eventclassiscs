@@ -81,10 +81,12 @@
   transform: scale(1);
   transition:
     opacity var(--dur-normal) var(--ease-out),
-    transform var(--dur-normal) var(--ease-out);
+    transform var(--dur-normal) var(--ease-out),
+    filter var(--dur-normal) var(--ease-out);
 }
 
 .brands__cell:hover .brands__image {
+  filter: grayscale(0) contrast(1.12);
   opacity: 1;
   transform: scale(1.025);
 }

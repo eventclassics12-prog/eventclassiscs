@@ -182,6 +182,22 @@ async function upsertPost(payload: Payload, post: SeedPost) {
   console.log(`  ＋ post: ${post.slug}`)
 }
 
+async function clearDevPushMarker(payload: Payload): Promise<void> {
+  try {
+    const res = await payload.delete({
+      collection: 'payload-migrations',
+      where: { batch: { equals: -1 } },
+      overrideAccess: true,
+    })
+    const cleared = res.docs?.length ?? 0
+    if (cleared > 0) {
+      console.log(`  ✕ cleared ${cleared} dev-push marker(s); builds will not prompt for migrations`)
+    }
+  } catch {
+    console.log('  ↺ no dev-push marker to clear')
+  }
+}
+
 async function main() {
   const payload = await getPayload({ config })
 
@@ -727,6 +743,8 @@ async function main() {
     seoDescription:
       'Most brands are built for the applause of launch week. The ones that last are built for the silence of week twelve.',
   })
+
+  await clearDevPushMarker(payload)
 
   console.log('Seed complete.')
 }

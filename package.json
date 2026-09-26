@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "payload migrate && next build",
+    "build": "tsx scripts/clear-dev-marker.ts && payload migrate && next build",
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx --env-file=.env scripts/seed.ts",
+    "seed:prod": "NODE_ENV=production tsx --env-file=.env scripts/seed.ts",
     "generate:types": "payload generate:types"
   },
   "dependencies": {
