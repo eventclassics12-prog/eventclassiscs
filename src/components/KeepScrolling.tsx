@@ -23,6 +23,7 @@ const STADIUM_BOUNDS = {
 };
 
 const DESKTOP_ZOOM_FINAL = 7;
+const MOBILE_ZOOM_FINAL = 2.75;
 
 const PILL_W = 100;
 const PILL_H = 200;
@@ -293,60 +294,64 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
               force3D: true,
             },
             1,
-          )
-          .set(smoke, { autoAlpha: 1, yPercent: 0 }, 1)
-          .to(
-            smoke,
-            {
-              autoAlpha: 0,
-              yPercent: -20,
-              duration: handoffDuration * 0.45,
-              ease: "sine.inOut",
-              force3D: true,
-            },
-            1 + handoffDuration * 0.55,
           );
 
-        const drift = gsap.timeline({
-          defaults: { ease: "none", force3D: true },
-          scrollTrigger: {
-            trigger: section,
-            start: "top bottom",
-            end: driftEnd,
-            scrub: isMobile ? 0.2 : true,
-          },
-        });
+        // Smoke handoff: desktop only. On mobile, the CSS already disables
+        // backdrop-filter and paints a transparent background on .keep-scrolling__smoke,
+        // so animating its autoAlpha writes nothing visible while still costing
+        // a few style mutations per frame.
+        if (!isMobile) {
+          tl
+            .set(smoke, { autoAlpha: 1, yPercent: 0 }, 1)
+            .to(
+              smoke,
+              {
+                autoAlpha: 0,
+                yPercent: -20,
+                duration: handoffDuration * 0.45,
+                ease: "sine.inOut",
+                force3D: true,
+              },
+              1 + handoffDuration * 0.55,
+            );
+        }
 
-        section.querySelectorAll<SVGGElement>("[data-ks-col]").forEach((colEl) => {
-          const col = Number(colEl.dataset.ksCol);
-          if (col === CENTER_COL) return;
-          drift.to(colEl, { y: col % 2 === 0 ? -DRIFT : DRIFT }, 0);
-        });
+        // Column drift: desktop only. This is 9 simultaneous scrubbed tweens
+        // (10 columns minus the center column) updating every scroll frame —
+        // too much work for mobile. The desktop experience keeps the full
+        // parallax grid; mobile shows a still grid.
+        if (!isMobile) {
+          const drift = gsap.timeline({
+            defaults: { ease: "none", force3D: true },
+            scrollTrigger: {
+              trigger: section,
+              start: "top bottom",
+              end: driftEnd,
+              scrub: true,
+            },
+          });
+
+          section.querySelectorAll<SVGGElement>("[data-ks-col]").forEach((colEl) => {
+            const col = Number(colEl.dataset.ksCol);
+            if (col === CENTER_COL) return;
+            drift.to(colEl, { y: col % 2 === 0 ? -DRIFT : DRIFT }, 0);
+          });
+        }
       };
 
       mm.add("(max-width: 768px)", () => {
-        // No pin, no scrub, no column drift on mobile — the section just reveals
-        // once when it scrolls into view, then sits. Glyphs are positioned statically
-        // (the rAF march is gated by isMobileDevice in startMarch above).
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-            start: "top 80%",
-            once: true,
-          },
+        // Pinned timeline on mobile, but tuned: shorter pin distance than desktop,
+        // smaller zoom target, and the column-drift + smoke-handoff tweens are
+        // skipped inside buildStage via the isMobile guard.
+        buildStage({
+          pinEnd: "+=180%",
+          zoomStart: 0.4,
+          zoomScale: MOBILE_ZOOM_FINAL,
+          whiteoutStart: 0.85,
+          whiteoutDuration: 0.16,
+          handoffDuration: 0.22,
+          driftEnd: "+=220%", // unused on mobile but required by buildStage signature
         });
-        tl.from(grid, { opacity: 0, duration: 0.4, force3D: true }, 0)
-          .from(
-            zoom,
-            {
-              scale: 0.9,
-              svgOrigin: `${STADIUM_CX} ${STADIUM_CY}`,
-              duration: 0.6,
-              ease: "power2.out",
-              force3D: true,
-            },
-            0,
-          );
       });
 
       mm.add("(min-width: 769px)", () => {

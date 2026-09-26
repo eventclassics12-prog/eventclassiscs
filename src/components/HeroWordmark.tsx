@@ -121,9 +121,13 @@ export function HeroWordmark({ text, data }: HeroWordmarkProps) {
       }
 
       const startRect = wordmark.getBoundingClientRect();
+      // Round to integer pixels. getBoundingClientRect returns floats
+      // (e.g. x=12.5); writing a fractional transform forces sub-pixel
+      // rasterization on the GPU each frame, which is one of the causes
+      // of mobile jitter in scrub tweens.
       gsap.set(wordmark, {
-        x: startRect.left,
-        y: startRect.top,
+        x: Math.round(startRect.left),
+        y: Math.round(startRect.top),
         scale: 1,
         force3D: true,
       });

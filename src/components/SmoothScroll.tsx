@@ -21,9 +21,19 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       typeof window !== "undefined" &&
       window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
-    // Leave GSAP's default lagSmoothing(500, 33) in place — on mobile the JS thread
-    // drops frames, and disabling smoothing turns every miss into visible jank.
+    // Drive Locomotive from the GSAP ticker so scroll position and ScrollTrigger
+    // tweens advance in the same RAF — without this they desync and any scrub
+    // tween (hero wordmark, statement letters, etc.) reads the scroll position
+    // one frame off, which shows up as jitter on mobile.
+    // Leave GSAP's default lagSmoothing(500, 33) in place so a dropped frame
+    // interpolates instead of stuttering visibly.
     const scroll = new LocomotiveScroll({
+      initCustomTicker: (render) => {
+        gsap.ticker.add(render);
+      },
+      destroyCustomTicker: (render) => {
+        gsap.ticker.remove(render);
+      },
       scrollCallback: () => {
         ScrollTrigger.update();
       },
