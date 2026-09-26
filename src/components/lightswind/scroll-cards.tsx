@@ -74,47 +74,59 @@ export function ScrollCards({
         gsap.set(imageElements[i], { ...getInitialOffset(), scale: 1, rotation: 0 });
       }
 
-      const scrollTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: container.current,
-          start: startOffset,
-          end: `+=${window.innerHeight * totalCards}`,
-          pin: true,
-          scrub: 1,
-          pinSpacing: true,
-          anticipatePin: 1,
-        },
+      // Pin + scrub are desktop-only. On mobile the cards stack in normal flow
+      // (their positioning is overridden via responsive classes below), so a
+      // 4-viewport pinned scrub would only stall scroll with no visual gain.
+      const mm = gsap.matchMedia();
+
+      mm.add("(min-width: 769px)", () => {
+        const scrollTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: container.current,
+            start: startOffset,
+            end: `+=${window.innerHeight * totalCards}`,
+            pin: true,
+            scrub: 1,
+            pinSpacing: true,
+            anticipatePin: 1,
+          },
+        });
+
+        for (let i = 0; i < totalCards - 1; i++) {
+          const currentImage = imageElements[i];
+          const nextImage = imageElements[i + 1];
+          const position = i;
+
+          if (!currentImage || !nextImage) continue;
+
+          scrollTimeline.to(
+            currentImage,
+            {
+              scale: cardScale,
+              rotation: cardRotation,
+              duration: 1,
+              ease: "power2.inOut",
+            },
+            position,
+          );
+
+          scrollTimeline.to(
+            nextImage,
+            {
+              x: "0%",
+              y: "0%",
+              duration: 1,
+              ease: "power2.inOut",
+            },
+            position,
+          );
+        }
+
+        return () => {
+          scrollTimeline.scrollTrigger?.kill();
+          scrollTimeline.kill();
+        };
       });
-
-      for (let i = 0; i < totalCards - 1; i++) {
-        const currentImage = imageElements[i];
-        const nextImage = imageElements[i + 1];
-        const position = i;
-
-        if (!currentImage || !nextImage) continue;
-
-        scrollTimeline.to(
-          currentImage,
-          {
-            scale: cardScale,
-            rotation: cardRotation,
-            duration: 1,
-            ease: "power2.inOut",
-          },
-          position,
-        );
-
-        scrollTimeline.to(
-          nextImage,
-          {
-            x: "0%",
-            y: "0%",
-            duration: 1,
-            ease: "power2.inOut",
-          },
-          position,
-        );
-      }
 
       const resizeObserver = new ResizeObserver(() => {
         ScrollTrigger.refresh();
@@ -125,8 +137,8 @@ export function ScrollCards({
       }
 
       return () => {
+        mm.revert();
         resizeObserver.disconnect();
-        scrollTimeline.kill();
       };
     },
     { scope: container, dependencies: [direction, cards.length, cardScale, cardRotation, startOffset, stackPeekPercent] }
@@ -151,7 +163,7 @@ export function ScrollCards({
             card.content ? (
               <article
                 key={card.id}
-                className="absolute top-0 left-0 h-full w-full will-change-transform"
+                className="relative w-full h-[60vh] mb-4 will-change-transform md:absolute md:top-0 md:left-0 md:h-full md:w-full md:mb-0"
                 ref={(el) => {
                   imageRefs.current[i] = el;
                 }}
@@ -164,7 +176,7 @@ export function ScrollCards({
                 src={card.image}
                 alt={card.alt || `Scroll card gallery image ${i}`}
                 className={cn(
-                  "absolute top-0 left-0 h-full w-full object-cover rounded-3xl will-change-transform shadow-2xl",
+                  "relative w-full h-[60vh] mb-4 object-cover rounded-3xl will-change-transform shadow-2xl md:absolute md:top-0 md:left-0 md:h-full md:w-full md:mb-0",
                   imageClassName,
                 )}
                 ref={(el) => {

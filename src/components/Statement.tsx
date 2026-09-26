@@ -51,21 +51,49 @@ export function Statement({
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".statement__letter",
-        { opacity: 0.1 },
-        {
-          opacity: 1,
-          ease: "none",
-          stagger: 0.035,
-          scrollTrigger: {
-            trigger: ".statement__copy",
-            start: "top center",
-            end: "top top",
-            scrub: true,
+      const mm = gsap.matchMedia();
+
+      // Desktop: per-letter scrubbed reveal (the intended editorial effect).
+      // scrub: 0.5 gives GSAP a half-second lerp window to interpolate dropped
+      // scroll frames instead of snapping per scroll event.
+      mm.add("(min-width: 769px)", () => {
+        gsap.fromTo(
+          ".statement__letter",
+          { opacity: 0.1 },
+          {
+            opacity: 1,
+            ease: "none",
+            stagger: 0.035,
+            scrollTrigger: {
+              trigger: ".statement__copy",
+              start: "top center",
+              end: "top top",
+              scrub: 0.5,
+            },
           },
-        },
-      );
+        );
+      });
+
+      // Mobile: animate whole paragraphs instead of ~300 individual letter spans.
+      // Each frame was touching hundreds of opacity values; this collapses that
+      // to one write per paragraph.
+      mm.add("(max-width: 768px)", () => {
+        gsap.fromTo(
+          ".statement__copy",
+          { opacity: 0.1 },
+          {
+            opacity: 1,
+            ease: "none",
+            stagger: 0.15,
+            scrollTrigger: {
+              trigger: ".statement__copy",
+              start: "top center",
+              end: "top top",
+              scrub: 0.5,
+            },
+          },
+        );
+      });
     }, document.querySelector(".statement") ?? undefined);
 
     return () => ctx.revert();

@@ -85,7 +85,11 @@
 
 @media (max-width: 768px) {
   .keep-scrolling__smoke {
-    -webkit-backdrop-filter: blur(8px) saturate(0.82);
-    backdrop-filter: blur(8px) saturate(0.82);
+    /* backdrop-filter forces a full-viewport recomposite every frame on mobile GPUs.
+       The pinned section is dropped on small screens (see KeepScrolling.tsx),
+       so the smoke never enters the visible animated window — disable it entirely. */
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: transparent;
   }
 }
