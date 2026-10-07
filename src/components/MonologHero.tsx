@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import SterlingGateKineticNavigation from "./ui/sterling-gate-kinetic-navigation";
+import { ENTRANCE } from "./hero-entrance";
 import { LiquidMetalBg } from "./LiquidMetalBg";
 import { HeroWordmark } from "./HeroWordmark";
 import type { SiteSettingsData } from "@/lib/cms";
@@ -23,6 +24,11 @@ const DEFAULT_LINKS = [
   { label: "FAQ", href: "/#faq" },
 ] as const;
 
+/**
+ * Entrance timing lives in `./hero-entrance` because the nav component needs to
+ * read it too, and this file already imports that component.
+ */
+
 export function MonologHero({
   brand = "eventclassics.in",
   navLinks = DEFAULT_LINKS,
@@ -40,9 +46,13 @@ export function MonologHero({
           <div className="m-hero__para-blend">
             <motion.p
               className="m-hero__para"
-              initial={false}
+              initial={reduce ? false : ENTRANCE.hidden}
               animate={reduce ? undefined : { opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.7, ease: "easeInOut" }}
+              transition={{
+                delay: ENTRANCE.para.delay,
+                duration: ENTRANCE.para.duration,
+                ease: "easeInOut",
+              }}
             >
               {para1.split("\n\n").map((line, i) => (
                 <span
@@ -60,9 +70,13 @@ export function MonologHero({
           <motion.a
             className="m-hero__cta m-hero__bookcta"
             href="/contact-form"
-            initial={false}
+            initial={reduce ? false : ENTRANCE.hidden}
             animate={reduce ? undefined : { opacity: 1, y: 0 }}
-            transition={{ delay: 0.75, duration: 0.6, ease: "easeInOut" }}
+            transition={{
+              delay: ENTRANCE.cta.delay,
+              duration: ENTRANCE.cta.duration,
+              ease: "easeInOut",
+            }}
           >
             <span className="m-hero__cta-dot" aria-hidden="true" />
             <span className="m-hero__cta-label">Book A Call Now!</span>
@@ -95,11 +109,11 @@ export function MonologHero({
           {navLinks.map((link, i) => (
             <motion.li
               key={link.label}
-              initial={false}
+              initial={reduce ? false : ENTRANCE.hidden}
               animate={reduce ? undefined : { opacity: 1, y: 0 }}
               transition={{
-                delay: 0.55 + i * 0.07,
-                duration: 0.5,
+                delay: ENTRANCE.link.delay + i * ENTRANCE.link.stagger,
+                duration: ENTRANCE.link.duration,
                 ease: "easeInOut",
               }}
             >
