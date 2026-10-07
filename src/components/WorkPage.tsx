@@ -1,5 +1,7 @@
 "use client";
 
+import { ViewportVideo } from "./ViewportVideo";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { pad2 } from "@/lib/utils";
@@ -232,7 +234,7 @@ function ProjectCard({
       </div>
 
       <figure className="wk-card__figure" aria-hidden="true">
-        <img src={project.image} alt={project.alt} loading="lazy" />
+        <Image src={project.image} alt={project.alt} width={1200} height={900} sizes="(max-width: 900px) 100vw, 50vw" />
       </figure>
     </div>
   );
@@ -255,14 +257,7 @@ export function WorkPage({ data }: { data?: PageWorkData | null }) {
         <div className="wk__marquee-group" key={copy} aria-hidden={copy === 1}>
           <p className="wk__marquee-text">{marqueeLine1}</p>
           <span className="wk__marquee-figure" aria-hidden="true">
-            <video
-              src={marqueeVideoSrc}
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="metadata"
-            />
+            <ViewportVideo src={marqueeVideoSrc} />
           </span>
           <p className="wk__marquee-text">
             <MarqueeLine2 parts={data?.marqueeLine2 ?? []} />

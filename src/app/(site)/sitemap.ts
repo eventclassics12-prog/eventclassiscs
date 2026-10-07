@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 import { getGlobal, getPosts, type SiteSettingsData } from '@/lib/cms-server'
 import { siteUrlOf } from '@/lib/seo'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300;
 
 const ROUTES: ReadonlyArray<{
   path: string

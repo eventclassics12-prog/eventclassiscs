@@ -291,7 +291,6 @@ export function SuccessStories({ data }: SuccessStoriesProps) {
                   fill
                   sizes="(max-width: 960px) 100vw, 50vw"
                   className="success-stories__image"
-                  priority={i === 0}
                 />
               </div>
               <video
@@ -300,8 +299,7 @@ export function SuccessStories({ data }: SuccessStoriesProps) {
                 muted
                 loop
                 playsInline
-                preload="metadata"
-                poster={project.image}
+                preload="none"
               >
                 <source src={videoSrc} type="video/webm" />
               </video>

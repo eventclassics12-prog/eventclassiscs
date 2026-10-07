@@ -1,5 +1,7 @@
 "use client";
 
+import { ViewportVideo } from "./ViewportVideo";
+import Image from "next/image";
 import { Fragment, useState } from "react";
 import { pad2 } from "@/lib/utils";
 import { SERVICES } from "./Services";
@@ -67,15 +69,7 @@ export function ServicesPage({ data, servicesData }: ServicesPageProps) {
       <header className="svc__hero">
         <div className="svc__hero-grid">
           <div className="svc__hero-figure" aria-hidden="true">
-            <video
-              className="svc__hero-figure-video"
-              src={heroVideo}
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="auto"
-            />
+            <ViewportVideo src={heroVideo} className="svc__hero-figure-video" />
           </div>
 
           <div className="svc__hero-text">
@@ -129,14 +123,10 @@ export function ServicesPage({ data, servicesData }: ServicesPageProps) {
               <div className="svc__image-wrap">
                 <div
                   className="svc__image"
-                  style={
-                    {
-                      backgroundImage: `url(${service.image})`,
-                        }
-                      }
                   aria-hidden="true"
                 >
-                  <span className="svc__image-label">{service.imageLabel}</span>
+                  <Image src={service.image} alt="" fill sizes="(max-width: 900px) 90vw, 30vw" style={{ objectFit: "cover", borderRadius: "inherit" }} />
+              <span className="svc__image-label">{service.imageLabel}</span>
                 </div>
               </div>
             </article>

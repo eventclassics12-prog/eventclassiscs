@@ -213,6 +213,8 @@
 }
 
 .services__hover-image-label {
+  position: relative;
+  z-index: 1;
   font-family: var(--font-mono);
   font-size: 0.625rem;
   text-transform: uppercase;

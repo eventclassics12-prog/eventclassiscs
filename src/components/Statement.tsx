@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { TextReveal, TOKEN_SEPARATOR } from "@/components/TextReveal";
 import type { HomeStatementData } from "@/lib/cms";
 import "./Statement.css";
 
@@ -25,6 +23,31 @@ const DEFAULT_PARAGRAPHS: ReadonlyArray<string> = [
   "Between what you've built and what the market thinks you've built.",
 ];
 
+interface RevealToken {
+  text: string;
+  index: number;
+}
+
+/**
+ * Regroups the flat reveal stream into paragraphs, keeping each word's global
+ * index so the single scroll pass lights every paragraph in reading order.
+ */
+function groupTokensByParagraph(tokens: string[]): RevealToken[][] {
+  const groups: RevealToken[][] = [[]];
+  let index = 0;
+
+  for (const token of tokens) {
+    if (token === TOKEN_SEPARATOR) {
+      if (groups[groups.length - 1].length > 0) groups.push([]);
+      continue;
+    }
+    groups[groups.length - 1].push({ text: token, index });
+    index += 1;
+  }
+
+  return groups.filter((group) => group.length > 0);
+}
+
 export function Statement({
   data,
   stat = "10+",
@@ -44,99 +67,55 @@ export function Statement({
   const resolvedBylineRole = data?.bylineRole ?? bylineRole;
   const resolvedBylineInitials = data?.bylineInitials ?? bylineInitials;
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
-
-      // Desktop: per-letter scrubbed reveal (the intended editorial effect).
-      // scrub: 0.5 gives GSAP a half-second lerp window to interpolate dropped
-      // scroll frames instead of snapping per scroll event.
-      mm.add("(min-width: 769px)", () => {
-        gsap.fromTo(
-          ".statement__letter",
-          { opacity: 0.1 },
-          {
-            opacity: 1,
-            ease: "none",
-            stagger: 0.035,
-            scrollTrigger: {
-              trigger: ".statement__copy",
-              start: "top center",
-              end: "top top",
-              scrub: 0.5,
-            },
-          },
-        );
-      });
-
-      // Mobile: animate whole paragraphs instead of ~300 individual letter spans.
-      // Each frame was touching hundreds of opacity values; this collapses that
-      // to one write per paragraph.
-      mm.add("(max-width: 768px)", () => {
-        gsap.fromTo(
-          ".statement__copy",
-          { opacity: 0.1 },
-          {
-            opacity: 1,
-            ease: "none",
-            stagger: 0.15,
-            scrollTrigger: {
-              trigger: ".statement__copy",
-              start: "top center",
-              end: "top top",
-              scrub: 0.5,
-            },
-          },
-        );
-      });
-    }, document.querySelector(".statement") ?? undefined);
-
-    return () => ctx.revert();
-  }, []);
+  const revealBody = resolvedParagraphs.join("\n\n");
 
   return (
     <section className="statement" id="about">
       <div className="statement__inner">
-        <div className="statement__left-column">
-          <div className="statement__left">
-            <div className="statement__stat">{resolvedStat}</div>
-            <p className="statement__caption">{resolvedStatCaption}</p>
-          </div>
-        </div>
+        <TextReveal body={revealBody} className="statement__reveal">
+          {(tokens) => (
+            <div className="statement__stage">
+              <div className="statement__left-column">
+                <div className="statement__stat">{resolvedStat}</div>
+                <p className="statement__caption">{resolvedStatCaption}</p>
+              </div>
 
-        <div className="statement__right">
-          {resolvedParagraphs.map((p, i) => (
-            <p key={i} className="statement__copy" aria-label={p}>
-              {splitChars(p)}
-            </p>
-          ))}
-        </div>
+              <div className="statement__right">
+                {groupTokensByParagraph(tokens).map((paragraph, paragraphIndex) => (
+                  <p
+                    key={paragraphIndex}
+                    className="statement__copy"
+                    aria-label={paragraph.map((t) => t.text).join("").trim()}
+                  >
+                    {paragraph.map(({ text, index }) => (
+                      <TextReveal.Token
+                        key={index}
+                        index={index}
+                        className="statement__token"
+                        aria-hidden="true"
+                      >
+                        {text}
+                      </TextReveal.Token>
+                    ))}
+                  </p>
+                ))}
+              </div>
 
-        <div className="statement__byline">
-          <div className="statement__avatar" aria-hidden="true">
-            {resolvedBylineInitials}
-          </div>
-          <div className="statement__byline-text">
-            <div className="statement__byline-name">{resolvedBylineName}</div>
-            <div className="statement__byline-role">{resolvedBylineRole}</div>
-          </div>
-        </div>
+              <div className="statement__byline">
+                <div className="statement__avatar" aria-hidden="true">
+                  {resolvedBylineInitials}
+                </div>
+                <div className="statement__byline-text">
+                  <div className="statement__byline-name">{resolvedBylineName}</div>
+                  <div className="statement__byline-role">{resolvedBylineRole}</div>
+                </div>
+              </div>
+            </div>
+          )}
+        </TextReveal>
       </div>
     </section>
   );
 }
 
 export default Statement;
-
-function splitChars(text: string): ReactNode {
-  return text.split("").map((char, i) => (
-    <span key={i} className="statement__letter">
-      {char}
-    </span>
-  ));
-}

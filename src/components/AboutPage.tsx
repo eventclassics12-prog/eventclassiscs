@@ -1,3 +1,4 @@
+import { ViewportVideo } from "./ViewportVideo";
 import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -65,15 +66,7 @@ export function AboutPage({ data }: AboutPageProps) {
       <section className="about__hero">
         <div className="about__hero-grid">
           <div className="about__hero-figure" aria-hidden="true">
-            <video
-              className="about__hero-figure-video"
-              src={heroVideo}
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="auto"
-            />
+            <ViewportVideo src={heroVideo} className="about__hero-figure-video" />
           </div>
 
           <div className="about__hero-text">

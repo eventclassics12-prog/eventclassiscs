@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { PostData } from "@/lib/cms";
 import { mediaAlt, mediaUrl } from "@/lib/cms";
@@ -17,10 +18,11 @@ export function JournalGrid({ posts }: { posts: PostData[] }) {
           >
             <span className="jg__media">
               {src ? (
-                <img
+                <Image
                   src={src}
                   alt={mediaAlt(post.coverImage, post.title)}
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 767px) 100vw, 50vw"
                   decoding="async"
                 />
               ) : null}
