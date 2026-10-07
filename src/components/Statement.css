@@ -15,7 +15,7 @@
    the reveal walks the copy from dim to lit. */
 .statement__reveal {
   position: relative;
-  min-height: 320vh;
+  min-height: 220vh;
 }
 
 .statement__stage {
@@ -23,7 +23,7 @@
   top: 0;
 
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
   grid-template-rows: 1fr auto;
   grid-template-areas:
     "left-column right"
@@ -31,13 +31,23 @@
   row-gap: clamp(1rem, 2vw, 1.5rem);
   column-gap: clamp(2rem, 5vw, 5rem);
 
-  min-height: 100vh;
-  padding-block: clamp(1.5rem, 5vh, 4rem);
+  /* No min-height: at 46px the passage needs ~846px, more than a 100vh
+     stage can hold. Capping it clipped the tail mid-sentence; letting the
+     stage grow means the copy scrolls through instead of being cut off.
+     The top padding is what clears the 60px fixed nav (`.m-hero__nav`) —
+     with the stage no longer vertically centred, the first line otherwise
+     sat underneath it. */
+  padding-block: calc(60px + clamp(0.75rem, 2vh, 1.5rem))
+    clamp(1.5rem, 5vh, 4rem);
 }
 
 .statement__left-column {
   grid-area: left-column;
-  align-self: center;
+  /* Was center. At 46px the copy fills the whole grid row (711px of an 886px
+     stage), so centering this short block against that box pushed it 250px
+     *below* the opening line. Starting it keeps the stat level with the
+     first line of copy. */
+  align-self: start;
 
   display: flex;
   flex-direction: column;
@@ -81,7 +91,11 @@
 .statement__copy {
   font-family: var(--font-sans);
   font-weight: 600;
-  font-size: min(clamp(1.4rem, 2.8vw, 2.75rem), 5.2vh);
+  /* The vh term is the binding one: at 2.8vw/5.2vh the cap won at every
+     window size tested, so raising vw alone would have changed nothing.
+     3.6vw only sets the size on wide-but-short windows; taller ones clamp
+     back down so the passage never outgrows the stage. */
+  font-size: min(clamp(1.5rem, 3.6vw, 3.6rem), 6.9vh);
   line-height: 1.1;
   letter-spacing: -0.025em;
 
@@ -89,7 +103,9 @@
   text-wrap: pretty;
 
   margin: 0;
-  max-width: min(34ch, 100%);
+  /* Was min(34ch, 100%). At 46px, 34ch measures 830px against an 842px
+     column, so ch was throttling the measure; the column bounds it now. */
+  max-width: 100%;
 }
 
 /* Unlit by default so the passage is readable without JS or before hydration.
@@ -176,7 +192,7 @@
 
 @media (max-width: 768px) {
   .statement__reveal {
-    min-height: 280vh;
+    min-height: 200vh;
   }
 
   .statement__stage {
@@ -192,6 +208,8 @@
     row-gap: clamp(1rem, 3vh, 2rem);
 
     min-height: 100vh;
+    /* Mobile keeps the stage at one viewport: the mobile copy size is
+       unchanged, so it still fits and the centred pin is preserved. */
     /* Extra top space clears the fixed site header, which the desktop layout
        never collides with because its left column is vertically centred. */
     padding-block: clamp(4rem, 7vh, 5rem) clamp(1rem, 2vh, 2rem);

@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { CustomEase } from "gsap/CustomEase";
+import { motion, useReducedMotion } from "motion/react";
+import { ENTRANCE } from "@/components/hero-entrance";
 import type { SiteSettingsData } from "@/lib/cms";
 import "./sterling-gate-kinetic-navigation.css";
 
@@ -56,6 +58,7 @@ export function SterlingGateKineticNavigation({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const reduce = useReducedMotion() ?? false;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -259,13 +262,20 @@ export function SterlingGateKineticNavigation({
 
   return (
     <div ref={containerRef} className="stg-root">
-      <button
+      <motion.button
         type="button"
         className="nav-close-btn"
         aria-expanded={isMenuOpen}
         aria-haspopup="dialog"
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
         onClick={toggleMenu}
+        initial={reduce ? false : ENTRANCE.hidden}
+        animate={reduce ? undefined : { opacity: 1, y: 0 }}
+        transition={{
+          delay: ENTRANCE.menu.delay,
+          duration: ENTRANCE.menu.duration,
+          ease: "easeInOut",
+        }}
       >
         <span className="menu-button-text">
           <p className="p-large">Menu</p>
@@ -296,7 +306,7 @@ export function SterlingGateKineticNavigation({
             <path d="M10 8.66667L8.66667 8.66667L8.66667 10C8.66667 9.26362 9.26362 8.66667 10 8.66667Z" fill="currentColor" />
           </svg>
         </span>
-      </button>
+      </motion.button>
 
       <section className="fullscreen-menu-container">
         <div data-nav="closed" className="nav-overlay-wrapper">
