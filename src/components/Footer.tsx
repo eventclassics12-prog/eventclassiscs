@@ -1,3 +1,4 @@
+import { ViewportVideo } from "./ViewportVideo";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import type { SiteSettingsData } from "@/lib/cms";
 import { mediaUrl } from "@/lib/cms";
@@ -95,19 +96,7 @@ export function Footer({ site }: FooterProps) {
 
         <div className="footer__right-col">
           <div className="footer__logo-wrap" aria-hidden="true">
-            <video
-              className="footer__logo-video"
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="metadata"
-            >
-              <source
-                src={logoVideoSrc}
-                type="video/mp4"
-              />
-            </video>
+            <ViewportVideo src={logoVideoSrc} className="footer__logo-video" />
           </div>
 
           <div className="footer__details-socials">

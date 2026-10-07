@@ -38,6 +38,20 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
         ScrollTrigger.update();
       },
       lenisOptions: {
+        // DO NOT enable syncTouch here.
+        //
+        // syncTouch: true was tried to smooth raw fractional native scrollY
+        // (see the history on the HeroWordmark scrub modifiers). It made Lenis
+        // preventDefault every touchmove and drive scroll itself, and on real
+        // phones that broke the scroll-driven animations outright and dropped
+        // the page to a laggy 60fps feel. Reverted to Lenis defaults: touch
+        // scrolling stays native, and the sub-pixel jitter is handled at the
+        // tween instead (HeroWordmark snaps x/y to whole pixels).
+        //
+        // With syncTouch off, `isSmooth` is false for touch, so Lenis sets
+        // isScrolling = "native" and does not interpolate. Consequently
+        // `duration` below only applies to wheel/desktop, and touchMultiplier
+        // is inert — which is how it has always been on mobile.
         duration: isTouch ? 0.65 : 1.05,
         wheelMultiplier: isTouch ? 1 : 0.82,
         touchMultiplier: isTouch ? 1.4 : 1,

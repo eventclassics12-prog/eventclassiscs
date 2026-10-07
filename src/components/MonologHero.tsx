@@ -40,7 +40,7 @@ export function MonologHero({
           <div className="m-hero__para-blend">
             <motion.p
               className="m-hero__para"
-              initial={reduce ? false : { opacity: 0, y: 28 }}
+              initial={false}
               animate={reduce ? undefined : { opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.7, ease: "easeInOut" }}
             >
@@ -60,7 +60,7 @@ export function MonologHero({
           <motion.a
             className="m-hero__cta m-hero__bookcta"
             href="/contact-form"
-            initial={reduce ? false : { opacity: 0, y: 20 }}
+            initial={false}
             animate={reduce ? undefined : { opacity: 1, y: 0 }}
             transition={{ delay: 0.75, duration: 0.6, ease: "easeInOut" }}
           >
@@ -95,7 +95,7 @@ export function MonologHero({
           {navLinks.map((link, i) => (
             <motion.li
               key={link.label}
-              initial={reduce ? false : { opacity: 0, y: 16 }}
+              initial={false}
               animate={reduce ? undefined : { opacity: 1, y: 0 }}
               transition={{
                 delay: 0.55 + i * 0.07,

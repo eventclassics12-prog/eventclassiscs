@@ -35,6 +35,33 @@ const COL_COUNT = 10;
 const CENTER_COL = 4;
 const DRIFT = ROW_STEP;
 
+/**
+ * The grid is cropped far tighter on a phone: with `slice` fitting a 1200x800
+ * viewBox to a 390px-wide portrait viewport, the visible x-range is only about
+ * 370 units wide, so the two columns flanking the centre stadium are the only
+ * ones ever on screen. Drifting just those two gives mobile the same parallax
+ * read as desktop without paying for nine simultaneous scrubbed tweens. They
+ * are thrown in opposite directions on purpose — both columns are odd, so the
+ * desktop parity rule would move them together and the counter-motion the
+ * effect exists for would not be visible at all.
+ */
+const MOBILE_DRIFT = 140;
+const MOBILE_DRIFT_COLUMNS: Record<number, number> = {
+  [CENTER_COL - 1]: -MOBILE_DRIFT,
+  [CENTER_COL + 1]: MOBILE_DRIFT,
+};
+
+/**
+ * How far the march phase must travel before glyphs are repositioned.
+ *
+ * At 22s per circuit the phase moves ~0.39 units per frame at 60fps, so a 1
+ * unit threshold redrew only ~23 times a second — every letter jumped 1.25 CSS
+ * px in discrete steps and the ring visibly staircased. 0.2 redraws on every
+ * frame instead. A redraw is ~51 attribute writes, measured at ~2.5ms including
+ * the forced layout even under 4x CPU throttle, so per-frame is affordable.
+ */
+const REDRAW_STEP = 0.2;
+
 interface GridColumn {
   col: number;
   pills: { x: number; y: number }[];
@@ -81,18 +108,33 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
     if (!section || !path || !probe) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isMobileDevice = window.matchMedia("(max-width: 768px)").matches;
     const perimeter = path.getTotalLength();
+    const unitsPerSecond = perimeter / MARCH_CIRCUIT_SECONDS;
     let glyphCentres: number[] = [];
+
+    // The phase is a distance travelled along the path, kept unwrapped and
+    // monotonic, and measured against wall-clock time rather than by summing
+    // frame deltas. Accumulating deltas behind a `Math.min(dt, 0.05)` clamp
+    // meant every frame longer than 50ms permanently cost the march part of its
+    // circuit: the text silently fell into slow motion and never caught up,
+    // which is the lag people were seeing. Elapsed time is now absolute, so a
+    // dropped frame costs one correct larger step instead of permanent drift.
     let phase = 0;
+    let segmentStart = 0;
+    let running = false;
     let lastDrawnPhase = -1;
-    let frameId: number | null = null;
-    let previousTime = 0;
+    let tickerHandle: (() => void) | null = null;
     let isInView = false;
     let layoutReady = false;
     let disposed = false;
 
-    const LUT_SIZE = 1024;
+    // The march covers ~23.4 units per second, which is ~0.39 units per frame
+    // at 60fps. The lookup table has to resolve finer than that or consecutive
+    // frames land in the same bucket and the ring freezes in visible steps: at
+    // 1024 samples over a 514-unit path each bucket is 0.50 units wide, so
+    // roughly a fifth of all frames produced no movement at all. 8192 puts each
+    // bucket at 0.06 units, comfortably below the per-frame step.
+    const LUT_SIZE = 8192;
     const lutPoints = Array.from({ length: LUT_SIZE }, (_, i) =>
       path.getPointAtLength((i / LUT_SIZE) * perimeter),
     );
@@ -110,53 +152,75 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
     const positionGlyphs = () => {
       if (!layoutReady) return;
 
+      const distance = phase % perimeter;
+      const wrapGuard = phase < lastDrawnPhase ? perimeter : 0;
+
       glyphRefs.current.forEach((glyph, index) => {
         if (!glyph) return;
 
-        const distance = (glyphCentres[index] + phase) % perimeter;
+        const travelled = (glyphCentres[index] + distance + wrapGuard) % perimeter;
         const sample =
-          lut[Math.round((distance / perimeter) * LUT_SIZE) % LUT_SIZE];
+          lut[Math.round((travelled / perimeter) * LUT_SIZE) % LUT_SIZE];
 
         glyph.setAttribute(
           "transform",
           `translate(${sample.x.toFixed(3)} ${sample.y.toFixed(3)}) rotate(${sample.angle.toFixed(3)}) translate(0 -15)`,
         );
-        glyph.setAttribute("opacity", "1");
       });
     };
 
-    const stopMarch = () => {
-      if (frameId !== null) cancelAnimationFrame(frameId);
-      frameId = null;
-      previousTime = 0;
+    /** Opacity is constant for the life of the glyph, so it is set once here
+     *  rather than rewritten for all ~54 glyphs on every redraw. */
+    const revealGlyphs = () => {
+      glyphRefs.current.forEach((glyph) => {
+        glyph?.setAttribute("opacity", "1");
+      });
     };
 
-    const tick = (time: number) => {
-      frameId = null;
+    /**
+     * Advances the phase by the time elapsed since the last call and rebases
+     * the clock. Rebasing is what keeps this correct: reading elapsed time
+     * since the start of the run and adding it to an already-advanced phase
+     * double-counts the same interval on every frame, which makes the march
+     * accelerate without bound instead of moving at a constant speed.
+     */
+    const advance = () => {
+      if (!running) return phase;
+      const now = performance.now();
+      phase += ((now - segmentStart) / 1000) * unitsPerSecond;
+      segmentStart = now;
+      return phase;
+    };
+
+    const stopMarch = () => {
+      if (!running) return;
+      advance();
+      running = false;
+      if (tickerHandle) gsap.ticker.remove(tickerHandle);
+      tickerHandle = null;
+    };
+
+    const tick = () => {
       if (disposed || reducedMotion || !isInView || !layoutReady) return;
 
-      if (previousTime > 0) {
-        const deltaSeconds = Math.min((time - previousTime) / 1000, 0.05);
-        phase = (phase + (perimeter * deltaSeconds) / MARCH_CIRCUIT_SECONDS) % perimeter;
-        // Skip the per-glyph SVG attribute writes when the phase has moved less than
-        // one pixel — every write forces a layout pass on the SVG text nodes.
-        if (Math.abs(phase - lastDrawnPhase) >= 1) {
-          lastDrawnPhase = phase;
-          positionGlyphs();
-        }
+      const next = advance();
+      // Phase only ever moves forward, so a plain subtraction is wrap-safe.
+      if (Math.abs(next - lastDrawnPhase) >= REDRAW_STEP) {
+        lastDrawnPhase = next;
+        positionGlyphs();
       }
-      previousTime = time;
-      frameId = requestAnimationFrame(tick);
     };
 
     const startMarch = () => {
-      if (frameId !== null || !layoutReady || !isInView || reducedMotion) return;
-      // On mobile, glyphs are positioned once and held — no perpetual rAF loop,
-      // no setAttribute writes per frame. The pinned zoom/handoff that gave the
-      // march its visual purpose is also disabled in the mobile matchMedia branch.
-      if (isMobileDevice) return;
-      previousTime = 0;
-      frameId = requestAnimationFrame(tick);
+      if (running || !layoutReady || !isInView || reducedMotion) return;
+      segmentStart = performance.now();
+      running = true;
+      // Driven from GSAP's ticker rather than a private requestAnimationFrame
+      // so the march lands in the same frame as the ScrollTrigger-driven zoom
+      // and Lenis. On a private rAF the two can land in adjacent frames, which
+      // shows up as the text trailing the stadium by a frame.
+      tickerHandle = tick;
+      gsap.ticker.add(tick);
     };
 
     const measureGlyphs = () => {
@@ -182,6 +246,7 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
         (_, index) => ((cumulative[index] + cumulative[index + 1]) * 0.5) * scale,
       );
       layoutReady = true;
+      revealGlyphs();
       positionGlyphs();
       startMarch();
     };
@@ -316,33 +381,41 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
             );
         }
 
-        // Column drift: desktop only. This is 9 simultaneous scrubbed tweens
-        // (10 columns minus the center column) updating every scroll frame —
-        // too much work for mobile. The desktop experience keeps the full
-        // parallax grid; mobile shows a still grid.
-        if (!isMobile) {
-          const drift = gsap.timeline({
-            defaults: { ease: "none", force3D: true },
-            scrollTrigger: {
-              trigger: section,
-              start: "top bottom",
-              end: driftEnd,
-              scrub: true,
-            },
-          });
+        // Column drift. Desktop animates all nine off-centre columns; mobile
+        // animates only the two flanking the centre stadium (see
+        // MOBILE_DRIFT_COLUMNS) over a shorter throw, which keeps the parallax
+        // read without the scrub cost of nine simultaneous tweens.
+        const drift = gsap.timeline({
+          defaults: { ease: "none", force3D: true },
+          scrollTrigger: {
+            trigger: section,
+            start: "top bottom",
+            end: driftEnd,
+            scrub: isMobile ? 0.25 : true,
+          },
+        });
 
-          section.querySelectorAll<SVGGElement>("[data-ks-col]").forEach((colEl) => {
-            const col = Number(colEl.dataset.ksCol);
-            if (col === CENTER_COL) return;
-            drift.to(colEl, { y: col % 2 === 0 ? -DRIFT : DRIFT }, 0);
-          });
-        }
+        section.querySelectorAll<SVGGElement>("[data-ks-col]").forEach((colEl) => {
+          const col = Number(colEl.dataset.ksCol);
+          if (col === CENTER_COL) return;
+
+          if (isMobile) {
+            const throwDistance = MOBILE_DRIFT_COLUMNS[col];
+            if (throwDistance === undefined) return;
+            drift.to(colEl, { y: throwDistance }, 0);
+            return;
+          }
+
+          drift.to(colEl, { y: col % 2 === 0 ? -DRIFT : DRIFT }, 0);
+        });
       };
 
       mm.add("(max-width: 768px)", () => {
-        // Pinned timeline on mobile, but tuned: shorter pin distance than desktop,
-        // smaller zoom target, and the column-drift + smoke-handoff tweens are
-        // skipped inside buildStage via the isMobile guard.
+        // Pinned timeline on mobile, tuned for a shorter scroll: less pin
+        // distance than desktop and a smaller zoom target. The smoke handoff is
+        // skipped inside buildStage via the isMobile guard — a backdrop-filter
+        // blur forces a full-viewport recomposite every frame, which is the one
+        // effect genuinely not worth paying for on a phone.
         buildStage({
           pinEnd: "+=180%",
           zoomStart: 0.4,
@@ -350,7 +423,7 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
           whiteoutStart: 0.85,
           whiteoutDuration: 0.16,
           handoffDuration: 0.22,
-          driftEnd: "+=220%", // unused on mobile but required by buildStage signature
+          driftEnd: "+=220%",
         });
       });
 
@@ -369,6 +442,9 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
 
     return () => {
       disposed = true;
+      // Run before stopMarch so the final phase is committed into the DOM
+      // rather than discarded with the ticker handle.
+      positionGlyphs();
       stopMarch();
       io.disconnect();
       mm?.revert();

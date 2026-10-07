@@ -13,7 +13,12 @@ import { mediaUrl } from "@/lib/cms";
 import { postDescription } from "@/lib/blog";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
+
+// Generate new article pages on first request, then serve them from the cache.
+export function generateStaticParams() {
+  return [];
+}
 
 interface BlogPostRouteProps {
   params: Promise<{ slug: string }>;

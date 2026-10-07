@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef } from "react";
 import { motion, useReducedMotion, useInView } from "framer-motion";
 
@@ -79,10 +80,13 @@ export default function ImageSlider3D({
         }}
       >
         {images.map((src, i) => (
-          <img
+          <Image
             key={i}
             src={src}
             alt={`Slide ${i}`}
+            width={560}
+            height={800}
+            sizes="280px"
             loading="lazy"
             decoding="async"
             className={`col-start-1 row-start-1 object-cover rounded-[1.5em] ${imageClassName}`}

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Fragment, useLayoutEffect, useRef, useState } from "react";
 import { mediaUrl, type HomeServicesData } from "@/lib/cms";
 import "./Services.css";
@@ -187,10 +188,8 @@ export function Services({ data }: ServicesProps) {
               className={`services__hover-image ${
                 selectedService === i ? "services__hover-image--active" : ""
               }`}
-              style={{
-                backgroundImage: `url(${service.image})`,
-              }}
             >
+              <Image src={service.image} alt="" fill sizes="(max-width: 900px) 90vw, 30vw" style={{ objectFit: "cover", borderRadius: "inherit" }} />
               <span className="services__hover-image-label">
                 {service.imageLabel}
               </span>

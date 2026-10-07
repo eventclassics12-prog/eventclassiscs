@@ -190,3 +190,8 @@
     animation-duration: 1ms;
   }
 }
+
+/* Keep unstyled text in the same family as the component typography. */
+body {
+  font-family: var(--font-helvetica-neue), system-ui, sans-serif;
+}

@@ -9,34 +9,36 @@
   max-width: 90rem;
   margin-inline: auto;
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
+}
+
+/* Scroll driver: a tall block that gives the sticky stage room to pin while
+   the reveal walks the copy from dim to lit. */
+.statement__reveal {
+  position: relative;
+  min-height: 320vh;
+}
+
+.statement__stage {
+  position: sticky;
+  top: 0;
 
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  grid-template-rows: 1fr auto;
   grid-template-areas:
     "left-column right"
-    ".      byline";
+    "byline     .";
   row-gap: clamp(1rem, 2vw, 1.5rem);
   column-gap: clamp(2rem, 5vw, 5rem);
-}
 
-@media (max-width: 768px) {
-  .statement__inner {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "left-column"
-      "right"
-      "byline";
-  }
+  min-height: 100vh;
+  padding-block: clamp(1.5rem, 5vh, 4rem);
 }
 
 .statement__left-column {
   grid-area: left-column;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.5rem, 3vw, 2.5rem);
-}
+  align-self: center;
 
-.statement__left {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
@@ -59,56 +61,72 @@
   letter-spacing: -0.005em;
   margin: 0;
   max-width: 22ch;
+  text-wrap: pretty;
 }
 
 .statement__right {
   grid-area: right;
+  align-self: center;
+
   display: flex;
   flex-direction: column;
-  gap: clamp(1.5rem, 3vw, 2.5rem);
-  align-self: start;
+  gap: clamp(0.625rem, 1.4vh, 1.25rem);
 }
 
+/* The passage is 14 display-sized lines revealed inside one 100vh stage, so
+   the type is capped against viewport height as well as width. The cap sits
+   high enough that the intended size holds on any normal screen and only
+   engages on unusually short windows, where the stage would otherwise pin with
+   its tail cut off. */
 .statement__copy {
   font-family: var(--font-sans);
   font-weight: 600;
-  font-size: clamp(1.4rem, 2.8vw, 2.75rem);
+  font-size: min(clamp(1.4rem, 2.8vw, 2.75rem), 5.2vh);
   line-height: 1.1;
   letter-spacing: -0.025em;
 
+  color: var(--paper);
+  text-wrap: pretty;
+
   margin: 0;
-  max-width: 22ch;
+  max-width: min(34ch, 100%);
 }
 
-.statement__letter {
-  display: inline;
-  opacity: 0.1;
+/* Unlit by default so the passage is readable without JS or before hydration.
+   Scroll-driven dimming only opts in once TextReveal marks the container. */
+.statement__token {
+  opacity: 1;
 }
 
-@media (max-width: 768px) {
-  .statement__right {
-    width: 100%;
-    align-items: flex-start;
-    text-align: left;
-  }
-
-  .statement__copy {
-    width: 100%;
-    max-width: none;
-    margin-inline: 0;
-    font-size: clamp(1.375rem, 6vw, 1.5rem);
-    line-height: 1.15;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .statement__letter {
-    opacity: 1;
-  }
+/* Each token's opacity is a smooth ramp across the passage: `--reveal-front` is
+   the scroll position of the light front, `--i` / `--reveal-total` place this
+   token in the stream, and `--reveal-feather` is how soft that front is (all
+   three are published by TextReveal). There are no transitions on purpose — the
+   front is already interpolated every frame, and transitioning on top of it is
+   what made the words pop in one at a time. */
+.statement__reveal[data-reveal="active"] .statement__token {
+  --dim: 0.16;
+  opacity: clamp(
+    var(--dim),
+    calc(
+      var(--dim) +
+        (1 - var(--dim)) *
+          clamp(
+            0,
+            (var(--reveal-front) - (var(--i) + 0.5) / var(--reveal-total)) /
+              var(--reveal-feather) +
+              0.5,
+            1
+          )
+    ),
+    1
+  );
 }
 
 .statement__byline {
   grid-area: byline;
+  align-self: end;
+
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -154,4 +172,67 @@
   font-family: var(--font-sans);
   font-weight: 400;
   font-size: 0.8125rem;
+}
+
+@media (max-width: 768px) {
+  .statement__reveal {
+    min-height: 280vh;
+  }
+
+  .statement__stage {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "left-column"
+      "right"
+      "byline";
+    /* Without this the auto rows stretch to fill the 100vh stage and open a
+       gap between the caption and the copy. */
+    align-content: center;
+    row-gap: clamp(1rem, 3vh, 2rem);
+
+    min-height: 100vh;
+    /* Extra top space clears the fixed site header, which the desktop layout
+       never collides with because its left column is vertically centred. */
+    padding-block: clamp(4rem, 7vh, 5rem) clamp(1rem, 2vh, 2rem);
+  }
+
+  /* Stat and caption sit side by side on mobile: stacked, they push the copy
+     past the viewport and force the reveal text down to ~18px. */
+  .statement__left-column {
+    align-self: start;
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--space-md);
+  }
+
+  .statement__stat {
+    font-size: clamp(2.5rem, 9vw, 3.5rem);
+  }
+
+  .statement__caption {
+    font-size: 0.875rem;
+    max-width: 20ch;
+  }
+
+  .statement__right {
+    width: 100%;
+    align-self: center;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .statement__copy {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    font-size: min(clamp(1.375rem, 6vw, 1.5rem), 3.4vh);
+    line-height: 1.15;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statement__reveal[data-reveal="active"] .statement__token {
+    opacity: 1;
+  }
 }

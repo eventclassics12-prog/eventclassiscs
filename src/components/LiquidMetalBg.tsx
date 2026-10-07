@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LiquidMetal } from "@paper-design/shaders-react";
+import dynamic from "next/dynamic";
+
+const LiquidMetal = dynamic(
+  () => import("@paper-design/shaders-react").then((module) => module.LiquidMetal),
+  { ssr: false },
+);
 import "./LiquidMetalBg.css";
 
 const MOBILE_BREAKPOINT = "(max-width: 768px)";
@@ -26,6 +31,16 @@ const SHADER_PARAMS = {
 
 export function LiquidMetalBg() {
   const [isMobile, setIsMobile] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const start = () => { timer = setTimeout(() => setReady(true), 300); };
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+    return () => { clearTimeout(timer); window.removeEventListener("load", start); };
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia(MOBILE_BREAKPOINT);
@@ -39,7 +54,7 @@ export function LiquidMetalBg() {
 
   return (
     <div aria-hidden="true" className="liquid-metal-bg">
-      <LiquidMetal
+      {ready && <LiquidMetal
         width="100%"
         height="100%"
         colorBack="#ffffff"
@@ -58,7 +73,7 @@ export function LiquidMetalBg() {
         fit="cover"
         minPixelRatio={params.minPixelRatio}
         maxPixelCount={params.maxPixelCount}
-      />
+      />}
     </div>
   );
 }

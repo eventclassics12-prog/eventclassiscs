@@ -10,7 +10,7 @@ import {
 } from "@/lib/cms-server";
 import { buildMetadata } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getGlobal<SiteSettingsData>("site-settings");

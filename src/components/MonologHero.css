@@ -391,6 +391,13 @@
   mix-blend-mode: normal;
 
   backface-visibility: hidden;
+
+  /* The travel tween scales this 354px weight-800 run down to nav size. Without
+     this, Chromium re-rasterizes the whole glyph run at every new scale (once
+     per frame during a scrub) and the letters visibly churn on phones.
+     will-change tells it to rasterize once and let the GPU do the scaling.
+     `transform` only — adding `scale` would opt back into re-rastering. */
+  will-change: transform;
 }
 
 .m-hero__wordmark-load {
@@ -410,15 +417,31 @@
 .m-hero__wordmark-letter {
   display: inline-block;
   opacity: 0;
-  transform: translateY(0.5em);
+  /* Whole-pixel rise, set from JS as round(0.5 * fontSize). A fractional
+     offset (0.5em) makes the glyph destination land off the raster grid, so
+     every letter re-rasterizes weight-800 text mid-transition and shimmers. */
+  transform: translateY(var(--letter-rise, 0.5em));
+  /* Deliberately NOT the site-wide --ease-out. cubic-bezier(0.16, 1, 0.3, 1)
+     covers ~80% of the distance in the first ~15% of the duration, so each
+     letter completes its whole 24px rise in roughly two frames and then sits
+     still. With a per-letter delay on top, that reads as a staircase: most
+     letters unmoved, the started ones already parked. This gentler curve
+     spreads the same travel across the full duration so the letters overlap
+     into a travelling ramp. */
   transition:
-    transform 150ms var(--ease-out),
-    opacity 150ms var(--ease-out);
+    transform var(--letter-duration, 240ms) var(
+      --letter-ease,
+      cubic-bezier(0.4, 0, 0.2, 1)
+    ),
+    opacity var(--letter-duration, 240ms) var(
+      --letter-ease,
+      cubic-bezier(0.4, 0, 0.2, 1)
+    );
 }
 
 .m-hero__wordmark-letter--active {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0px);
 }
 
 .m-hero__wordmark-letter--settled {
@@ -467,6 +490,30 @@
 
     padding-top: 0;
     margin-inline: auto;
+  }
+
+  /* Reclaim per-frame budget for the wordmark entrance on high-refresh
+     mobile (8.33ms/frame at 120Hz).
+
+     backdrop-filter on a fixed bar re-samples the backdrop every frame, and
+     the wordmark animates straight into this bar — so it competes with the
+     blend layer for the same fill rate. mix-blend-mode and mask-image are
+     kept; the 12px blur is the expensive part. */
+  .m-hero__nav {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* m-hero-rainbow animates `background-position`, which is a PAINT property,
+     not a compositor-friendly transform/opacity. That means a full repaint of
+     the CTA border every frame, forever — including throughout the letter
+     entrance. The ::before copy compounds it with filter: blur(0.75rem).
+     Frozen on mobile it still renders the gradient, just without the sweep.
+     (m-hero-cta-pulse is deliberately left running: it animates transform +
+     opacity only, so it is compositor-friendly.) */
+  .m-hero__bookcta,
+  .m-hero__bookcta::before {
+    animation: none;
   }
 }
 
