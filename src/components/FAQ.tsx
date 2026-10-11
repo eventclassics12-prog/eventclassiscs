@@ -71,12 +71,11 @@ export function FAQ({ data }: FAQProps) {
   const headline = data?.headline ?? FALLBACK_HEADLINE;
 
   const faqs: FAQItem[] =
-    data?.faqs && data.faqs.length > 0
-      ? data.faqs.map((f, i) => {
-          const fallback = FALLBACK_FAQS[i % FALLBACK_FAQS.length];
+    data?.faqs != null
+      ? data.faqs.map((f) => {
           return {
-            question: f.question ?? fallback.question,
-            answer: f.answer ?? fallback.answer,
+            question: f.question ?? "",
+            answer: f.answer ?? "",
           };
         })
       : [...FALLBACK_FAQS];

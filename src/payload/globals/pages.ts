@@ -1,4 +1,4 @@
-import type { GlobalConfig } from 'payload'
+import type { Field, GlobalConfig } from 'payload'
 
 const uploadField = (
   name: string,
@@ -8,9 +8,16 @@ const uploadField = (
   name,
   type: 'upload' as const,
   relationTo: 'media' as const,
+  filterOptions: { mimeType: { contains: /video/i.test(label) ? 'video/' : 'image/' } },
   label,
   admin: description ? { description } : undefined,
 })
+
+const seoFields: Field[] = [
+  { name: 'seoTitle', type: 'text', label: 'SEO title', admin: { description: 'Optional browser tab and search title.' } },
+  { name: 'seoDescription', type: 'textarea', label: 'SEO description' },
+  uploadField('ogImage', 'Social share image'),
+]
 
 export const PageAbout: GlobalConfig = {
   slug: 'page-about',
@@ -20,7 +27,9 @@ export const PageAbout: GlobalConfig = {
     description: 'Content of the /about page.',
   },
   fields: [
+    ...seoFields,
     uploadField('heroVideo', 'Hero video', 'Looping chrome video in the about hero.'),
+    uploadField('circularLogo', 'Circular text logo'),
     {
       name: 'heroTitle',
       type: 'textarea',
@@ -48,7 +57,7 @@ export const PageAbout: GlobalConfig = {
     {
       name: 'storyParagraphs',
       type: 'array',
-      minRows: 1,
+      minRows: 0,
       fields: [{ name: 'text', type: 'textarea', required: true }],
       defaultValue: [
         {
@@ -72,7 +81,7 @@ export const PageAbout: GlobalConfig = {
     {
       name: 'principles',
       type: 'array',
-      minRows: 1,
+      minRows: 0,
       fields: [
         { name: 'title', type: 'text', required: true },
         { name: 'body', type: 'textarea', required: true },
@@ -108,6 +117,7 @@ export const PageServices: GlobalConfig = {
       'Content of the /services page. The service list itself is shared — edit it under Home → Services.',
   },
   fields: [
+    ...seoFields,
     uploadField('heroVideo', 'Hero video', 'Looping chrome video in the services hero.'),
     {
       name: 'heroTitle',
@@ -124,7 +134,7 @@ export const PageServices: GlobalConfig = {
       name: 'finalCtaLines',
       type: 'array',
       label: 'Final CTA lines',
-      minRows: 1,
+      minRows: 0,
       fields: [{ name: 'text', type: 'text', required: true }],
       defaultValue: [
         { text: 'Your business has already done the hard part.' },
@@ -147,6 +157,7 @@ export const PageWork: GlobalConfig = {
     description: 'Content of the /work page.',
   },
   fields: [
+    ...seoFields,
     {
       name: 'heroTitle',
       type: 'textarea',
@@ -162,7 +173,7 @@ export const PageWork: GlobalConfig = {
     {
       name: 'projects',
       type: 'array',
-      minRows: 1,
+      minRows: 0,
       fields: [
         { name: 'title', type: 'text', required: true },
         {
@@ -218,6 +229,7 @@ export const PageContact: GlobalConfig = {
     description: 'Content of the /contact-form page.',
   },
   fields: [
+    ...seoFields,
     {
       name: 'introHeading',
       type: 'textarea',
@@ -230,7 +242,7 @@ export const PageContact: GlobalConfig = {
         'Briefs, questions, or a quick sanity check on an idea — pick whichever fits and we\'ll get back within one business day. For active engagements, write to us directly at info@eventclassics.in.',
       admin: {
         description:
-          'The email address inside this text is automatically turned into a mailto link.',
+          'Use {email} to insert Intro Email as a link. Existing info@eventclassics.in text also follows Intro Email.',
       },
     },
     { name: 'introEmail', type: 'text', defaultValue: 'info@eventclassics.in' },
@@ -244,6 +256,10 @@ export const PageContact: GlobalConfig = {
     { name: 'email', type: 'text', defaultValue: 'info@eventclassics.in' },
     { name: 'phone', type: 'text', defaultValue: '983-1234-059' },
     { name: 'address', type: 'text', defaultValue: 'Kolkata, India · Working worldwide' },
+    { name: 'infoEmailLabel', type: 'text', defaultValue: 'Email' },
+    { name: 'infoPhoneLabel', type: 'text', defaultValue: 'Studio' },
+    { name: 'infoAddressLabel', type: 'text', defaultValue: 'Address' },
+    { name: 'failureMessage', type: 'textarea', defaultValue: 'Your message could not be sent. Please try again or email us directly.' },
     { name: 'labelName', type: 'text', defaultValue: 'Name' },
     { name: 'labelEmail', type: 'text', defaultValue: 'Email' },
     { name: 'labelPhone', type: 'text', defaultValue: 'Phone' },
@@ -266,6 +282,7 @@ export const PageThankYou: GlobalConfig = {
     description: 'Confirmation shown after the contact form is submitted.',
   },
   fields: [
+    ...seoFields,
     {
       name: 'heading',
       type: 'textarea',
@@ -278,5 +295,19 @@ export const PageThankYou: GlobalConfig = {
     },
     { name: 'ctaLabel', type: 'text', defaultValue: 'Go to home' },
     { name: 'ctaHref', type: 'text', defaultValue: '/' },
+  ],
+}
+
+export const PageBlog: GlobalConfig = {
+  slug: 'page-blog',
+  label: 'Journal Page',
+  admin: { group: 'Pages', description: 'Journal heading, supporting copy and article navigation. Edit articles under Posts.' },
+  fields: [
+    ...seoFields,
+    { name: 'label', type: 'text', defaultValue: 'Journal' },
+    { name: 'heroTitle', type: 'text', defaultValue: 'Journal' },
+    { name: 'heroLede', type: 'textarea', defaultValue: 'Notes on building brands people remember — from the studio floor.' },
+    { name: 'emptyMessage', type: 'textarea', defaultValue: 'No posts yet — check back soon.' },
+    { name: 'backLabel', type: 'text', defaultValue: 'All posts' },
   ],
 }

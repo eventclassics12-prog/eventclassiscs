@@ -1,3 +1,4 @@
+import { mediaUrl } from "@/lib/cms";
 import type { Metadata } from "next";
 import { ServicesPage } from "@/components/ServicesPage";
 import { ServicesHeader } from "@/components/ServicesHeader";
@@ -13,12 +14,16 @@ import {
 import { buildMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const site = await getGlobal<SiteSettingsData>("site-settings");
+  const [site, data] = await Promise.all([
+    getGlobal<SiteSettingsData>("site-settings"),
+    getGlobal<PageServicesData>("page-services"),
+  ]);
   const brand = site?.brandName ?? "EVENTCLASSICS";
   return buildMetadata(site, {
-    title: `${brand} — Services`,
-    description:
+    title: data?.seoTitle?.trim() || `${brand} — Services`,
+    description: data?.seoDescription?.trim() ||
       "Brand identity, growth strategy, social media and content creation — connected as one brand system.",
+    image: mediaUrl(data?.ogImage),
     path: "/services",
   });
 }

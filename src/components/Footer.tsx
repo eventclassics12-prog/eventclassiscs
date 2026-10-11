@@ -39,7 +39,7 @@ export function Footer({ site }: FooterProps) {
   const brandTagline =
     site?.brandTagline ?? "Build something worth remembering.";
   const navItems: ReadonlyArray<{ label: string; href: string }> =
-    site?.navLinks?.length ? site.navLinks : NAV_ITEMS;
+    site?.navLinks != null ? site.navLinks : NAV_ITEMS;
   const talkLabel = site?.footerTalkLabel ?? "Let's Talk";
   const contactButtonLabel = site?.footerContactButtonLabel ?? "View Contact";
   const contactHref = site?.footerContactHref ?? "/contact-form";
@@ -50,7 +50,7 @@ export function Footer({ site }: FooterProps) {
   const locationLine1 = site?.locationLine1 ?? "Based in Kolkata, India";
   const locationLine2 = site?.locationLine2 ?? "Working worldwide.";
   const socialsLabel = site?.socialsLabel ?? "(SOCIALS)";
-  const socialItems = site?.socials?.length
+  const socialItems = site?.socials != null
     ? site.socials.map((item) => ({ label: item.label, href: item.url }))
     : SOCIAL_ITEMS;
   const copyright = site?.copyright ?? "© Event Classics";

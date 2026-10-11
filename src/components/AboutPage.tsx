@@ -79,6 +79,7 @@ export function AboutPage({ data }: AboutPageProps) {
       <CircularText
         innerSentence={data?.circularInner ?? undefined}
         outerSentence={data?.circularOuter ?? undefined}
+        logoSrc={mediaUrl(data?.circularLogo)}
       />
 
       <section className="about__story">

@@ -26,6 +26,7 @@ import {
   PageWork,
   PageContact,
   PageThankYou,
+  PageBlog,
 } from './src/payload/globals/pages'
 
 const filename = fileURLToPath(import.meta.url)
@@ -65,6 +66,7 @@ export default buildConfig({
     PageWork,
     PageContact,
     PageThankYou,
+    PageBlog,
   ].map((global) => ({
     ...global,
     hooks: {

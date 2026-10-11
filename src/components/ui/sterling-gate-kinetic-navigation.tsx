@@ -43,7 +43,7 @@ export function SterlingGateKineticNavigation({
 }: {
   site?: SiteSettingsData | null;
 }) {
-  const links: ReadonlyArray<MenuLink> = site?.navLinks?.length
+  const links: ReadonlyArray<MenuLink> = site?.navLinks != null
     ? site.navLinks.map((link, index) => ({
         label: link.label,
         href: link.href,
@@ -52,8 +52,8 @@ export function SterlingGateKineticNavigation({
       }))
     : FALLBACK_MENU_LINKS;
   const cta = {
-    label: site?.footerContactButtonLabel ?? FALLBACK_MENU_CTA.label,
-    href: site?.footerContactHref ?? FALLBACK_MENU_CTA.href,
+    label: site?.menuCtaLabel ?? site?.footerContactButtonLabel ?? FALLBACK_MENU_CTA.label,
+    href: site?.menuCtaHref ?? site?.footerContactHref ?? FALLBACK_MENU_CTA.href,
   };
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -278,9 +278,9 @@ export function SterlingGateKineticNavigation({
         }}
       >
         <span className="menu-button-text">
-          <p className="p-large">Menu</p>
+          <p className="p-large">{site?.menuLabel ?? "Menu"}</p>
           <p className="p-large" aria-hidden="true">
-            Close
+            {site?.menuCloseLabel ?? "Close"}
           </p>
         </span>
         <span className="icon-wrap">

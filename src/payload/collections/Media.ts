@@ -1,12 +1,14 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
 import type { CollectionConfig } from 'payload'
+import { readPublicMedia } from '../publicMedia'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  access: { read: readPublicMedia },
   labels: {
     singular: 'Media',
     plural: 'Media',

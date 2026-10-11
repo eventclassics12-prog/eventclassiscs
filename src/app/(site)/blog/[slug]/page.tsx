@@ -8,6 +8,7 @@ import {
   getGlobal,
   getPostBySlug,
   type SiteSettingsData,
+  type PageBlogData,
 } from "@/lib/cms-server";
 import { mediaUrl } from "@/lib/cms";
 import { postDescription } from "@/lib/blog";
@@ -53,9 +54,10 @@ export async function generateMetadata({
 
 export default async function BlogPostRoute({ params }: BlogPostRouteProps) {
   const { slug } = await params;
-  const [post, site] = await Promise.all([
+  const [post, site, data] = await Promise.all([
     getPostBySlug(slug),
     getGlobal<SiteSettingsData>("site-settings"),
+    getGlobal<PageBlogData>("page-blog"),
   ]);
   if (!post?.slug) notFound();
 
@@ -75,7 +77,7 @@ export default async function BlogPostRoute({ params }: BlogPostRouteProps) {
   return (
     <PageTransition>
       <ServicesHeader currentPage="blog" site={site} />
-      <BlogPostPage post={post} />
+      <BlogPostPage post={post} data={data} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

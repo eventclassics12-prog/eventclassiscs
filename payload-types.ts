@@ -104,6 +104,7 @@ export interface Config {
     'page-work': PageWork;
     'page-contact': PageContact;
     'page-thank-you': PageThankYou;
+    'page-blog': PageBlog;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
@@ -120,6 +121,7 @@ export interface Config {
     'page-work': PageWorkSelect<false> | PageWorkSelect<true>;
     'page-contact': PageContactSelect<false> | PageContactSelect<true>;
     'page-thank-you': PageThankYouSelect<false> | PageThankYouSelect<true>;
+    'page-blog': PageBlogSelect<false> | PageBlogSelect<true>;
   };
   locale: null;
   widgets: {
@@ -449,6 +451,16 @@ export interface SiteSetting {
         id?: string | null;
       }[]
     | null;
+  menuLabel?: string | null;
+  menuCloseLabel?: string | null;
+  /**
+   * Optional menu button label. Falls back to the footer contact button label.
+   */
+  menuCtaLabel?: string | null;
+  /**
+   * Optional menu button destination. Falls back to the footer contact destination.
+   */
+  menuCtaHref?: string | null;
   footerTalkLabel?: string | null;
   footerContactButtonLabel?: string | null;
   footerContactHref?: string | null;
@@ -496,7 +508,10 @@ export interface SiteSetting {
  */
 export interface HomeHero {
   id: number;
-  brand: string;
+  /**
+   * Optional. Clear this to use Site Settings → Brand Name.
+   */
+  brand?: string | null;
   /**
    * Line breaks are kept as shown.
    */
@@ -585,7 +600,7 @@ export interface HomeSuccessStory {
   label?: string | null;
   pagerTag?: string | null;
   /**
-   * Ambient video behind the section intro.
+   * Video played on case-study hover or mobile visibility. Individual projects can override it.
    */
   video?: (number | null) | Media;
   projects?:
@@ -595,6 +610,7 @@ export interface HomeSuccessStory {
         stat: string;
         statCaption: string;
         image?: (number | null) | Media;
+        video?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -662,9 +678,16 @@ export interface HomeFaq {
 export interface PageAbout {
   id: number;
   /**
+   * Optional browser tab and search title.
+   */
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImage?: (number | null) | Media;
+  /**
    * Looping chrome video in the about hero.
    */
   heroVideo?: (number | null) | Media;
+  circularLogo?: (number | null) | Media;
   heroTitle?: string | null;
   heroLede?: string | null;
   circularInner?: string | null;
@@ -702,6 +725,12 @@ export interface PageAbout {
 export interface PageService {
   id: number;
   /**
+   * Optional browser tab and search title.
+   */
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImage?: (number | null) | Media;
+  /**
    * Looping chrome video in the services hero.
    */
   heroVideo?: (number | null) | Media;
@@ -728,6 +757,12 @@ export interface PageService {
  */
 export interface PageWork {
   id: number;
+  /**
+   * Optional browser tab and search title.
+   */
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImage?: (number | null) | Media;
   heroTitle?: string | null;
   heroLede?: string | null;
   projectsLabel?: string | null;
@@ -784,6 +819,12 @@ export interface PageWork {
  */
 export interface PageContact {
   id: number;
+  /**
+   * Optional browser tab and search title.
+   */
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImage?: (number | null) | Media;
   introHeading?: string | null;
   /**
    * The email address inside this text is automatically turned into a mailto link.
@@ -795,6 +836,10 @@ export interface PageContact {
   email?: string | null;
   phone?: string | null;
   address?: string | null;
+  infoEmailLabel?: string | null;
+  infoPhoneLabel?: string | null;
+  infoAddressLabel?: string | null;
+  failureMessage?: string | null;
   labelName?: string | null;
   labelEmail?: string | null;
   labelPhone?: string | null;
@@ -813,10 +858,38 @@ export interface PageContact {
  */
 export interface PageThankYou {
   id: number;
+  /**
+   * Optional browser tab and search title.
+   */
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImage?: (number | null) | Media;
   heading?: string | null;
   sub?: string | null;
   ctaLabel?: string | null;
   ctaHref?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Journal heading, supporting copy and article navigation. Edit articles under Posts.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-blog".
+ */
+export interface PageBlog {
+  id: number;
+  /**
+   * Optional browser tab and search title.
+   */
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImage?: (number | null) | Media;
+  label?: string | null;
+  heroTitle?: string | null;
+  heroLede?: string | null;
+  emptyMessage?: string | null;
+  backLabel?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -835,6 +908,10 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         href?: T;
         id?: T;
       };
+  menuLabel?: T;
+  menuCloseLabel?: T;
+  menuCtaLabel?: T;
+  menuCtaHref?: T;
   footerTalkLabel?: T;
   footerContactButtonLabel?: T;
   footerContactHref?: T;
@@ -949,6 +1026,7 @@ export interface HomeSuccessStoriesSelect<T extends boolean = true> {
         stat?: T;
         statCaption?: T;
         image?: T;
+        video?: T;
         id?: T;
       };
   updatedAt?: T;
@@ -1008,7 +1086,11 @@ export interface HomeFaqSelect<T extends boolean = true> {
  * via the `definition` "page-about_select".
  */
 export interface PageAboutSelect<T extends boolean = true> {
+  seoTitle?: T;
+  seoDescription?: T;
+  ogImage?: T;
   heroVideo?: T;
+  circularLogo?: T;
   heroTitle?: T;
   heroLede?: T;
   circularInner?: T;
@@ -1043,6 +1125,9 @@ export interface PageAboutSelect<T extends boolean = true> {
  * via the `definition` "page-services_select".
  */
 export interface PageServicesSelect<T extends boolean = true> {
+  seoTitle?: T;
+  seoDescription?: T;
+  ogImage?: T;
   heroVideo?: T;
   heroTitle?: T;
   heroLede?: T;
@@ -1065,6 +1150,9 @@ export interface PageServicesSelect<T extends boolean = true> {
  * via the `definition` "page-work_select".
  */
 export interface PageWorkSelect<T extends boolean = true> {
+  seoTitle?: T;
+  seoDescription?: T;
+  ogImage?: T;
   heroTitle?: T;
   heroLede?: T;
   projectsLabel?: T;
@@ -1113,6 +1201,9 @@ export interface PageWorkSelect<T extends boolean = true> {
  * via the `definition` "page-contact_select".
  */
 export interface PageContactSelect<T extends boolean = true> {
+  seoTitle?: T;
+  seoDescription?: T;
+  ogImage?: T;
   introHeading?: T;
   introLede?: T;
   introEmail?: T;
@@ -1121,6 +1212,10 @@ export interface PageContactSelect<T extends boolean = true> {
   email?: T;
   phone?: T;
   address?: T;
+  infoEmailLabel?: T;
+  infoPhoneLabel?: T;
+  infoAddressLabel?: T;
+  failureMessage?: T;
   labelName?: T;
   labelEmail?: T;
   labelPhone?: T;
@@ -1137,10 +1232,30 @@ export interface PageContactSelect<T extends boolean = true> {
  * via the `definition` "page-thank-you_select".
  */
 export interface PageThankYouSelect<T extends boolean = true> {
+  seoTitle?: T;
+  seoDescription?: T;
+  ogImage?: T;
   heading?: T;
   sub?: T;
   ctaLabel?: T;
   ctaHref?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-blog_select".
+ */
+export interface PageBlogSelect<T extends boolean = true> {
+  seoTitle?: T;
+  seoDescription?: T;
+  ogImage?: T;
+  label?: T;
+  heroTitle?: T;
+  heroLede?: T;
+  emptyMessage?: T;
+  backLabel?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

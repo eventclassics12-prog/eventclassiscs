@@ -42,17 +42,17 @@ export function Brands({ data }: BrandsProps) {
   const label = data?.label ?? FALLBACK_LABEL;
 
   const brands: BrandEntry[] =
-    data?.brands && data.brands.length > 0
-      ? data.brands.map((entry, i) => {
-          const fallback = FALLBACK_BRANDS[i % FALLBACK_BRANDS.length];
+    // Payload returns an empty array even before this global has been saved.
+    data?.brands != null && (data.id != null || data.brands.length > 0)
+      ? data.brands.map((entry) => {
           const media = asMediaObject(entry.logo);
-          const name = entry.name ?? fallback.name;
+          const name = entry.name ?? "";
           return {
-            src: mediaUrl(entry.logo) ?? fallback.src,
+            src: mediaUrl(entry.logo) ?? "",
             name,
-            width: media?.width ?? fallback.width,
-            height: media?.height ?? fallback.height,
-            alt: media?.alt ?? entry.name ?? fallback.name,
+            width: media?.width ?? 800,
+            height: media?.height ?? 400,
+            alt: media?.alt ?? entry.name ?? "",
           };
         })
       : FALLBACK_BRANDS.map((b) => ({
@@ -74,14 +74,14 @@ export function Brands({ data }: BrandsProps) {
         <div className="brands__grid">
           {brands.map((brand, i) => (
             <div className="brands__cell" key={`${brand.src}-${i}`}>
-              <Image
+              {brand.src && <Image
                 className="brands__image"
                 src={brand.src}
                 alt={brand.alt}
                 width={brand.width}
                 height={brand.height}
                 sizes="(max-width: 767px) 45vw, 35vw"
-              />
+              />}
               <span className="brands__name">{brand.name}</span>
             </div>
           ))}

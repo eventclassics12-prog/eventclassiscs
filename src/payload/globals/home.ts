@@ -4,6 +4,7 @@ const mediaUpload = (label: string, description?: string) => ({
   name: 'image',
   type: 'upload' as const,
   relationTo: 'media' as const,
+  filterOptions: { mimeType: { contains: 'image/' } },
   label,
   admin: description ? { description } : undefined,
 })
@@ -19,8 +20,8 @@ export const HomeHero: GlobalConfig = {
     {
       name: 'brand',
       type: 'text',
-      required: true,
-      defaultValue: 'eventclassics.in',
+      label: 'Homepage wordmark override',
+      admin: { description: 'Optional. Clear this to use Site Settings → Brand Name.' },
     },
     {
       name: 'headline',
@@ -47,7 +48,7 @@ export const HomeBrands: GlobalConfig = {
   label: 'Trusted By',
   admin: {
     group: 'Home',
-    description: 'Logo strip under the hero.',
+    description: 'Manage the Trusted By logo grid. Expand a client logo row, then upload a new logo or choose an existing image.',
   },
   fields: [
     {
@@ -58,10 +59,18 @@ export const HomeBrands: GlobalConfig = {
     {
       name: 'brands',
       type: 'array',
-      minRows: 1,
+      label: 'Client logos',
+      labels: { singular: 'Client logo', plural: 'Client logos' },
+      admin: { initCollapsed: false, description: 'Use Add Client logo to add a row. The Logo control is inside each row.' },
+      minRows: 0,
       fields: [
-        { ...mediaUpload('Logo'), name: 'logo' },
-        { name: 'name', type: 'text', required: true },
+        {
+          ...mediaUpload('Logo'),
+          name: 'logo',
+          displayPreview: true,
+          admin: { allowCreate: true, description: 'Upload a new image here, or select an image from Media.' },
+        },
+        { name: 'name', type: 'text', label: 'Client name', required: true },
       ],
     },
   ],
@@ -84,7 +93,7 @@ export const HomeStatement: GlobalConfig = {
     {
       name: 'paragraphs',
       type: 'array',
-      minRows: 1,
+      minRows: 0,
       fields: [{ name: 'text', type: 'textarea', required: true }],
       defaultValue: [
         { text: "Great founders don't usually have an ambition problem." },
@@ -156,19 +165,21 @@ export const HomeSuccessStories: GlobalConfig = {
       name: 'video',
       type: 'upload',
       relationTo: 'media',
-      label: 'Intro video',
-      admin: { description: 'Ambient video behind the section intro.' },
+      label: 'Default project video',
+      filterOptions: { mimeType: { contains: 'video/' } },
+      admin: { description: 'Video played on case-study hover or mobile visibility. Individual projects can override it.' },
     },
     {
       name: 'projects',
       type: 'array',
-      minRows: 1,
+      minRows: 0,
       fields: [
         { name: 'title', type: 'text', required: true },
         { name: 'description', type: 'textarea', required: true },
         { name: 'stat', type: 'text', required: true },
         { name: 'statCaption', type: 'text', required: true },
         { ...mediaUpload('Project image'), name: 'image' },
+        { name: 'video', type: 'upload', relationTo: 'media', filterOptions: { mimeType: { contains: 'video/' } }, label: 'Project video override' },
       ],
     },
   ],
@@ -192,7 +203,7 @@ export const HomeServices: GlobalConfig = {
     {
       name: 'services',
       type: 'array',
-      minRows: 1,
+      minRows: 0,
       fields: [
         { name: 'name', type: 'text', required: true },
         { name: 'kicker', type: 'text' },
@@ -233,7 +244,7 @@ export const HomeFaq: GlobalConfig = {
     {
       name: 'faqs',
       type: 'array',
-      minRows: 1,
+      minRows: 0,
       fields: [
         { name: 'question', type: 'text', required: true },
         { name: 'answer', type: 'textarea', required: true },

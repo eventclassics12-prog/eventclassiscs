@@ -8,6 +8,7 @@ import "./circular-text.css";
 interface CircularTextProps {
   innerSentence?: string;
   outerSentence?: string;
+  logoSrc?: string;
 }
 
 interface RingConfig {
@@ -54,6 +55,7 @@ function buildLetters(sentence: string, radius: number): Letter[] {
 export default function CircularText({
   innerSentence = "Round and round the letters go, where they stop, you'll know.",
   outerSentence = "Round and round the letters go, where they stop, you'll know.",
+  logoSrc = "/logos/ec-mark.png",
 }: CircularTextProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -208,7 +210,7 @@ export default function CircularText({
     <div className="circular-text" ref={wrapperRef}>
       <div className="circular-text__stage" ref={stageRef}>
         <div className="circular-text__logo" aria-hidden="true">
-          <img src="/logos/ec-mark.png" alt="" />
+          <img src={logoSrc} alt="" />
         </div>
 
         <div

@@ -53,7 +53,7 @@ export function ServicesPage({ data, servicesData }: ServicesPageProps) {
 
   const cmsRows = servicesData?.services;
   const services: SvcRow[] =
-    cmsRows && cmsRows.length > 0
+    cmsRows != null
       ? normalizeCmsServices(cmsRows)
       : SERVICES.map((s) => ({
           name: s.name,
@@ -125,7 +125,7 @@ export function ServicesPage({ data, servicesData }: ServicesPageProps) {
                   className="svc__image"
                   aria-hidden="true"
                 >
-                  <Image src={service.image} alt="" fill sizes="(max-width: 900px) 90vw, 30vw" style={{ objectFit: "cover", borderRadius: "inherit" }} />
+                  {service.image && <Image src={service.image} alt="" fill sizes="(max-width: 900px) 90vw, 30vw" style={{ objectFit: "cover", borderRadius: "inherit" }} />}
               <span className="svc__image-label">{service.imageLabel}</span>
                 </div>
               </div>

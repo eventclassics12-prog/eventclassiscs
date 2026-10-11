@@ -60,7 +60,7 @@ export function Statement({
   const resolvedStat = data?.stat ?? stat;
   const resolvedStatCaption = data?.statCaption ?? statCaption;
   const resolvedParagraphs =
-    data?.paragraphs && data.paragraphs.length > 0
+    data?.paragraphs != null
       ? data.paragraphs.map((p) => p.text ?? "")
       : paragraphs;
   const resolvedBylineName = data?.bylineName ?? bylineName;

@@ -30,7 +30,7 @@ export const SiteSettings: GlobalConfig = {
       name: 'navLinks',
       type: 'array',
       label: 'Navigation links',
-      minRows: 1,
+      minRows: 0,
       fields: [
         { name: 'label', type: 'text', required: true },
         { name: 'href', type: 'text', required: true },
@@ -43,6 +43,10 @@ export const SiteSettings: GlobalConfig = {
         { label: 'FAQ', href: '/#faq' },
       ],
     },
+    { name: 'menuLabel', type: 'text', defaultValue: 'Menu' },
+    { name: 'menuCloseLabel', type: 'text', defaultValue: 'Close' },
+    { name: 'menuCtaLabel', type: 'text', admin: { description: 'Optional menu button label. Falls back to the footer contact button label.' } },
+    { name: 'menuCtaHref', type: 'text', admin: { description: 'Optional menu button destination. Falls back to the footer contact destination.' } },
     {
       name: 'footerTalkLabel',
       type: 'text',
@@ -64,6 +68,7 @@ export const SiteSettings: GlobalConfig = {
       type: 'upload',
       relationTo: 'media',
       label: 'Footer logo video',
+      filterOptions: { mimeType: { contains: 'video/' } },
       admin: { description: 'Looping logo animation at the bottom of every page.' },
     },
     {
@@ -142,6 +147,7 @@ export const SiteSettings: GlobalConfig = {
       type: 'upload',
       relationTo: 'media',
       label: 'Default social share image',
+      filterOptions: { mimeType: { contains: 'image/' } },
       admin: {
         description:
           'Used for Open Graph / Twitter cards site-wide. Upload a 1200×630 image; falls back to the built-in cover art.',

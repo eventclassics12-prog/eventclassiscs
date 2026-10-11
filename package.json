@@ -11,7 +11,10 @@
     "check:wordmark": "node scripts/check-wordmark-animation.mjs",
     "seed": "tsx --env-file=.env scripts/seed.ts",
     "seed:prod": "NODE_ENV=production tsx --env-file=.env scripts/seed.ts",
-    "generate:types": "payload generate:types"
+    "generate:types": "payload generate:types",
+    "check:cms": "node scripts/check-cms-integration.mjs",
+    "init:trusted-by": "NODE_ENV=production tsx --env-file=.env scripts/initialize-trusted-by.ts",
+    "check:trusted-by": "node --import tsx scripts/check-trusted-by.ts && node --import tsx scripts/check-brands-fallback.cts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

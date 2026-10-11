@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { RichText } from "@payloadcms/richtext-lexical/react";
-import type { PostData } from "@/lib/cms";
+import type { PageBlogData, PostData } from "@/lib/cms";
 import { asMediaObject, mediaAlt, mediaUrl } from "@/lib/cms";
 import { formatPostDate, readingTimeOf } from "@/lib/blog";
 import "./BlogPostPage.css";
@@ -16,15 +16,15 @@ function hasContent(content: unknown): content is RichTextData {
   return Array.isArray(children) && children.length > 0;
 }
 
-function BackLink({ className }: { className: string }) {
+function BackLink({ className, label }: { className: string; label: string }) {
   return (
     <Link className={className} href="/blog">
-      <span aria-hidden="true">←</span> All posts
+      <span aria-hidden="true">←</span> {label}
     </Link>
   );
 }
 
-export function BlogPostPage({ post }: { post: PostData }) {
+export function BlogPostPage({ post, data }: { post: PostData; data?: PageBlogData | null }) {
   const coverSrc = mediaUrl(post.coverImage);
   const coverObj = asMediaObject(post.coverImage);
   const coverWidth = coverObj?.width ?? 1600;
@@ -33,7 +33,7 @@ export function BlogPostPage({ post }: { post: PostData }) {
   return (
     <main className="bpost">
       <div className="bpost__strip">
-        <BackLink className="bpost__back" />
+        <BackLink className="bpost__back" label={data?.backLabel ?? "All posts"} />
       </div>
 
       <header className="bpost__hero">
@@ -76,7 +76,7 @@ export function BlogPostPage({ post }: { post: PostData }) {
       ) : null}
 
       <nav className="bpost__footer-nav" aria-label="Journal">
-        <BackLink className="bpost__back" />
+        <BackLink className="bpost__back" label={data?.backLabel ?? "All posts"} />
       </nav>
     </main>
   );

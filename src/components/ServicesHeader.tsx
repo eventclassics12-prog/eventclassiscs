@@ -40,7 +40,7 @@ export function ServicesHeader({ currentPage, site }: ServicesHeaderProps) {
     label: string;
     href: string;
     page?: PageKey;
-  }> = site?.navLinks?.length
+  }> = site?.navLinks != null
     ? site.navLinks.map((link) => ({
         label: link.label,
         href: link.href,
@@ -56,7 +56,7 @@ export function ServicesHeader({ currentPage, site }: ServicesHeaderProps) {
         <Link
           className="svc-head__brand"
           href="/"
-          aria-label="Eventclassics — home"
+          aria-label={`${brandName} — home`}
         >
           {brandName}
         </Link>
