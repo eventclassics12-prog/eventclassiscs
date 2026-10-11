@@ -66,24 +66,25 @@ export function Services({ data }: ServicesProps) {
   const label = data?.label ?? FALLBACK_LABEL;
 
   const services: Service[] =
-    data?.services && data.services.length > 0
-      ? data.services.map((s, i) => {
-          const fallback = SERVICES[i % SERVICES.length];
+    data?.services != null
+      ? data.services.map((s) => {
           return {
-            name: s.name ?? fallback.name,
-            kicker: s.kicker ?? fallback.kicker,
-            description: s.description ?? fallback.description,
+            name: s.name ?? "",
+            kicker: s.kicker ?? "",
+            description: s.description ?? "",
             subItems:
-              s.subItems && s.subItems.length > 0
+              s.subItems != null
                 ? s.subItems.map((item) => item.value ?? "")
-                : [...fallback.subItems],
-            image: mediaUrl(s.image) ?? fallback.image,
-            imageLabel: s.imageLabel ?? fallback.imageLabel,
+                : [],
+            image: mediaUrl(s.image) ?? "",
+            imageLabel: s.imageLabel ?? "",
           };
         })
       : SERVICES.map((s) => ({ ...s, subItems: [...s.subItems] }));
 
   const [selectedService, setSelectedService] = useState(0);
+
+  const activeIndex = Math.min(selectedService, Math.max(services.length - 1, 0));
 
   const itemRefs = useRef<Array<HTMLLIElement | null>>([]);
   const descriptionColRef = useRef<HTMLDivElement>(null);
@@ -95,7 +96,7 @@ export function Services({ data }: ServicesProps) {
     if (!descriptionCol || !imageCol) return;
 
     const alignActiveContent = () => {
-      const item = itemRefs.current[selectedService];
+      const item = itemRefs.current[activeIndex];
       if (!item) return;
 
       const itemCenter = item.offsetTop + item.offsetHeight / 2;
@@ -113,11 +114,11 @@ export function Services({ data }: ServicesProps) {
     const observer = new ResizeObserver(alignActiveContent);
     observer.observe(descriptionCol);
     observer.observe(imageCol);
-    const item = itemRefs.current[selectedService];
+    const item = itemRefs.current[activeIndex];
     if (item) observer.observe(item);
 
     return () => observer.disconnect();
-  }, [selectedService]);
+  }, [activeIndex, services.length]);
 
   return (
     <section className="services" id="services">
@@ -132,18 +133,18 @@ export function Services({ data }: ServicesProps) {
             ))}
           </p>
 
-          <p className="services__description" aria-live="polite">
-            <strong>{services[selectedService].name}.</strong>
+          {services[activeIndex] && <p className="services__description" aria-live="polite">
+            <strong>{services[activeIndex].name}.</strong>
             <em className="services__kicker">
-              {services[selectedService].kicker}
+              {services[activeIndex].kicker}
             </em>
             <span className="services__description-body">
-              {services[selectedService].description}
+              {services[activeIndex].description}
             </span>
             <span className="services__subitems">
-              {services[selectedService].subItems.join(" · ")}
+              {services[activeIndex].subItems.join(" · ")}
             </span>
-          </p>
+          </p>}
         </div>
 
         <div className="services__right">
@@ -160,11 +161,11 @@ export function Services({ data }: ServicesProps) {
                   itemRefs.current[i] = el;
                 }}
                 className={`services__item ${
-                  selectedService === i ? "services__item--active" : ""
+                  activeIndex === i ? "services__item--active" : ""
                 }`}
                 role="button"
                 tabIndex={0}
-                aria-pressed={selectedService === i}
+                aria-pressed={activeIndex === i}
                 onMouseEnter={() => setSelectedService(i)}
                 onClick={() => setSelectedService(i)}
                 onFocus={() => setSelectedService(i)}
@@ -186,10 +187,10 @@ export function Services({ data }: ServicesProps) {
             <div
               key={service.name}
               className={`services__hover-image ${
-                selectedService === i ? "services__hover-image--active" : ""
+                activeIndex === i ? "services__hover-image--active" : ""
               }`}
             >
-              <Image src={service.image} alt="" fill sizes="(max-width: 900px) 90vw, 30vw" style={{ objectFit: "cover", borderRadius: "inherit" }} />
+              {service.image && <Image src={service.image} alt="" fill sizes="(max-width: 900px) 90vw, 30vw" style={{ objectFit: "cover", borderRadius: "inherit" }} />}
               <span className="services__hover-image-label">
                 {service.imageLabel}
               </span>

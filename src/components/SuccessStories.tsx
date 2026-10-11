@@ -14,6 +14,7 @@ interface Project {
   stat: string;
   statCaption: string;
   image: string;
+  video?: string;
 }
 
 interface SuccessStoriesProps {
@@ -68,15 +69,15 @@ export function SuccessStories({ data }: SuccessStoriesProps) {
   const videoSrc = mediaUrl(data?.video) ?? FALLBACK_VIDEO;
 
   const projects: Project[] =
-    data?.projects && data.projects.length > 0
-      ? data.projects.map((p, i) => {
-          const fallback = FALLBACK_PROJECTS[i % FALLBACK_PROJECTS.length];
+    data?.projects != null
+      ? data.projects.map((p) => {
           return {
-            title: p.title ?? fallback.title,
-            description: p.description ?? fallback.description,
-            stat: p.stat ?? fallback.stat,
-            statCaption: p.statCaption ?? fallback.statCaption,
-            image: mediaUrl(p.image) ?? fallback.image,
+            title: p.title ?? "",
+            description: p.description ?? "",
+            stat: p.stat ?? "",
+            statCaption: p.statCaption ?? "",
+            image: mediaUrl(p.image) ?? "",
+            video: mediaUrl(p.video),
           };
         })
       : [...FALLBACK_PROJECTS];
@@ -285,13 +286,13 @@ export function SuccessStories({ data }: SuccessStoriesProps) {
               style={{ "--ss-row": i * 2 + 1 } as CSSProperties}
             >
               <div className="success-stories__image-frame" data-ss-parallax="">
-                <Image
+                {project.image && <Image
                   src={project.image}
                   alt={`${project.title} project imagery`}
                   fill
                   sizes="(max-width: 960px) 100vw, 50vw"
                   className="success-stories__image"
-                />
+                />}
               </div>
               <video
                 className="success-stories__video"
@@ -301,7 +302,7 @@ export function SuccessStories({ data }: SuccessStoriesProps) {
                 playsInline
                 preload="none"
               >
-                <source src={videoSrc} type="video/webm" />
+                <source src={project.video ?? videoSrc} />
               </video>
             </figure>
 

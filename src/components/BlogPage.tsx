@@ -1,18 +1,19 @@
-import type { PostData } from "@/lib/cms";
+import type { PageBlogData, PostData } from "@/lib/cms";
 import { JournalGrid } from "@/components/JournalGrid";
 import "./BlogPage.css";
 
 interface BlogPageProps {
   posts: PostData[];
+  data?: PageBlogData | null;
 }
 
-export function BlogPage({ posts }: BlogPageProps) {
+export function BlogPage({ posts, data }: BlogPageProps) {
   const count = posts.length;
 
   return (
     <main className="blog">
       <div className="blog__strip">
-        <span className="blog__strip-label">Journal</span>
+        <span className="blog__strip-label">{data?.label ?? "Journal"}</span>
         <span
           className="blog__strip-count"
           aria-label={`${count} ${count === 1 ? "post" : "posts"}`}
@@ -22,9 +23,9 @@ export function BlogPage({ posts }: BlogPageProps) {
       </div>
 
       <header className="blog__hero">
-        <h1 className="blog__title">Journal</h1>
+        <h1 className="blog__title">{data?.heroTitle ?? "Journal"}</h1>
         <p className="blog__lede">
-          Notes on building brands people remember — from the studio floor.
+          {data?.heroLede ?? "Notes on building brands people remember — from the studio floor."}
         </p>
       </header>
 
@@ -34,7 +35,7 @@ export function BlogPage({ posts }: BlogPageProps) {
         </div>
       ) : (
         <p className="blog__empty">
-          No posts yet — check back soon.
+          {data?.emptyMessage ?? "No posts yet — check back soon."}
         </p>
       )}
     </main>

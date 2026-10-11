@@ -1,3 +1,4 @@
+import { mediaUrl } from "@/lib/cms";
 import type { Metadata } from "next";
 import { ServicesHeader } from "@/components/ServicesHeader";
 import { WorkPage } from "@/components/WorkPage";
@@ -7,11 +8,15 @@ import { getGlobal, type PageWorkData, type SiteSettingsData } from "@/lib/cms-s
 import { buildMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const site = await getGlobal<SiteSettingsData>("site-settings");
+  const [site, data] = await Promise.all([
+    getGlobal<SiteSettingsData>("site-settings"),
+    getGlobal<PageWorkData>("page-work"),
+  ]);
   return buildMetadata(site, {
-    title: `Our Work — ${site?.brandName ?? "Event Classics"}`,
-    description:
-      "Case studies from IQVIA, Manipal Hospitals, Redmonk Wellness and Team Taurus — brand systems, content and platforms that shipped.",
+    title: data?.seoTitle?.trim() || `Our Work — ${site?.brandName ?? "Event Classics"}`,
+    description: data?.seoDescription?.trim() || data?.heroLede?.trim() ||
+      "Explore selected brand systems, content and platforms from our studio.",
+    image: mediaUrl(data?.ogImage),
     path: "/work",
   });
 }

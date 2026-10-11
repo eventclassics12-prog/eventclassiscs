@@ -13,6 +13,8 @@ interface MonologHeroProps {
   brand?: string;
   navLinks?: ReadonlyArray<{ label: string; href: string }>;
   para1?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
   site?: SiteSettingsData | null;
 }
 
@@ -33,6 +35,8 @@ export function MonologHero({
   brand = "eventclassics.in",
   navLinks = DEFAULT_LINKS,
   para1 = "Idea to Impact\n\nPROCESS. PRECISION. PERFORMANCE.",
+  ctaLabel = "Book A Call Now!",
+  ctaHref = "/contact-form",
   site,
 }: MonologHeroProps) {
   const reduce = useReducedMotion() ?? false;
@@ -69,7 +73,7 @@ export function MonologHero({
 
           <motion.a
             className="m-hero__cta m-hero__bookcta"
-            href="/contact-form"
+            href={ctaHref}
             initial={reduce ? false : ENTRANCE.hidden}
             animate={reduce ? undefined : { opacity: 1, y: 0 }}
             transition={{
@@ -79,7 +83,7 @@ export function MonologHero({
             }}
           >
             <span className="m-hero__cta-dot" aria-hidden="true" />
-            <span className="m-hero__cta-label">Book A Call Now!</span>
+            <span className="m-hero__cta-label">{ctaLabel}</span>
             <span className="m-hero__cta-arrow" aria-hidden="true">
               <svg
                 width="14"

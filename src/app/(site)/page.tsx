@@ -63,9 +63,11 @@ export default async function Home() {
     <>
       <PageTransition>
         <MonologHero
-          brand={hero?.brand ?? site?.brandName ?? undefined}
+          brand={hero?.brand?.trim() || site?.brandName || undefined}
           navLinks={site?.navLinks ?? undefined}
           para1={hero?.headline ?? undefined}
+          ctaLabel={hero?.ctaLabel ?? undefined}
+          ctaHref={hero?.ctaHref ?? undefined}
           site={site}
         />
         <Brands data={brands} />

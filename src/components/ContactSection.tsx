@@ -13,7 +13,7 @@ import "./ContactSection.css";
 
 export function ContactSection({ data }: { data?: PageContactData | null }) {
   const router = useRouter();
-  const [status, setStatus] = useState<"idle" | "submitting" | "error">(
+  const [status, setStatus] = useState<"idle" | "submitting" | "invalid" | "error">(
     "idle",
   );
 
@@ -42,7 +42,7 @@ export function ContactSection({ data }: { data?: PageContactData | null }) {
     const message = String(formData.get("message") ?? "").trim();
 
     if (!name || !email || !message) {
-      setStatus("error");
+      setStatus("invalid");
       return;
     }
 
@@ -59,7 +59,7 @@ export function ContactSection({ data }: { data?: PageContactData | null }) {
         const body = encodeURIComponent(
           `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\n${message}`,
         );
-        window.location.href = `mailto:info@eventclassics.in?subject=${subject}&body=${body}`;
+        window.location.href = `mailto:${emailValue}?subject=${subject}&body=${body}`;
         router.replace("/thank-you");
         return;
       }
@@ -84,17 +84,17 @@ export function ContactSection({ data }: { data?: PageContactData | null }) {
           contactInfo={[
             {
               icon: MailIcon,
-              label: "Email",
+              label: data?.infoEmailLabel ?? "Email",
               value: emailValue,
             },
             {
               icon: PhoneIcon,
-              label: "Studio",
+              label: data?.infoPhoneLabel ?? "Studio",
               value: phoneValue,
             },
             {
               icon: MapPinIcon,
-              label: "Address",
+              label: data?.infoAddressLabel ?? "Address",
               value: addressValue,
               className: "col-span-2",
             },
@@ -151,12 +151,12 @@ export function ContactSection({ data }: { data?: PageContactData | null }) {
             >
               {status === "submitting" ? submittingLabel : submitLabel}
             </Button>
-            {status === "error" && (
+            {(status === "invalid" || status === "error") && (
               <p
                 className="contact-form__feedback contact-form__feedback--error"
                 role="alert"
               >
-                {errorMessage}
+                {status === "invalid" ? errorMessage : data?.failureMessage ?? "Your message could not be sent. Please try again or email us directly."}
               </p>
             )}
           </form>

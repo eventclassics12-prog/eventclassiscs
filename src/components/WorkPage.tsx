@@ -102,22 +102,21 @@ function resolveProjects(
   const cmsProjects = (data?.projects ?? []).filter(
     (p): p is CmsWorkProject => Boolean(p && (p.title || p.image)),
   );
-  if (cmsProjects.length === 0) return PROJECTS;
-  return cmsProjects.map((p, i) => {
-    const fallback = PROJECTS[i % PROJECTS.length];
+  if (data?.projects == null) return PROJECTS;
+  return cmsProjects.map((p) => {
     const kickerParts = p.kickerParts ?? [];
     const includes = (p.includes ?? [])
       .map((item) => item.value ?? "")
       .filter((value) => value.length > 0);
     return {
-      title: p.title ?? fallback.title,
-      kicker: kickerParts.length > 0 ? fromParts(kickerParts) : fallback.kicker,
-      intro: p.intro ?? fallback.intro,
-      body: p.body ?? fallback.body,
-      includes: includes.length > 0 ? includes : fallback.includes,
-      caption: p.caption ?? fallback.caption,
-      image: mediaUrl(p.image) ?? fallback.image,
-      alt: p.alt ?? mediaAlt(p.image) ?? fallback.alt,
+      title: p.title ?? "",
+      kicker: fromParts(kickerParts),
+      intro: p.intro ?? "",
+      body: p.body ?? "",
+      includes: includes,
+      caption: p.caption ?? "",
+      image: mediaUrl(p.image) ?? "",
+      alt: p.alt ?? mediaAlt(p.image, p.title),
     };
   });
 }
@@ -138,8 +137,8 @@ function Kicker({ parts }: { parts: WorkProject["kicker"] }) {
   );
 }
 
-function MarqueeLine2({ parts }: { parts: TextPart[] }) {
-  if (parts.length === 0) {
+function MarqueeLine2({ parts }: { parts?: TextPart[] }) {
+  if (parts == null) {
     return (
       <>
         We listen. We think. <span className="wk__accent">We ship.</span>{" "}
@@ -234,7 +233,7 @@ function ProjectCard({
       </div>
 
       <figure className="wk-card__figure" aria-hidden="true">
-        <Image src={project.image} alt={project.alt} width={1200} height={900} sizes="(max-width: 900px) 100vw, 50vw" />
+        {project.image && <Image src={project.image} alt={project.alt} width={1200} height={900} sizes="(max-width: 900px) 100vw, 50vw" />}
       </figure>
     </div>
   );
@@ -242,6 +241,7 @@ function ProjectCard({
 
 export function WorkPage({ data }: { data?: PageWorkData | null }) {
   const projects = resolveProjects(data);
+  const galleryImages = projects.map((project) => project.image).filter(Boolean);
   const labels: ProjectCardLabels = {
     includesLabel: data?.includesLabel ?? "Includes:",
     readMoreLabel: data?.readMoreLabel ?? "Read more",
@@ -260,7 +260,7 @@ export function WorkPage({ data }: { data?: PageWorkData | null }) {
             <ViewportVideo src={marqueeVideoSrc} />
           </span>
           <p className="wk__marquee-text">
-            <MarqueeLine2 parts={data?.marqueeLine2 ?? []} />
+            <MarqueeLine2 parts={data?.marqueeLine2 ?? undefined} />
           </p>
         </div>
       ))}
@@ -276,12 +276,12 @@ export function WorkPage({ data }: { data?: PageWorkData | null }) {
     <main className="wk">
       <section className="wk__hero" aria-label="Our work highlights">
         <div className="wk__hero-slider">
-          <ImageSlider3D
+          {galleryImages.length > 0 && <ImageSlider3D
             images={Array.from(
               { length: 12 },
-              (_, i) => projects[i % projects.length].image,
+              (_, i) => galleryImages[i % galleryImages.length],
             )}
-          />
+          />}
         </div>
         <div className="wk__hero-text">
           <h1 className="wk__title">
@@ -302,7 +302,7 @@ export function WorkPage({ data }: { data?: PageWorkData | null }) {
           <BlueDot />
         </div>
 
-        <ScrollCards
+        {projectCards.length > 0 && <ScrollCards
           cards={projectCards}
           direction="bottom"
           heightClass="h-[90vh]"
@@ -312,7 +312,7 @@ export function WorkPage({ data }: { data?: PageWorkData | null }) {
           cardScale={0.9}
           cardRotation={2}
           containerClassName="h-full w-full sm:w-full lg:w-full max-w-none aspect-auto md:aspect-auto rounded-none bg-transparent shadow-none overflow-visible"
-        />
+        />}
       </section>
 
       <section className="wk__marquee" aria-label="Studio work in motion">

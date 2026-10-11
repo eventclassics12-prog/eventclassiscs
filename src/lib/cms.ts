@@ -21,42 +21,24 @@ const APP_ORIGIN = (() => {
 
 function toRelativeUrl(url: string): string {
   if (!url.startsWith('http://') && !url.startsWith('https://')) return url
-  if (APP_ORIGIN && url.startsWith(APP_ORIGIN)) {
-    return url.slice(APP_ORIGIN.length) || '/'
-  }
-
-  if (!APP_ORIGIN) {
-    try {
-      const parsed = new URL(url)
-      if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
-        return parsed.pathname + parsed.search + parsed.hash
-      }
-    } catch {
+  try {
+    const parsed = new URL(url)
+    if (parsed.origin === APP_ORIGIN || (!APP_ORIGIN && ['localhost', '127.0.0.1'].includes(parsed.hostname))) {
+      return parsed.pathname + parsed.search + parsed.hash
     }
+  } catch {
+    return url
   }
   return url
-}
-
-function isLocalUpload(url: string | null | undefined): boolean {
-  if (!url) return true
-  if (!url.startsWith('http://') && !url.startsWith('https://')) return true
-  if (APP_ORIGIN && url.startsWith(APP_ORIGIN)) return true
-  try {
-    const { hostname } = new URL(url)
-    return hostname === 'localhost' || hostname === '127.0.0.1'
-  } catch {
-    return false
-  }
 }
 
 export function mediaUrl(media: CmsMediaField): string | undefined {
   if (!media) return undefined
   if (typeof media === 'string') return toRelativeUrl(media)
   if (typeof media === 'number') return undefined
-  if (media.filename && isLocalUpload(media.url)) {
-    return `/media/${media.filename}`
-  }
-  return media.url ? toRelativeUrl(media.url) : undefined
+  if (media.url) return toRelativeUrl(media.url)
+  if (media.filename) return `/media/${encodeURIComponent(media.filename)}`
+  return undefined
 }
 
 export function mediaAlt(media: CmsMediaField, fallback: string | null | undefined = ''): string {
@@ -80,6 +62,10 @@ export interface SiteSettingsData {
   brandTagline?: string | null
   copyright?: string | null
   navLinks?: NavLink[] | null
+  menuLabel?: string | null
+  menuCloseLabel?: string | null
+  menuCtaLabel?: string | null
+  menuCtaHref?: string | null
   footerTalkLabel?: string | null
   footerContactButtonLabel?: string | null
   footerContactHref?: string | null
@@ -106,6 +92,7 @@ export interface HomeHeroData {
 }
 
 export interface HomeBrandsData {
+  id?: number | string
   label?: string | null
   brands?: { logo?: CmsMediaField; name?: string | null }[] | null
 }
@@ -140,6 +127,7 @@ export interface HomeSuccessStoriesData {
     stat?: string | null
     statCaption?: string | null
     image?: CmsMediaField
+    video?: CmsMediaField
   }[] | null
 }
 
@@ -170,12 +158,19 @@ export interface TextPart {
   highlight?: boolean | null
 }
 
-export interface PageAboutData {
+export interface PageSeoData {
+  seoTitle?: string | null
+  seoDescription?: string | null
+  ogImage?: CmsMediaField
+}
+
+export interface PageAboutData extends PageSeoData {
   heroVideo?: CmsMediaField
   heroTitle?: string | null
   heroLede?: string | null
   circularInner?: string | null
   circularOuter?: string | null
+  circularLogo?: CmsMediaField
   storyTitle?: string | null
   quoteLead?: string | null
   storyParagraphs?: { text?: string | null }[] | null
@@ -188,7 +183,7 @@ export interface PageAboutData {
   principles?: { title?: string | null; body?: string | null }[] | null
 }
 
-export interface PageServicesData {
+export interface PageServicesData extends PageSeoData {
   heroVideo?: CmsMediaField
   heroTitle?: string | null
   heroLede?: string | null
@@ -199,7 +194,7 @@ export interface PageServicesData {
   finalCtaImage?: CmsMediaField
 }
 
-export interface PageWorkData {
+export interface PageWorkData extends PageSeoData {
   heroTitle?: string | null
   heroLede?: string | null
   projectsLabel?: string | null
@@ -221,7 +216,7 @@ export interface PageWorkData {
   readLessLabel?: string | null
 }
 
-export interface PageContactData {
+export interface PageContactData extends PageSeoData {
   introHeading?: string | null
   introLede?: string | null
   introEmail?: string | null
@@ -237,9 +232,13 @@ export interface PageContactData {
   submitLabel?: string | null
   submittingLabel?: string | null
   errorMessage?: string | null
+  failureMessage?: string | null
+  infoEmailLabel?: string | null
+  infoPhoneLabel?: string | null
+  infoAddressLabel?: string | null
 }
 
-export interface PageThankYouData {
+export interface PageThankYouData extends PageSeoData {
   heading?: string | null
   sub?: string | null
   ctaLabel?: string | null
@@ -257,4 +256,12 @@ export interface PostData {
   content?: unknown
   seoTitle?: string | null
   seoDescription?: string | null
+}
+
+export interface PageBlogData extends PageSeoData {
+  label?: string | null
+  heroTitle?: string | null
+  heroLede?: string | null
+  emptyMessage?: string | null
+  backLabel?: string | null
 }

@@ -1,3 +1,4 @@
+import { mediaUrl } from "@/lib/cms";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ServicesHeader } from "@/components/ServicesHeader";
@@ -8,10 +9,14 @@ import { buildMetadata } from "@/lib/seo";
 import "./thank-you-page.css";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const site = await getGlobal<SiteSettingsData>("site-settings");
+  const [site, data] = await Promise.all([
+    getGlobal<SiteSettingsData>("site-settings"),
+    getGlobal<PageThankYouData>("page-thank-you"),
+  ]);
   return buildMetadata(site, {
-    title: `Thank you — ${site?.brandName ?? "EVENTCLASSICS"}`,
-    description: "Your message is on its way. We'll be in touch very soon.",
+    title: data?.seoTitle?.trim() || `Thank you — ${site?.brandName ?? "EVENTCLASSICS"}`,
+    description: data?.seoDescription?.trim() || "Your message is on its way. We'll be in touch very soon.",
+    image: mediaUrl(data?.ogImage),
     path: "/thank-you",
     noIndex: true,
   });
