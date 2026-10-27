@@ -101,9 +101,6 @@ export interface HomeStatementData {
   stat?: string | null
   statCaption?: string | null
   paragraphs?: { text?: string | null }[] | null
-  bylineName?: string | null
-  bylineRole?: string | null
-  bylineInitials?: string | null
 }
 
 export interface HomeGapData {
@@ -207,6 +204,16 @@ export interface PageWorkData extends PageSeoData {
     caption?: string | null
     image?: CmsMediaField
     alt?: string | null
+    idea?: string | null
+    executionIntro?: string | null
+    executionSteps?: { title?: string | null; body?: string | null }[] | null
+    challenges?:
+      | { challenge?: string | null; solution?: string | null }[]
+      | null
+    impactStats?:
+      | { value?: string | null; label?: string | null }[]
+      | null
+    impactNote?: string | null
   }[] | null
   marqueeLine1?: string | null
   marqueeLine2?: TextPart[] | null

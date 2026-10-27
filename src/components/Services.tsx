@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Fragment, useLayoutEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { mediaUrl, type HomeServicesData } from "@/lib/cms";
 import "./Services.css";
 
@@ -58,12 +59,13 @@ export const SERVICES: ReadonlyArray<Service> = [
 ];
 
 const FALLBACK_INTRO =
-  "We don\u2019t sell services.\nWe connect the pieces that make a brand work.";
+  "We don’t sell services.\nWe connect the pieces that make a brand work.";
 const FALLBACK_LABEL = "What we can help with";
 
 export function Services({ data }: ServicesProps) {
   const introLines = (data?.intro ?? FALLBACK_INTRO).split("\n");
   const label = data?.label ?? FALLBACK_LABEL;
+  const reduce = useReducedMotion() ?? false;
 
   const services: Service[] =
     data?.services != null
@@ -82,120 +84,203 @@ export function Services({ data }: ServicesProps) {
         })
       : SERVICES.map((s) => ({ ...s, subItems: [...s.subItems] }));
 
-  const [selectedService, setSelectedService] = useState(0);
+  // Default to the first service expanded so the copy column and stage are
+  // balanced on initial load; clicking the active primary tile returns to the
+  // 2x2 overview grid while keeping the last active service copy visible.
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(0);
+  const [lastActiveIndex, setLastActiveIndex] = useState<number>(0);
+  // CMS media can point at a file that is no longer in storage; fall back to
+  // the bundled asset for that discipline instead of showing an empty tile.
+  const [imageFallbacks, setImageFallbacks] = useState<
+    Record<string, string>
+  >({});
 
-  const activeIndex = Math.min(selectedService, Math.max(services.length - 1, 0));
-
-  const itemRefs = useRef<Array<HTMLLIElement | null>>([]);
-  const descriptionColRef = useRef<HTMLDivElement>(null);
-  const imageColRef = useRef<HTMLDivElement>(null);
+  // The tiles are absolutely positioned, so their geometry is measured from
+  // the stage and animated explicitly — a CSS grid plus `layout` animations
+  // fights itself when the grid area changes.
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [stage, setStage] = useState({ width: 0, height: 0, gap: 12 });
 
   useLayoutEffect(() => {
-    const descriptionCol = descriptionColRef.current;
-    const imageCol = imageColRef.current;
-    if (!descriptionCol || !imageCol) return;
+    const element = stageRef.current;
+    if (!element) return;
 
-    const alignActiveContent = () => {
-      const item = itemRefs.current[activeIndex];
-      if (!item) return;
-
-      const itemCenter = item.offsetTop + item.offsetHeight / 2;
-      const centerOnItem = (element: HTMLElement, property: string) => {
-        const y = itemCenter - element.offsetTop - element.offsetHeight / 2;
-        element.style.setProperty(property, `${y}px`);
-      };
-
-      centerOnItem(descriptionCol, "--services-description-y");
-      centerOnItem(imageCol, "--services-image-y");
+    const measure = () => {
+      const rect = element.getBoundingClientRect();
+      const gap = parseFloat(getComputedStyle(element).columnGap) || 12;
+      setStage({ width: rect.width, height: rect.height, gap });
     };
 
-    alignActiveContent();
-
-    const observer = new ResizeObserver(alignActiveContent);
-    observer.observe(descriptionCol);
-    observer.observe(imageCol);
-    const item = itemRefs.current[activeIndex];
-    if (item) observer.observe(item);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
 
     return () => observer.disconnect();
-  }, [activeIndex, services.length]);
+  }, []);
+
+  const contentIndex =
+    selectedIndex ?? Math.min(lastActiveIndex, services.length - 1);
+
+  const transition = reduce
+    ? { duration: 0 }
+    : { type: "spring" as const, stiffness: 190, damping: 26, mass: 0.9 };
+
+  // Expanded layout: one primary tile on top, three secondary tiles below.
+  const smallHeight = (stage.height - stage.gap) * 0.32;
+  const primaryHeight = stage.height - stage.gap - smallHeight;
+  const smallWidth = (stage.width - 2 * stage.gap) / 3;
+  // Collapsed layout: an even 2 x 2 grid.
+  const gridWidth = (stage.width - stage.gap) / 2;
+  const gridHeight = (stage.height - stage.gap) / 2;
+
+  /** Position + size of a tile for the current layout. */
+  const geometryFor = (index: number) => {
+    if (selectedIndex == null) {
+      const column = index % 2;
+      const row = Math.floor(index / 2);
+      return {
+        x: column * (gridWidth + stage.gap),
+        y: row * (gridHeight + stage.gap),
+        width: gridWidth,
+        height: gridHeight,
+      };
+    }
+
+    if (index === selectedIndex) {
+      return { x: 0, y: 0, width: stage.width, height: primaryHeight };
+    }
+
+    const column = services
+      .slice(0, index)
+      .filter((_service, j) => j !== selectedIndex).length;
+
+    return {
+      x: column * (smallWidth + stage.gap),
+      y: primaryHeight + stage.gap,
+      width: smallWidth,
+      height: smallHeight,
+    };
+  };
+
+  const handleSelect = (index: number) => {
+    setLastActiveIndex(index);
+    setSelectedIndex((previous) => (previous === index ? null : index));
+  };
 
   return (
     <section className="services" id="services">
       <div className="services__inner">
-        <div ref={descriptionColRef} className="services__left">
-          <p className="services__intro">
-            {introLines.map((line, i) => (
-              <Fragment key={i}>
-                {i > 0 && <br />}
-                {line}
-              </Fragment>
-            ))}
-          </p>
+        <div className="services__copy">
+          <div className="services__copy-top">
+            <header className="services__label-row">
+              <span className="services__dot" aria-hidden="true" />
+              <span className="services__label-text">{label}</span>
+            </header>
 
-          {services[activeIndex] && <p className="services__description" aria-live="polite">
-            <strong>{services[activeIndex].name}.</strong>
-            <em className="services__kicker">
-              {services[activeIndex].kicker}
-            </em>
-            <span className="services__description-body">
-              {services[activeIndex].description}
-            </span>
-            <span className="services__subitems">
-              {services[activeIndex].subItems.join(" · ")}
-            </span>
-          </p>}
-        </div>
+            <h2 className="services__intro">
+              {introLines.map((line, i) => (
+                <Fragment key={i}>
+                  {i > 0 && <br />}
+                  {line}
+                </Fragment>
+              ))}
+            </h2>
+          </div>
 
-        <div className="services__right">
-          <header className="services__label-row">
-            <span className="services__dot" aria-hidden="true" />
-            <span className="services__label-text">{label}</span>
-          </header>
-
-          <ul className="services__list">
-            {services.map((s, i) => (
-              <li
-                key={s.name}
-                ref={(el) => {
-                  itemRefs.current[i] = el;
-                }}
-                className={`services__item ${
-                  activeIndex === i ? "services__item--active" : ""
-                }`}
-                role="button"
-                tabIndex={0}
-                aria-pressed={activeIndex === i}
-                onMouseEnter={() => setSelectedService(i)}
-                onClick={() => setSelectedService(i)}
-                onFocus={() => setSelectedService(i)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    setSelectedService(i);
-                  }
-                }}
+          <div className="services__descriptions">
+            {services.map((active, index) => (
+              <div
+                key={`${active.name}-${index}`}
+                className={`services__description ${index === contentIndex ? "services__description--active" : ""}`}
+                aria-hidden={index !== contentIndex}
               >
-                {s.name}
-              </li>
+                <div className="services__description-meta">
+                  <span className="services__description-index">
+                    {String(index + 1).padStart(2, "0")} /{" "}
+                    {String(services.length).padStart(2, "0")}
+                  </span>
+                  <span className="services__description-category">
+                    {active.imageLabel || active.name}
+                  </span>
+                </div>
+
+                <strong className="services__description-title">
+                  {active.name}
+                </strong>
+                <em className="services__kicker">{active.kicker}</em>
+                <span className="services__description-body">
+                  {active.description}
+                </span>
+
+                {active.subItems.length > 0 && (
+                  <ul className="services__subitems" aria-label="Deliverables">
+                    {active.subItems.map((item) => (
+                      <li key={item} className="services__subitem">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
 
-        <div ref={imageColRef} className="services__image-col" aria-hidden="true">
-          {services.map((service, i) => (
-            <div
-              key={service.name}
-              className={`services__hover-image ${
-                activeIndex === i ? "services__hover-image--active" : ""
-              }`}
-            >
-              {service.image && <Image src={service.image} alt="" fill sizes="(max-width: 900px) 90vw, 30vw" style={{ objectFit: "cover", borderRadius: "inherit" }} />}
-              <span className="services__hover-image-label">
-                {service.imageLabel}
-              </span>
-            </div>
-          ))}
+        <div
+          className="services__stage"
+          ref={stageRef}
+        >
+          {services.map((service, i) => {
+            const isPrimary = selectedIndex === i;
+            const isCurrent = contentIndex === i;
+            const tileSrc = imageFallbacks[service.name] ?? service.image;
+
+            return (
+              <motion.button
+                key={service.name}
+                type="button"
+                className={`services__tile ${
+                  isPrimary ? "services__tile--primary" : ""
+                } ${isCurrent ? "services__tile--current" : ""}`}
+                initial={false}
+                animate={geometryFor(i)}
+                aria-pressed={isPrimary}
+                aria-label={`Show ${service.name}`}
+                onClick={() => handleSelect(i)}
+                transition={transition}
+              >
+                {tileSrc && (
+                  <Image
+                    src={tileSrc}
+                    alt=""
+                    fill
+                    sizes="(max-width: 900px) 90vw, 45vw"
+                    style={{ objectFit: "cover" }}
+                    onError={() => {
+                      const fallback = SERVICES[i]?.image;
+                      if (!fallback || fallback === tileSrc) return;
+                      setImageFallbacks((previous) => ({
+                        ...previous,
+                        [service.name]: fallback,
+                      }));
+                    }}
+                  />
+                )}
+
+                {isPrimary && (
+                  <span className="services__tile-heading">
+                    <span className="services__tile-title">{service.name}</span>
+                  </span>
+                )}
+
+                {!isPrimary && (
+                  <span className="services__tile-label">
+                    {service.imageLabel || service.name}
+                  </span>
+                )}
+              </motion.button>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -13,8 +13,9 @@
   align-items: center;
   gap: 0.875rem;
 
-  height: 2.75rem;
-  padding: 0 4px 0 1.25rem;
+  height: auto;
+  padding: 0.4em 0.3em 0.4em 1.1em;
+  min-height: 2.4em;
   border: 0;
   border-radius: 999px;
 
@@ -24,22 +25,25 @@
   mix-blend-mode: difference;
   cursor: pointer;
   font-family: inherit;
+  font-size: 0.9375rem;
+  line-height: 1;
 }
 
 .nav-close-btn .menu-button-text {
   position: relative;
   display: block;
   height: 1.25em;
-  min-width: 2.9em;
   overflow: hidden;
   color: var(--color-paper);
   mix-blend-mode: normal;
 }
 
+/* The two labels stay in normal flow so the box is as wide as the longest
+   word. With absolutely positioned copies the box had no intrinsic width and
+   long labels were clipped (e.g. "Explore" rendered as "Explor"). The roll-up
+   animation is unaffected: GSAP animates `yPercent` on both lines, and the
+   second line sits one line-height below the first. */
 .nav-close-btn .menu-button-text p {
-  position: absolute;
-  top: 0;
-  left: 0;
   margin: 0;
   font-weight: 500;
   font-size: 0.9375rem;
@@ -47,17 +51,13 @@
   white-space: nowrap;
 }
 
-.nav-close-btn .menu-button-text p:nth-child(2) {
-  top: 100%;
-}
-
 .nav-close-btn .icon-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.35rem;
-  height: 2.35rem;
-  flex: 0 0 2.35rem;
+  width: 1.9em;
+  height: 1.9em;
+  flex: 0 0 1.9em;
   border-radius: 50%;
 
   background: var(--color-foreground);
@@ -68,8 +68,8 @@
 
 .nav-close-btn .menu-button-icon {
   display: block;
-  width: 0.8rem;
-  height: 0.8rem;
+  width: 0.9em;
+  height: 0.9em;
   color: currentColor;
   mix-blend-mode: normal;
 }
@@ -233,14 +233,17 @@
   align-items: center;
   gap: 0.875rem;
 
-  --cta-h: 2.75rem;
-  height: var(--cta-h);
-  padding: 0 4px 0 1.25rem;
+  height: auto;
+  padding: 0.4em 0.3em 0.4em 1.1em;
+  min-height: 2.4em;
   border: 0;
   border-radius: 999px;
 
   background: var(--color-foreground);
   color: var(--color-paper);
+
+  font-size: 0.9375rem;
+  line-height: 1;
 
   text-decoration: none;
   white-space: nowrap;
@@ -258,9 +261,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: calc(var(--cta-h) - 8px);
-  height: calc(var(--cta-h) - 8px);
-  flex: 0 0 calc(var(--cta-h) - 8px);
+  width: 1.9em;
+  height: 1.9em;
+  flex: 0 0 1.9em;
   border-radius: 50%;
 
   background: var(--color-paper);
@@ -268,6 +271,8 @@
 }
 
 .menu-cta-arrow svg {
+  width: 0.9em;
+  height: 0.9em;
   color: var(--color-foreground);
   mix-blend-mode: normal;
   transform: rotate(0deg);

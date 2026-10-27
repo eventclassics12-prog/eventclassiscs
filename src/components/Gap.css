@@ -78,7 +78,8 @@
 .gap__image {
   position: relative;
   display: block;
-  width: clamp(180px, 22vw, 320px);
+  width: clamp(220px, 30vw, 420px);
+  max-width: 48lvh;
   aspect-ratio: 3 / 4;
   margin-block: clamp(1rem, 2vw, 1.5rem);
   transform: scale(0.45);
@@ -94,9 +95,24 @@
   border-radius: 4px;
 }
 
+@media (min-width: 769px) {
+  .gap__below {
+    max-width: 48rem;
+    gap: clamp(0.75rem, 1vw, 1rem);
+    padding-block: 1rem;
+  }
+
+  .gap__image {
+    width: clamp(300px, 38vw, 560px);
+    max-width: calc(75lvh - 5.25rem);
+    flex-shrink: 0;
+    margin-block: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .gap__image {
-    width: 60%;
+    width: 80%;
   }
 }
 

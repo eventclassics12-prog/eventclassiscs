@@ -104,13 +104,6 @@ export const HomeStatement: GlobalConfig = {
         { text: "Between what you've built and what the market thinks you've built." },
       ],
     },
-    { name: 'bylineName', type: 'text', defaultValue: 'Pamal Mondal' },
-    {
-      name: 'bylineRole',
-      type: 'text',
-      defaultValue: 'Strategic Brand-Building Firm',
-    },
-    { name: 'bylineInitials', type: 'text', defaultValue: 'P' },
   ],
 }
 

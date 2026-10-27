@@ -8,7 +8,6 @@ import { MonologHero } from "@/components/MonologHero";
 import { PageTransition } from "@/components/PageTransition";
 import { Services } from "@/components/Services";
 import { Statement } from "@/components/Statement";
-import { SuccessStories } from "@/components/SuccessStories";
 import {
   getGlobal,
   type HomeBrandsData,
@@ -18,7 +17,6 @@ import {
   type HomeKeepScrollingData,
   type HomeServicesData,
   type HomeStatementData,
-  type HomeSuccessStoriesData,
   type SiteSettingsData,
 } from "@/lib/cms-server";
 import { buildMetadata } from "@/lib/seo";
@@ -44,7 +42,6 @@ export default async function Home() {
     statement,
     gap,
     keepScrolling,
-    successStories,
     services,
     faq,
   ] = await Promise.all([
@@ -54,7 +51,6 @@ export default async function Home() {
     getGlobal<HomeStatementData>("home-statement"),
     getGlobal<HomeGapData>("home-gap"),
     getGlobal<HomeKeepScrollingData>("home-keep-scrolling"),
-    getGlobal<HomeSuccessStoriesData>("home-success-stories"),
     getGlobal<HomeServicesData>("home-services"),
     getGlobal<HomeFaqData>("home-faq"),
   ]);
@@ -74,7 +70,6 @@ export default async function Home() {
         <Statement data={statement} />
         <Gap data={gap} />
         <KeepScrolling data={keepScrolling} />
-        <SuccessStories data={successStories} />
         <Services data={services} />
         <FAQ data={faq} />
         <Footer site={site} />

@@ -196,6 +196,74 @@ export const PageWork: GlobalConfig = {
         { name: 'caption', type: 'text' },
         uploadField('image', 'Project image'),
         { name: 'alt', type: 'text' },
+        {
+          type: 'collapsible',
+          label: 'Case study',
+          admin: {
+            description:
+              'The four chapters under the hero: the idea, execution, challenges and impact. Empty chapters fall back to the bundled copy, then to the project intro.',
+          },
+          fields: [
+            {
+              name: 'idea',
+              type: 'textarea',
+              label: 'The idea — statement',
+              admin: {
+                description: 'The big opening line of the case study.',
+              },
+            },
+            {
+              name: 'executionIntro',
+              type: 'textarea',
+              label: 'Execution — intro',
+            },
+            {
+              name: 'executionSteps',
+              type: 'array',
+              label: 'Execution — steps',
+              minRows: 0,
+              fields: [
+                { name: 'title', type: 'text', required: true },
+                { name: 'body', type: 'textarea' },
+              ],
+            },
+            {
+              name: 'challenges',
+              type: 'array',
+              label: 'Challenges — faced & solved',
+              minRows: 0,
+              fields: [
+                { name: 'challenge', type: 'text', required: true },
+                { name: 'solution', type: 'textarea', required: true },
+              ],
+            },
+            {
+              name: 'impactStats',
+              type: 'array',
+              label: 'Impact — numbers',
+              minRows: 0,
+              fields: [
+                {
+                  name: 'value',
+                  type: 'text',
+                  required: true,
+                  admin: {
+                    description: 'Keep the unit in the value, e.g. “42%” or “3.1×”.',
+                  },
+                },
+                { name: 'label', type: 'text', required: true },
+              ],
+            },
+            {
+              name: 'impactNote',
+              type: 'text',
+              label: 'Impact — footnote',
+              admin: {
+                description: 'Optional source line under the numbers.',
+              },
+            },
+          ],
+        },
       ],
     },
     { name: 'marqueeLine1', type: 'text', defaultValue: 'We build. We refine.' },
