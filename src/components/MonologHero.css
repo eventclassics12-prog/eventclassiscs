@@ -1,6 +1,8 @@
 .m-hero {
   position: relative;
   z-index: 10;
+  isolation: isolate;
+  background: #fff;
 
   min-height: 100vh;
   min-height: 100svh;
@@ -10,6 +12,12 @@
 
   padding-block: clamp(2.5rem, 8vw, 5rem) 0;
   padding-inline: 2vw;
+}
+
+/* Keep the WebGL backdrop inside the hero's non-negative paint layers.
+   A negative layer can be excluded from WebKit's blend backdrop. */
+.m-hero > .liquid-metal-bg {
+  z-index: 0;
 }
 
 .m-hero__nav {
@@ -100,12 +108,14 @@
 
   font-weight: 500;
   font-size: 0.9375rem;
+  line-height: 1;
   letter-spacing: -0.005em;
 
-  --cta-h: 2.75rem;
-  height: var(--cta-h);
-
-  padding: 0 4px 0 1.25rem;
+  /* Every dimension below is relative to the button's own font-size, so the
+     pill, its padding and the arrow badge all scale with the label instead
+     of being pinned to a fixed pixel height. */
+  padding: 0.4em 0.3em 0.4em 1.1em;
+  min-height: 2.4em;
   border: 0;
   border-radius: 999px;
 
@@ -126,9 +136,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: calc(var(--cta-h) - 8px);
-  height: calc(var(--cta-h) - 8px);
-  flex: 0 0 calc(var(--cta-h) - 8px);
+  width: 1.9em;
+  height: 1.9em;
+  flex: 0 0 1.9em;
   border-radius: 50%;
 
   background: var(--color-foreground);
@@ -138,6 +148,8 @@
 }
 
 .m-hero__cta-arrow svg {
+  width: 0.9em;
+  height: 0.9em;
   color: currentColor;
   mix-blend-mode: normal;
   transform: rotate(0deg);
@@ -154,7 +166,7 @@
   outline-offset: 2px;
 }
 
-.m-hero__para,
+.m-hero__para-blend,
 .m-hero__links li,
 .m-hero__bookcta {
   opacity: 0;
@@ -176,8 +188,6 @@
 .m-hero__bookcta {
   margin-top: clamp(1.25rem, 3vw, 2rem);
 
-  --cta-h: 3.25rem;
-  padding: 0 4px 0 1.5rem;
   font-size: 1rem;
   font-weight: 600;
 
@@ -234,10 +244,6 @@
 }
 
 .m-hero__bookcta .m-hero__cta-arrow {
-  --badge-inset: 4.5px;
-  width: calc(var(--cta-h) - 2 * var(--badge-inset));
-  height: calc(var(--cta-h) - 2 * var(--badge-inset));
-  flex: 0 0 calc(var(--cta-h) - 2 * var(--badge-inset));
   background: #ffffff;
   color: #121213;
 }
@@ -252,9 +258,9 @@
 }
 
 .m-hero__cta-dot {
-  flex: 0 0 0.5rem;
-  width: 0.5rem;
-  height: 0.5rem;
+  flex: 0 0 0.5em;
+  width: 0.5em;
+  height: 0.5em;
   border-radius: 50%;
   background: #cc3a35;
   mix-blend-mode: normal;
@@ -282,6 +288,7 @@
 }
 
 .m-hero__pitch {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -297,6 +304,11 @@
 }
 
 .m-hero__para-blend {
+  /* Blend above the shader in the hero stacking context. Keep the pitch
+     free of z-index/transform/isolation so it does not cut off the backdrop. */
+  position: relative;
+  z-index: 1;
+  color: #fff;
   mix-blend-mode: difference;
 }
 
@@ -307,6 +319,7 @@
   line-height: 1.4;
   letter-spacing: -0.02em;
 
+  color: inherit;
   mix-blend-mode: normal;
 
   margin: 0;
@@ -316,6 +329,10 @@
 .m-hero__para-line {
   display: block;
   font-size: 1.3em;
+
+  /* Only the parent blends; global span styles must not blend again. */
+  color: inherit;
+  mix-blend-mode: normal;
 }
 
 .m-hero__para-line + .m-hero__para-line {
@@ -510,7 +527,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .m-hero__para,
+  .m-hero__para-blend,
   .m-hero__links li,
   .m-hero__bookcta {
     opacity: 1;

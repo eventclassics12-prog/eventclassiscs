@@ -1,138 +1,44 @@
 "use client";
 
 import { ViewportVideo } from "./ViewportVideo";
-import Image from "next/image";
 import type { ReactNode } from "react";
-import { useState } from "react";
-import { pad2 } from "@/lib/utils";
-import { ScrollCards } from "@/components/lightswind/scroll-cards";
-import ImageSlider3D from "@/components/lightswind/3d-image-slider";
-import { mediaAlt, mediaUrl, type PageWorkData, type TextPart } from "@/lib/cms";
+import { useMemo } from "react";
+import { WorkMasonry } from "./WorkMasonry";
+import { mediaUrl, type PageWorkData, type TextPart } from "@/lib/cms";
+import { resolveProjects, resolveWorkLabels } from "@/lib/work";
 import "./WorkPage.css";
 
-interface WorkProject {
-  title: string;
-  kicker: Array<[string, string?]>;
-  intro: string;
-  body: string;
-  includes: ReadonlyArray<string>;
-  caption: string;
-  image: string;
-  alt: string;
-}
+const DEFAULT_HERO_LEDE =
+  "Our clients are founders and leaders in healthcare, enterprise technology, wellness, and real estate. We are routinely entrusted by them to build brand systems and digital experiences where clarity and performance play a key role.";
 
-const PROJECTS: ReadonlyArray<WorkProject> = [
-  {
-    title: "IQVIA",
-    kicker: [
-      ["Systems that "],
-      ["work around the business.", "blue"],
-    ],
-    intro:
-      "IQVIA didn't need another efficiency promise. It needed systems built around the business — not bolted onto it.",
-    body: "We engineered the platform around real workflows: custom CRM and ERP integrations, supported by a clear strategic and technology-led framework designed to remove friction across every team that touched it.",
-    includes: [
-      "Workflow mapping across CRM & ERP teams",
-      "Custom systems integration",
-      "Technology-led strategic frameworks",
-      "Friction-reduction audits",
-    ],
-    caption: "Making complex workflow better.",
-    image: "/services/growth-strategy.png",
-    alt: "IQVIA project — crystal growth visual",
-  },
-  {
-    title: "Manipal Hospitals",
-    kicker: [["Making "], ["trust", "blue"], [" easier to feel."]],
-    intro:
-      "Healthcare is full of information, but people don't remember information — they remember how a brand made them feel.",
-    body: "We shaped the storytelling, branding campaigns and strategic communication around a clearer idea of care. The result is a health brand that feels human, recognizable and relevant to the people it serves.",
-    includes: [
-      "Brand storytelling & narrative system",
-      "Campaign design & production",
-      "Strategic communication",
-      "Care-experience messaging",
-    ],
-    caption: "Making trust easier to feel.",
-    image: "/services/content-creation.png",
-    alt: "Manipal Hospitals project — film camera visual",
-  },
-  {
-    title: "Redmonk Wellness",
-    kicker: [["Content that feels "], ["worth stopping for.", "blue"]],
-    intro:
-      "Wellness brands don't need more content. They need content that feels worth stopping for.",
-    body: "We built a sharper approach around short, crisp and raw communication — designed for the way people actually consume information today: fast feeds, short attention spans, and moments that reward brands that can be understood in a single glance.",
-    includes: [
-      "Short-form content strategy",
-      "Raw, crisp communication",
-      "Attention-first formats",
-      "Community & channel voice",
-    ],
-    caption: "Turning attention into action.",
-    image: "/services/social-media.png",
-    alt: "Redmonk Wellness project — pink network visual",
-  },
-  {
-    title: "Team Taurus",
-    kicker: [["Spaces that feel "], ["lived in.", "blue"]],
-    intro:
-      "Real estate is often reduced to location, price and square feet. People don't buy spaces like spreadsheets — they imagine what it will feel like to live there.",
-    body: "We sharpened the brand narrative around the experience behind the spaces, making the communication more distinctive, considered and relevant to the people it was built for.",
-    includes: [
-      "Brand narrative & positioning",
-      "Experience-led campaigns",
-      "Distinctive communication design",
-      "Considered spatial voice",
-    ],
-    caption: "Spaces that feel lived in.",
-    image: "/services/brand-identity.png",
-    alt: "Team Taurus project — clay identity mark",
-  },
-];
+const DEFAULT_HERO_TITLE = "Selected Work";
+const DEFAULT_PROJECTS_LABEL = "Selected Projects";
 
-const fromParts = (parts: TextPart[]): Array<[string, string?]> =>
-  parts.map((part) => [part.text ?? "", part.highlight ? "blue" : undefined]);
-
-type CmsWorkProject = NonNullable<NonNullable<PageWorkData["projects"]>[number]>;
-
-function resolveProjects(
-  data: PageWorkData | null | undefined,
-): ReadonlyArray<WorkProject> {
-  const cmsProjects = (data?.projects ?? []).filter(
-    (p): p is CmsWorkProject => Boolean(p && (p.title || p.image)),
-  );
-  if (data?.projects == null) return PROJECTS;
-  return cmsProjects.map((p) => {
-    const kickerParts = p.kickerParts ?? [];
-    const includes = (p.includes ?? [])
-      .map((item) => item.value ?? "")
-      .filter((value) => value.length > 0);
-    return {
-      title: p.title ?? "",
-      kicker: fromParts(kickerParts),
-      intro: p.intro ?? "",
-      body: p.body ?? "",
-      includes: includes,
-      caption: p.caption ?? "",
-      image: mediaUrl(p.image) ?? "",
-      alt: p.alt ?? mediaAlt(p.image, p.title),
-    };
+/** Add decorative media without changing the CMS-owned sentence. */
+function InlineWorkMedia({ text }: { text: string }) {
+  const words = text.split(/(\s+)/);
+  const wordCount = words.filter((word) => word.trim()).length;
+  const preferred = ["team", "project", "shipped"];
+  const stops = preferred.map((word, index) => {
+    const found = words.findIndex((token) => token.toLowerCase().replace(/[^a-z]/g, "") === word);
+    if (found >= 0) return found;
+    const target = Math.round(wordCount * (index + 1) / 4);
+    let count = 0;
+    return words.findIndex((token) => token.trim() && ++count >= target);
   });
-}
-
-function Kicker({ parts }: { parts: WorkProject["kicker"] }) {
   return (
     <>
-      {parts.map(([text, tone], i) =>
-        tone === "blue" ? (
-          <strong key={i} className="wk__accent">
-            {text}
-          </strong>
-        ) : (
-          <span key={i}>{text}</span>
-        ),
-      )}
+      {words.map((word, index) => (
+        <span key={index} className="wk__inline-fragment">
+          {word}
+          {stops.includes(index) && (
+            <span
+              className={`wk__inline-media wk__inline-media--${stops.indexOf(index)}`}
+              aria-hidden="true"
+            />
+          )}
+        </span>
+      ))}
     </>
   );
 }
@@ -161,92 +67,16 @@ function MarqueeLine2({ parts }: { parts?: TextPart[] }) {
   );
 }
 
-function BlueDot() {
-  return <span className="wk__dot" aria-hidden="true" />;
-}
-
-interface ProjectCardLabels {
-  includesLabel: string;
-  readMoreLabel: string;
-  readLessLabel: string;
-}
-
-function ProjectCard({
-  project,
-  index,
-  labels,
-}: {
-  project: WorkProject;
-  index: number;
-  labels: ProjectCardLabels;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const isOpen = expanded;
-  const onToggle = () => setExpanded((v) => !v);
-
-  return (
-    <div className="wk-card">
-      <span className="wk-card__corner" aria-hidden="true">
-        <span className="wk-card__number">
-          {pad2(index + 1)}
-        </span>
-      </span>
-
-      <div className="wk-card__copy">
-        <h3 className="wk-card__name">{project.title}</h3>
-
-        <div className="wk-card__lede">
-          <p className="wk-card__kicker">
-            <Kicker parts={project.kicker} />
-          </p>
-          <p className="wk-card__para">{project.intro}</p>
-          <p className="wk-card__para">{project.body}</p>
-          <p className="wk-card__para">{project.caption}</p>
-
-          <div
-            className={`wk-card__more${isOpen ? " wk-card__more--open" : ""}`}
-            id={`wk-more-${index}`}
-          >
-            <div className="wk-card__more-inner" aria-hidden={!isOpen}>
-              <p className="wk-card__includes-label">{labels.includesLabel}</p>
-              <ul className="wk-card__includes">
-                {project.includes.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="wk-card__read-more"
-            aria-expanded={isOpen}
-            aria-controls={`wk-more-${index}`}
-            onClick={onToggle}
-          >
-            {isOpen ? labels.readLessLabel : labels.readMoreLabel}
-            <span className="wk-card__plus" aria-hidden="true">
-              {isOpen ? "–" : "+"}
-            </span>
-          </button>
-        </div>
-      </div>
-
-      <figure className="wk-card__figure" aria-hidden="true">
-        {project.image && <Image src={project.image} alt={project.alt} width={1200} height={900} sizes="(max-width: 900px) 100vw, 50vw" />}
-      </figure>
-    </div>
-  );
-}
-
 export function WorkPage({ data }: { data?: PageWorkData | null }) {
-  const projects = resolveProjects(data);
-  const galleryImages = projects.map((project) => project.image).filter(Boolean);
-  const labels: ProjectCardLabels = {
-    includesLabel: data?.includesLabel ?? "Includes:",
-    readMoreLabel: data?.readMoreLabel ?? "Read more",
-    readLessLabel: data?.readLessLabel ?? "Read less",
-  };
+  // The board re-measures its tiles whenever this list changes identity, so
+  // it is resolved once per set of CMS data rather than once per render.
+  const projects = useMemo(() => resolveProjects(data), [data]);
+
+  const heroLede = data?.heroLede?.trim() || DEFAULT_HERO_LEDE;
+  const heroTitle = data?.heroTitle?.trim() || DEFAULT_HERO_TITLE;
+  const projectsLabel = data?.projectsLabel?.trim() || DEFAULT_PROJECTS_LABEL;
+  const labels = useMemo(() => resolveWorkLabels(data), [data]);
+
   const marqueeLine1 = data?.marqueeLine1 ?? "We build. We refine.";
   const marqueeVideoSrc =
     mediaUrl(data?.marqueeVideo) ?? "/videos/success-stories-mammoth.webm";
@@ -267,52 +97,26 @@ export function WorkPage({ data }: { data?: PageWorkData | null }) {
     </>
   );
 
-  const projectCards = projects.map((project, i) => ({
-    id: project.title,
-    content: <ProjectCard project={project} index={i} labels={labels} />,
-  }));
-
   return (
     <main className="wk">
-      <section className="wk__hero" aria-label="Our work highlights">
-        <div className="wk__hero-slider">
-          {galleryImages.length > 0 && <ImageSlider3D
-            images={Array.from(
-              { length: 12 },
-              (_, i) => galleryImages[i % galleryImages.length],
-            )}
-          />}
-        </div>
-        <div className="wk__hero-text">
-          <h1 className="wk__title">
-            {data?.heroTitle ?? "Selected work from teams with momentum"}
-          </h1>
-          <p className="wk__lede">
-            {data?.heroLede ??
-              "A senior brand team embedded directly into each project — fast-moving, reactive work that gets your product shipped and noticed."}
-          </p>
-        </div>
+      <section className="wk__intro" aria-label="Work overview">
+        <div className="wk__intro-rule" aria-hidden="true" />
+        <p className="wk__lede">
+          <span className="wk__pill">{labels.workPillLabel}</span>
+          <span className="wk__lede-copy"><InlineWorkMedia text={heroLede} /></span>
+        </p>
       </section>
 
-      <section className="wk__cases" aria-label="Case studies">
-        <div className="wk__strip wk__strip--cases">
-          <span className="wk__strip-label">
-            {data?.projectsLabel ?? "Projects"}
-          </span>
-          <BlueDot />
+      <section className="wk__cases" id="work-masonry" aria-label="Case studies">
+        <div className="wk__cases-header">
+          <div className="wk__cases-rule" aria-hidden="true" />
+          <div className="wk__cases-meta">
+            <span className="wk__pill">{projectsLabel}</span>
+          </div>
+          <h1 className="wk__title">{heroTitle}</h1>
         </div>
 
-        {projectCards.length > 0 && <ScrollCards
-          cards={projectCards}
-          direction="bottom"
-          heightClass="h-[90vh]"
-          startOffset="top 72px"
-          stackPeekPercent={94}
-          paddingClass="p-0"
-          cardScale={0.9}
-          cardRotation={2}
-          containerClassName="h-full w-full sm:w-full lg:w-full max-w-none aspect-auto md:aspect-auto rounded-none bg-transparent shadow-none overflow-visible"
-        />}
+        {projects.length > 0 && <WorkMasonry projects={projects} />}
       </section>
 
       <section className="wk__marquee" aria-label="Studio work in motion">

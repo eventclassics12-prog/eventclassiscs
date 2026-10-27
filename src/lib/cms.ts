@@ -101,9 +101,6 @@ export interface HomeStatementData {
   stat?: string | null
   statCaption?: string | null
   paragraphs?: { text?: string | null }[] | null
-  bylineName?: string | null
-  bylineRole?: string | null
-  bylineInitials?: string | null
 }
 
 export interface HomeGapData {
@@ -115,20 +112,6 @@ export interface HomeGapData {
 
 export interface HomeKeepScrollingData {
   label?: string | null
-}
-
-export interface HomeSuccessStoriesData {
-  label?: string | null
-  pagerTag?: string | null
-  video?: CmsMediaField
-  projects?: {
-    title?: string | null
-    description?: string | null
-    stat?: string | null
-    statCaption?: string | null
-    image?: CmsMediaField
-    video?: CmsMediaField
-  }[] | null
 }
 
 export interface HomeServicesData {
@@ -194,24 +177,64 @@ export interface PageServicesData extends PageSeoData {
   finalCtaImage?: CmsMediaField
 }
 
+export interface PageWorkProjectData {
+  title?: string | null
+  slug?: string | null
+  flagship?: boolean | null
+  cardTags?: { value?: string | null }[] | null
+  kickerParts?: TextPart[] | null
+  intro?: string | null
+  body?: string | null
+  includes?: { value?: string | null }[] | null
+  caption?: string | null
+  image?: CmsMediaField
+  alt?: string | null
+  diagram?: {
+    hideCaption?: boolean | null
+    triggerLabel?: string | null
+    eyebrow?: string | null
+    title?: string | null
+    note?: string | null
+    itemsLabel?: string | null
+    items?: { title?: string | null; note?: string | null }[] | null
+  } | null
+  idea?: string | null
+  executionIntro?: string | null
+  executionSteps?: { title?: string | null; body?: string | null }[] | null
+  challenges?:
+    | { challenge?: string | null; solution?: string | null }[]
+    | null
+  impactStats?: { value?: string | null; label?: string | null }[] | null
+  impactNote?: string | null
+}
+
 export interface PageWorkData extends PageSeoData {
   heroTitle?: string | null
   heroLede?: string | null
+  workPillLabel?: string | null
   projectsLabel?: string | null
-  projects?: {
-    title?: string | null
-    kickerParts?: TextPart[] | null
-    intro?: string | null
-    body?: string | null
-    includes?: { value?: string | null }[] | null
-    caption?: string | null
-    image?: CmsMediaField
-    alt?: string | null
-  }[] | null
+  backLabel?: string | null
+  nextLabel?: string | null
+  approachEyebrow?: string | null
+  approachLinkLabel?: string | null
+  includesLabel?: string | null
+  caseStudyLabel?: string | null
+  ideaLabel?: string | null
+  executionLabel?: string | null
+  challengesLabel?: string | null
+  challengesNote?: string | null
+  challengeColumnLabel?: string | null
+  solutionColumnLabel?: string | null
+  impactLabel?: string | null
+  diagramCaption?: string | null
+  diagramTriggerLabel?: string | null
+  diagramRootEyebrow?: string | null
+  diagramRootNote?: string | null
+  diagramItemsLabel?: string | null
+  projects?: PageWorkProjectData[] | null
   marqueeLine1?: string | null
   marqueeLine2?: TextPart[] | null
   marqueeVideo?: CmsMediaField
-  includesLabel?: string | null
   readMoreLabel?: string | null
   readLessLabel?: string | null
 }

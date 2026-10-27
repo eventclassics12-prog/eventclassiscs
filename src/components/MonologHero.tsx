@@ -47,17 +47,17 @@ export function MonologHero({
         <LiquidMetalBg />
 
         <div className="m-hero__pitch">
-          <div className="m-hero__para-blend">
-            <motion.p
-              className="m-hero__para"
-              initial={reduce ? false : ENTRANCE.hidden}
-              animate={reduce ? undefined : { opacity: 1, y: 0 }}
-              transition={{
-                delay: ENTRANCE.para.delay,
-                duration: ENTRANCE.para.duration,
-                ease: "easeInOut",
-              }}
-            >
+          <motion.div
+            className="m-hero__para-blend"
+            initial={reduce ? false : ENTRANCE.hidden}
+            animate={reduce ? undefined : { opacity: 1, y: 0 }}
+            transition={{
+              delay: ENTRANCE.para.delay,
+              duration: ENTRANCE.para.duration,
+              ease: "easeInOut",
+            }}
+          >
+            <p className="m-hero__para">
               {para1.split("\n\n").map((line, i) => (
                 <span
                   key={i}
@@ -68,8 +68,8 @@ export function MonologHero({
                   {line}
                 </span>
               ))}
-            </motion.p>
-          </div>
+            </p>
+          </motion.div>
 
           <motion.a
             className="m-hero__cta m-hero__bookcta"

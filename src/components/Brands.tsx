@@ -64,24 +64,28 @@ export function Brands({ data }: BrandsProps) {
         }));
 
   return (
-    <section className="brands" id="work">
+    <section className="brands" id="work" aria-labelledby="brands-heading">
       <div className="brands__layout">
         <header className="brands__header">
           <span className="brands__dot" aria-hidden="true" />
-          <span className="brands__label">{label}</span>
+          <h2 className="brands__label" id="brands-heading">{label}</h2>
         </header>
 
         <div className="brands__grid">
           {brands.map((brand, i) => (
             <div className="brands__cell" key={`${brand.src}-${i}`}>
-              {brand.src && <Image
-                className="brands__image"
-                src={brand.src}
-                alt={brand.alt}
-                width={brand.width}
-                height={brand.height}
-                sizes="(max-width: 767px) 45vw, 35vw"
-              />}
+              <div className="brands__logo">
+                {brand.src && (
+                  <Image
+                    className="brands__image"
+                    src={brand.src}
+                    alt={brand.alt}
+                    width={brand.width}
+                    height={brand.height}
+                    sizes="(max-width: 768px) 40vw, 20vw"
+                  />
+                )}
+              </div>
               <span className="brands__name">{brand.name}</span>
             </div>
           ))}

@@ -17,7 +17,8 @@
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.8rem;
-    height: 2.75rem;
+    /* No fixed height — the submit button sizes itself from its label
+       (see the `em`-based size variants in components/ui/button.tsx). */
     border: 1px solid #000000;
   }
 

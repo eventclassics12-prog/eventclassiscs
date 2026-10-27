@@ -522,7 +522,7 @@ export interface HomeHero {
   createdAt?: string | null;
 }
 /**
- * Logo strip under the hero.
+ * Manage the Trusted By logo grid. Expand a client logo row, then upload a new logo or choose an existing image.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home-brands".
@@ -530,8 +530,14 @@ export interface HomeHero {
 export interface HomeBrand {
   id: number;
   label?: string | null;
+  /**
+   * Use Add Client logo to add a row. The Logo control is inside each row.
+   */
   brands?:
     | {
+        /**
+         * Upload a new image here, or select an image from Media.
+         */
         logo?: (number | null) | Media;
         name: string;
         id?: string | null;
@@ -556,9 +562,6 @@ export interface HomeStatement {
         id?: string | null;
       }[]
     | null;
-  bylineName?: string | null;
-  bylineRole?: string | null;
-  bylineInitials?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -750,7 +753,7 @@ export interface PageService {
   createdAt?: string | null;
 }
 /**
- * Content of the /work page.
+ * Every word, image and label on /work and on each project page under /work/[slug].
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "page-work".
@@ -765,10 +768,52 @@ export interface PageWork {
   ogImage?: (number | null) | Media;
   heroTitle?: string | null;
   heroLede?: string | null;
+  /**
+   * Small pill above the board intro.
+   */
+  workPillLabel?: string | null;
   projectsLabel?: string | null;
+  backLabel?: string | null;
+  nextLabel?: string | null;
+  approachEyebrow?: string | null;
+  approachLinkLabel?: string | null;
+  includesLabel?: string | null;
+  caseStudyLabel?: string | null;
+  ideaLabel?: string | null;
+  executionLabel?: string | null;
+  challengesLabel?: string | null;
+  challengesNote?: string | null;
+  challengeColumnLabel?: string | null;
+  solutionColumnLabel?: string | null;
+  impactLabel?: string | null;
+  diagramCaption?: string | null;
+  diagramTriggerLabel?: string | null;
+  diagramRootEyebrow?: string | null;
+  diagramRootNote?: string | null;
+  diagramItemsLabel?: string | null;
+  /**
+   * One entry per project. The order here is the order on the board, in the next-project link, and in the sitemap.
+   */
   projects?:
     | {
         title: string;
+        /**
+         * Address of the project page, e.g. “manipal-hospitals”. Leave empty to derive it from the title.
+         */
+        slug?: string | null;
+        /**
+         * Highlights the Flagship word above the project name on the work board.
+         */
+        flagship?: boolean | null;
+        /**
+         * The pills printed over the image on the work board. Empty falls back to the first two Includes entries.
+         */
+        cardTags?:
+          | {
+              value: string;
+              id?: string | null;
+            }[]
+          | null;
         /**
          * Tick “highlight” to render a part in blue.
          */
@@ -790,6 +835,60 @@ export interface PageWork {
         caption?: string | null;
         image?: (number | null) | Media;
         alt?: string | null;
+        /**
+         * The connected-approach diagram on this project page. Empty fields fall back to the diagram defaults above; empty nodes fall back to the deliverables.
+         */
+        diagram?: {
+          /**
+           * Hides the “A connected approach” caption above the diagram.
+           */
+          hideCaption?: boolean | null;
+          triggerLabel?: string | null;
+          eyebrow?: string | null;
+          title?: string | null;
+          note?: string | null;
+          itemsLabel?: string | null;
+          items?:
+            | {
+                title: string;
+                note?: string | null;
+                id?: string | null;
+              }[]
+            | null;
+        };
+        /**
+         * The big opening line of the case study.
+         */
+        idea?: string | null;
+        executionIntro?: string | null;
+        executionSteps?:
+          | {
+              title: string;
+              body?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        challenges?:
+          | {
+              challenge: string;
+              solution: string;
+              id?: string | null;
+            }[]
+          | null;
+        impactStats?:
+          | {
+              /**
+               * Keep the unit in the value, e.g. “42%” or “3.1×”.
+               */
+              value: string;
+              label: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Optional source line under the numbers.
+         */
+        impactNote?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -805,7 +904,6 @@ export interface PageWork {
       }[]
     | null;
   marqueeVideo?: (number | null) | Media;
-  includesLabel?: string | null;
   readMoreLabel?: string | null;
   readLessLabel?: string | null;
   updatedAt?: string | null;
@@ -827,7 +925,7 @@ export interface PageContact {
   ogImage?: (number | null) | Media;
   introHeading?: string | null;
   /**
-   * The email address inside this text is automatically turned into a mailto link.
+   * Use {email} to insert Intro Email as a link. Existing info@eventclassics.in text also follows Intro Email.
    */
   introLede?: string | null;
   introEmail?: string | null;
@@ -980,9 +1078,6 @@ export interface HomeStatementSelect<T extends boolean = true> {
         text?: T;
         id?: T;
       };
-  bylineName?: T;
-  bylineRole?: T;
-  bylineInitials?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1155,11 +1250,38 @@ export interface PageWorkSelect<T extends boolean = true> {
   ogImage?: T;
   heroTitle?: T;
   heroLede?: T;
+  workPillLabel?: T;
   projectsLabel?: T;
+  backLabel?: T;
+  nextLabel?: T;
+  approachEyebrow?: T;
+  approachLinkLabel?: T;
+  includesLabel?: T;
+  caseStudyLabel?: T;
+  ideaLabel?: T;
+  executionLabel?: T;
+  challengesLabel?: T;
+  challengesNote?: T;
+  challengeColumnLabel?: T;
+  solutionColumnLabel?: T;
+  impactLabel?: T;
+  diagramCaption?: T;
+  diagramTriggerLabel?: T;
+  diagramRootEyebrow?: T;
+  diagramRootNote?: T;
+  diagramItemsLabel?: T;
   projects?:
     | T
     | {
         title?: T;
+        slug?: T;
+        flagship?: T;
+        cardTags?:
+          | T
+          | {
+              value?: T;
+              id?: T;
+            };
         kickerParts?:
           | T
           | {
@@ -1178,6 +1300,47 @@ export interface PageWorkSelect<T extends boolean = true> {
         caption?: T;
         image?: T;
         alt?: T;
+        diagram?:
+          | T
+          | {
+              hideCaption?: T;
+              triggerLabel?: T;
+              eyebrow?: T;
+              title?: T;
+              note?: T;
+              itemsLabel?: T;
+              items?:
+                | T
+                | {
+                    title?: T;
+                    note?: T;
+                    id?: T;
+                  };
+            };
+        idea?: T;
+        executionIntro?: T;
+        executionSteps?:
+          | T
+          | {
+              title?: T;
+              body?: T;
+              id?: T;
+            };
+        challenges?:
+          | T
+          | {
+              challenge?: T;
+              solution?: T;
+              id?: T;
+            };
+        impactStats?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              id?: T;
+            };
+        impactNote?: T;
         id?: T;
       };
   marqueeLine1?: T;
@@ -1189,7 +1352,6 @@ export interface PageWorkSelect<T extends boolean = true> {
         id?: T;
       };
   marqueeVideo?: T;
-  includesLabel?: T;
   readMoreLabel?: T;
   readLessLabel?: T;
   updatedAt?: T;

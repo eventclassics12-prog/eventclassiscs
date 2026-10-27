@@ -154,28 +154,182 @@ export const PageWork: GlobalConfig = {
   label: 'Work Page',
   admin: {
     group: 'Pages',
-    description: 'Content of the /work page.',
+    description:
+      'Every word, image and label on /work and on each project page under /work/[slug].',
   },
   fields: [
     ...seoFields,
     {
       name: 'heroTitle',
       type: 'textarea',
+      label: 'Board title',
       defaultValue: 'Selected work from teams with momentum',
     },
     {
       name: 'heroLede',
       type: 'textarea',
+      label: 'Board intro',
       defaultValue:
         'A senior brand team embedded directly into each project — fast-moving, reactive work that gets your product shipped and noticed.',
     },
-    { name: 'projectsLabel', type: 'text', defaultValue: 'Projects' },
+    {
+      name: 'workPillLabel',
+      type: 'text',
+      label: 'Intro pill',
+      defaultValue: 'Work',
+      admin: { description: 'Small pill above the board intro.' },
+    },
+    { name: 'projectsLabel', type: 'text', label: 'Board pill', defaultValue: 'Projects' },
+    {
+      type: 'collapsible',
+      label: 'Project page labels',
+      admin: {
+        description:
+          'Navigation and chapter headings repeated on every project page.',
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          name: 'backLabel',
+          type: 'text',
+          label: 'Back link',
+          defaultValue: 'All work',
+        },
+        {
+          name: 'nextLabel',
+          type: 'text',
+          label: 'Next project label',
+          defaultValue: 'Next project',
+        },
+        {
+          name: 'approachEyebrow',
+          type: 'text',
+          label: 'Approach — eyebrow',
+          defaultValue: 'The approach',
+        },
+        {
+          name: 'approachLinkLabel',
+          type: 'text',
+          label: 'Approach — link',
+          defaultValue: 'Explore the approach',
+        },
+        {
+          name: 'includesLabel',
+          type: 'text',
+          label: 'Includes label',
+          defaultValue: 'Includes:',
+        },
+        {
+          name: 'caseStudyLabel',
+          type: 'text',
+          label: 'Case study heading',
+          defaultValue: 'Case study',
+        },
+        { name: 'ideaLabel', type: 'text', defaultValue: 'The idea' },
+        { name: 'executionLabel', type: 'text', defaultValue: 'Execution' },
+        { name: 'challengesLabel', type: 'text', defaultValue: 'Challenges' },
+        {
+          name: 'challengesNote',
+          type: 'text',
+          label: 'Challenges — note',
+          defaultValue: 'What we faced, and how we solved it.',
+        },
+        {
+          name: 'challengeColumnLabel',
+          type: 'text',
+          label: 'Challenges — column',
+          defaultValue: 'The challenge',
+        },
+        {
+          name: 'solutionColumnLabel',
+          type: 'text',
+          label: 'Solutions — column',
+          defaultValue: 'How we solved it',
+        },
+        { name: 'impactLabel', type: 'text', defaultValue: 'Impact' },
+      ],
+    },
+    {
+      type: 'collapsible',
+      label: 'Diagram defaults',
+      admin: {
+        description:
+          'Defaults for the connected-approach diagram. Any project can override them under Projects → Diagram.',
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          name: 'diagramCaption',
+          type: 'text',
+          label: 'Caption',
+          defaultValue: 'A connected approach',
+        },
+        {
+          name: 'diagramTriggerLabel',
+          type: 'text',
+          label: 'Trigger label',
+          defaultValue: 'Brief',
+        },
+        {
+          name: 'diagramRootEyebrow',
+          type: 'text',
+          label: 'Root eyebrow',
+          defaultValue: 'Brand system',
+        },
+        {
+          name: 'diagramRootNote',
+          type: 'text',
+          label: 'Root note',
+          defaultValue: 'Strategy into expression',
+        },
+        {
+          name: 'diagramItemsLabel',
+          type: 'text',
+          label: 'Nodes label',
+          defaultValue: 'Connected disciplines',
+        },
+      ],
+    },
     {
       name: 'projects',
       type: 'array',
+      label: 'Projects',
       minRows: 0,
+      admin: {
+        description:
+          'One entry per project. The order here is the order on the board, in the next-project link, and in the sitemap.',
+      },
       fields: [
         { name: 'title', type: 'text', required: true },
+        {
+          name: 'slug',
+          type: 'text',
+          label: 'URL slug',
+          admin: {
+            description:
+              'Address of the project page, e.g. “manipal-hospitals”. Leave empty to derive it from the title.',
+          },
+        },
+        {
+          name: 'flagship',
+          type: 'checkbox',
+          label: 'Flagship',
+          defaultValue: false,
+          admin: {
+            description:
+              'Highlights the Flagship word above the project name on the work board.',
+          },
+        },
+        {
+          name: 'cardTags',
+          type: 'array',
+          label: 'Board card pills',
+          admin: {
+            description:
+              'The pills printed over the image on the work board. Empty falls back to the first two Includes entries.',
+          },
+          fields: [{ name: 'value', type: 'text', required: true }],
+        },
         {
           name: 'kickerParts',
           type: 'array',
@@ -187,15 +341,119 @@ export const PageWork: GlobalConfig = {
           ],
         },
         { name: 'intro', type: 'textarea' },
-        { name: 'body', type: 'textarea' },
+        { name: 'body', type: 'textarea', label: 'Approach copy' },
         {
           name: 'includes',
           type: 'array',
+          label: 'Deliverables',
           fields: [{ name: 'value', type: 'text', required: true }],
         },
-        { name: 'caption', type: 'text' },
+        { name: 'caption', type: 'text', label: 'Approach heading' },
         uploadField('image', 'Project image'),
-        { name: 'alt', type: 'text' },
+        { name: 'alt', type: 'text', label: 'Image alt text' },
+        {
+          name: 'diagram',
+          type: 'group',
+          label: 'Diagram',
+          admin: {
+            description:
+              'The connected-approach diagram on this project page. Empty fields fall back to the diagram defaults above; empty nodes fall back to the deliverables.',
+          },
+          fields: [
+            {
+              name: 'hideCaption',
+              type: 'checkbox',
+              label: 'Hide caption',
+              defaultValue: false,
+              admin: {
+                description: 'Hides the “A connected approach” caption above the diagram.',
+              },
+            },
+            { name: 'triggerLabel', type: 'text', label: 'Trigger label' },
+            { name: 'eyebrow', type: 'text', label: 'Root eyebrow' },
+            { name: 'title', type: 'text', label: 'Root title' },
+            { name: 'note', type: 'text', label: 'Root note' },
+            { name: 'itemsLabel', type: 'text', label: 'Nodes label' },
+            {
+              name: 'items',
+              type: 'array',
+              label: 'Nodes',
+              minRows: 0,
+              fields: [
+                { name: 'title', type: 'text', required: true },
+                { name: 'note', type: 'text' },
+              ],
+            },
+          ],
+        },
+        {
+          type: 'collapsible',
+          label: 'Case study',
+          admin: {
+            description:
+              'The four chapters under the hero: the idea, execution, challenges and impact. Empty chapters fall back to the bundled copy, then to the project intro.',
+          },
+          fields: [
+            {
+              name: 'idea',
+              type: 'textarea',
+              label: 'The idea — statement',
+              admin: {
+                description: 'The big opening line of the case study.',
+              },
+            },
+            {
+              name: 'executionIntro',
+              type: 'textarea',
+              label: 'Execution — intro',
+            },
+            {
+              name: 'executionSteps',
+              type: 'array',
+              label: 'Execution — steps',
+              minRows: 0,
+              fields: [
+                { name: 'title', type: 'text', required: true },
+                { name: 'body', type: 'textarea' },
+              ],
+            },
+            {
+              name: 'challenges',
+              type: 'array',
+              label: 'Challenges — faced & solved',
+              minRows: 0,
+              fields: [
+                { name: 'challenge', type: 'text', required: true },
+                { name: 'solution', type: 'textarea', required: true },
+              ],
+            },
+            {
+              name: 'impactStats',
+              type: 'array',
+              label: 'Impact — numbers',
+              minRows: 0,
+              fields: [
+                {
+                  name: 'value',
+                  type: 'text',
+                  required: true,
+                  admin: {
+                    description: 'Keep the unit in the value, e.g. “42%” or “3.1×”.',
+                  },
+                },
+                { name: 'label', type: 'text', required: true },
+              ],
+            },
+            {
+              name: 'impactNote',
+              type: 'text',
+              label: 'Impact — footnote',
+              admin: {
+                description: 'Optional source line under the numbers.',
+              },
+            },
+          ],
+        },
       ],
     },
     { name: 'marqueeLine1', type: 'text', defaultValue: 'We build. We refine.' },
@@ -215,7 +473,6 @@ export const PageWork: GlobalConfig = {
       ],
     },
     uploadField('marqueeVideo', 'Marquee video'),
-    { name: 'includesLabel', type: 'text', defaultValue: 'Includes:' },
     { name: 'readMoreLabel', type: 'text', defaultValue: 'Read more' },
     { name: 'readLessLabel', type: 'text', defaultValue: 'Read less' },
   ],

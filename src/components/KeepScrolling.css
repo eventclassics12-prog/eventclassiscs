@@ -1,5 +1,8 @@
 .keep-scrolling {
   position: relative;
+  /* The pinned decorative wrapper overlaps Services during the handoff.
+     Let pointer input reach the revealed cards beneath it. */
+  pointer-events: none;
   color: var(--paper);
 
   min-height: 100vh;

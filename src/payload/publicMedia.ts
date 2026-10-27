@@ -31,20 +31,32 @@ function referencedMediaIds(documents: unknown[]): number[] {
   return [...ids]
 }
 
-function publicMediaIds(payload: Payload) {
-  return unstable_cache(async () => {
-    const globals = await Promise.all(globalSlugs.map(slug => payload.findGlobal({ slug, depth: 0, overrideAccess: true })))
-    const posts = await payload.find({
-      collection: 'posts',
-      where: { publishedAt: { less_than_equal: new Date().toISOString() } },
-      depth: 0,
-      pagination: false,
-      limit: 0,
-      select: { coverImage: true, content: true },
-      overrideAccess: true,
-    })
-    return referencedMediaIds([...globals, ...posts.docs])
-  }, ['public-media-references'], { tags: ['cms'], revalidate: 300 })()
+async function collectPublicMediaIds(payload: Payload): Promise<number[]> {
+  const globals = await Promise.all(globalSlugs.map(slug => payload.findGlobal({ slug, depth: 0, overrideAccess: true })))
+  const posts = await payload.find({
+    collection: 'posts',
+    where: { publishedAt: { less_than_equal: new Date().toISOString() } },
+    depth: 0,
+    pagination: false,
+    limit: 0,
+    select: { coverImage: true, content: true },
+    overrideAccess: true,
+  })
+  return referencedMediaIds([...globals, ...posts.docs])
+}
+
+function publicMediaIds(payload: Payload): Promise<number[]> {
+  const cached = unstable_cache(
+    () => collectPublicMediaIds(payload),
+    ['public-media-references'],
+    { tags: ['cms'], revalidate: 300 },
+  )
+
+  return cached().catch(() =>
+    // Seeds and CLI scripts run outside a Next request, where the data cache
+    // refuses to run. Read uncached rather than hiding every media file.
+    collectPublicMediaIds(payload),
+  )
 }
 
 // Only media already used by public content is readable without a CMS login.

@@ -2,7 +2,7 @@
 
 Next.js editorial site for **Eventclassics** — a strategic brand-building
 studio based in Kolkata, working worldwide. Site pages: `/`, `/about`,
-`/services`, `/work`, `/contact-form`.
+`/services`, `/work`, `/work/[slug]`, `/contact-form`.
 
 ## Getting Started
 
@@ -13,8 +13,34 @@ pnpm build && pnpm start
 ```
 
 The site is a [Next.js](https://nextjs.org) 16 App Router project with
-Tailwind v4, Framer Motion, GSAP, Three.js, and a small set of shadcn-
+Tailwind v4, Framer Motion, GSAP, Lottie, and a small set of shadcn-
 style primitives under `src/components/ui/`.
+
+## Project case studies
+
+Every project page tells its story in four chapters — *The idea*,
+*Execution*, *Challenges* (what we faced and how we solved it), and
+*Impact* (the numbers), each introduced by a Lottie illustration.
+
+The copy lives in Payload under **Work Page → Projects → Case study**:
+`idea`, `executionIntro`, `executionSteps`, `challenges`, `impactStats`,
+and `impactNote`. A chapter with nothing to say is omitted.
+Anything not yet filled in falls back to the
+bundled stories in `src/lib/case-studies.ts`, so a new project still reads
+correctly before it is written.
+
+To write the bundled copy into the database:
+
+```bash
+pnpm seed:case-studies --dry-run   # list which projects it would fill
+pnpm seed:case-studies
+```
+
+The script overwrites the case-study fields with the bundled copy, so run it
+once on a fresh database rather than after the copy has been edited in the CMS.
+
+The Impact figures are placeholder numbers — replace them in the CMS with
+measured results before launch.
 
 ## Zoho CRM integration
 

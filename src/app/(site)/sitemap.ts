@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
-import { getGlobal, getPosts, type SiteSettingsData } from '@/lib/cms-server'
+import { getGlobal, getPosts, type PageWorkData, type SiteSettingsData } from '@/lib/cms-server'
 import { siteUrlOf } from '@/lib/seo'
+import { resolveProjects } from '@/lib/work'
 
 export const revalidate = 300;
 
@@ -18,9 +19,10 @@ const ROUTES: ReadonlyArray<{
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [site, posts] = await Promise.all([
+  const [site, posts, work] = await Promise.all([
     getGlobal<SiteSettingsData>('site-settings'),
     getPosts(),
+    getGlobal<PageWorkData>('page-work'),
   ])
   const base = siteUrlOf(site)
   const lastModified = new Date()
@@ -43,5 +45,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }))
 
-  return [...staticRoutes, ...postRoutes]
+  const projectRoutes: MetadataRoute.Sitemap = resolveProjects(work).map(
+    (project) => ({
+      url: `${base}/work/${project.slug}`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    }),
+  )
+
+  return [...staticRoutes, ...postRoutes, ...projectRoutes]
 }

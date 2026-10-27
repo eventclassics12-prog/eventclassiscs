@@ -285,6 +285,7 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
     const whiteout = section.querySelector("[data-ks-whiteout]");
     const stage = section.querySelector("[data-ks-stage]");
     const smoke = section.querySelector("[data-ks-smoke]");
+    const nextSection = section.nextElementSibling;
 
     let mm: gsap.MatchMedia | null = null;
 
@@ -314,6 +315,13 @@ export function KeepScrolling({ data }: KeepScrollingProps) {
         };
 
         const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+        // Reveal the next section beneath the lifting stage. ScrollTrigger
+        // copies this overlap to its spacer; without it the empty viewport
+        // remains in the document after the artwork has moved away.
+        gsap.set(section, { marginBottom: "-100lvh" });
+        // Keep the next section's positioned tiles below the pinned artwork.
+        if (nextSection) gsap.set(nextSection, { isolation: "isolate" });
 
         const tl = gsap.timeline({
           defaults: { ease: "none", force3D: true },

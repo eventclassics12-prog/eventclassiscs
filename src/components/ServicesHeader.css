@@ -1,3 +1,5 @@
+@import "./ServicesHero.css";
+
 .svc-head {
   position: fixed;
   top: 0;
@@ -8,8 +10,7 @@
   display: flex;
   align-items: center;
 
-  --cta-h: 2.75rem;
-  min-height: calc(var(--cta-h) + 1rem);
+  min-height: 3.75rem;
   padding-block: 0.5rem;
   padding-inline: 2vw;
 
@@ -83,6 +84,35 @@
 }
 
 @media (max-width: 768px) {
+  /* Do not difference-blend the sampled backdrop: on mobile WebKit this
+     turns the frosted surface into a dark band. Blend only the brand. */
+  .svc-head {
+    mix-blend-mode: normal;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .svc-head::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgb(255 255 255 / 0.14), transparent);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+  }
+
+  .svc-head__brand {
+    color: #fff;
+    mix-blend-mode: difference;
+  }
+
   .svc-head__links-wrap {
     display: none;
   }

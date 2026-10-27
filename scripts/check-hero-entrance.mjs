@@ -57,7 +57,7 @@ assert.match(nav, /initial=\{reduce \? false : ENTRANCE\.hidden\}/, 'menu must g
 // The CSS baseline that hides the copy until motion fades it up.
 assert.match(
   css,
-  /\.m-hero__para,\s*\.m-hero__links li,\s*\.m-hero__bookcta\s*\{\s*opacity: 0;/,
+  /\.m-hero__para-blend,\s*\.m-hero__links li,\s*\.m-hero__bookcta\s*\{\s*opacity: 0;/,
   'the opacity: 0 baseline must remain, or the copy flashes before animating'
 );
 
@@ -70,7 +70,7 @@ const reducedBlocks = [
 assert.ok(reducedBlocks.length > 0, 'a reduced-motion media query must exist');
 const reduced = reducedBlocks.join('\n');
 for (const selector of [
-  /\.m-hero__para\b/,
+  /\.m-hero__para-blend\b/,
   /\.m-hero__links li\b/,
   /\.m-hero__bookcta\b/,
   /\.nav-close-btn\s*\{\s*opacity: 1/,

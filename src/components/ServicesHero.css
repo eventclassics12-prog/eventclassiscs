@@ -1,0 +1,15 @@
+/* Services hero copy offset.
+
+   The headline + lede sat flush with the hero's bottom padding, which read as
+   bottom-heavy — the copy visually sank toward the fold while the hero video
+   figure sat beside it. Lifting the text block a little off the bottom edge
+   gives the composition some air without changing the type scale or the
+   spacing between the heading and its lede.
+
+   `.svc__hero-text` only sets `max-width` in ServicesPage.css, so this
+   override never collides with it regardless of import order. */
+.svc__hero-text {
+  /* Raised once more: the copy now clears the figure's baseline by a wider
+     margin instead of sitting just above it. */
+  margin-bottom: clamp(1.5rem, 4.5vw, 4rem);
+}

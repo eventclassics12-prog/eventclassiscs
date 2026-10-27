@@ -145,11 +145,12 @@
   font-family: var(--font-sans);
   font-weight: 500;
   font-size: 0.9375rem;
+  line-height: 1;
   letter-spacing: -0.005em;
 
-  --cta-h: 2.75rem;
-  height: var(--cta-h);
-  padding: 0 1.25rem;
+  /* Font-size relative so the pill tracks its label. */
+  padding: 0.4em 1.1em;
+  min-height: 2.4em;
   border: 0;
   border-radius: 999px;
 

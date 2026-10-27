@@ -141,6 +141,7 @@ export function ContactSection({ data }: { data?: PageContactData | null }) {
             </div>
             <Button
               className="contact-form__submit w-full rounded-full"
+              size="lg"
               type="submit"
               disabled={status === "submitting"}
               style={{
