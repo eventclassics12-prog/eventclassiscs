@@ -21,6 +21,28 @@
   color: var(--paper);
   mix-blend-mode: difference;
 
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+}
+
+/* The blur lives on a child layer, never on the bar itself.
+
+   WebKit (iOS/iPadOS Safari) renders an element that combines
+   `backdrop-filter` with `mix-blend-mode` as an opaque black band: the
+   backdrop-filter establishes a backdrop root, so the blend has nothing to
+   difference against and resolves to black. Chrome ignores this, which is
+   why the bug only shows on tablets and phones.
+
+   Moving only the blur down here keeps the bar a single blend group — so the
+   text still inverts against whatever scrolls underneath exactly as before —
+   while removing the combination WebKit chokes on. */
+.svc-head::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
   background: linear-gradient(
     to bottom,
     rgb(255 255 255 / 0.14),
@@ -84,34 +106,9 @@
 }
 
 @media (max-width: 768px) {
-  /* Do not difference-blend the sampled backdrop: on mobile WebKit this
-     turns the frosted surface into a dark band. Blend only the brand. */
-  .svc-head {
-    mix-blend-mode: normal;
-    background: transparent;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
-
-  .svc-head::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background: linear-gradient(to bottom, rgb(255 255 255 / 0.14), transparent);
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
-    backdrop-filter: blur(12px) saturate(150%);
-    -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
-  }
-
-  .svc-head__brand {
-    color: #fff;
-    mix-blend-mode: difference;
-  }
+  /* The bar keeps its difference blend at every width — the fix was to move
+     the blur off the bar itself, not to drop the blend, so the text still
+     inverts against whatever scrolls underneath. */
 
   .svc-head__links-wrap {
     display: none;
