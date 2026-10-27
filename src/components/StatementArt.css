@@ -1,0 +1,32 @@
+.statement__art {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 768 / 906;
+  margin: 0;
+
+  /* The artwork is a white print with black line work, and the section's
+     field is its ink colour, so the print reads as a card laid on the page
+     rather than as part of the page. Nothing is inverted, so what the
+     designer drew is what is shown. */
+}
+
+.statement__art__animation {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  /* The artwork fades up once the engine has drawn it, so the print does not
+     snap into place over the stat. */
+  opacity: 0;
+  transition: opacity 700ms var(--ease-out);
+}
+
+.statement__art__animation svg {
+  display: block;
+}
+
+.statement__art--ready .statement__art__animation {
+  opacity: 1;
+}

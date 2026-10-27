@@ -249,11 +249,12 @@
   font-family: var(--font-sans);
   font-weight: 500;
   font-size: 0.9375rem;
+  line-height: 1;
   letter-spacing: -0.005em;
 
-  --cta-h: 2.75rem;
-  height: var(--cta-h);
-  padding: 0 4px 0 1.25rem;
+  /* Font-size relative so the pill tracks its label (see MonologHero.css). */
+  padding: 0.4em 0.3em 0.4em 1.1em;
+  min-height: 2.4em;
   border: 0;
   border-radius: 999px;
 
@@ -273,9 +274,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: calc(var(--cta-h) - 8px);
-  height: calc(var(--cta-h) - 8px);
-  flex: 0 0 calc(var(--cta-h) - 8px);
+  width: 1.9em;
+  height: 1.9em;
+  flex: 0 0 1.9em;
   border-radius: 50%;
 
   background: var(--ink);
@@ -285,6 +286,8 @@
 }
 
 .about__stance-cta-arrow svg {
+  width: 0.9em;
+  height: 0.9em;
   color: currentColor;
   mix-blend-mode: normal;
   transform: rotate(0deg);

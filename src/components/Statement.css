@@ -1,11 +1,30 @@
 .statement {
+  position: relative;
   background: var(--ink);
-
   width: 100%;
   padding-block: var(--section-space);
+  overflow-x: clip;
+}
+
+.statement__ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      65% 50% at 72% 35%,
+      color-mix(in oklch, var(--paper) 7%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      45% 40% at 18% 75%,
+      color-mix(in oklch, var(--paper) 4%, transparent),
+      transparent 70%
+    );
 }
 
 .statement__inner {
+  position: relative;
   max-width: 90rem;
   margin-inline: auto;
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
@@ -15,7 +34,7 @@
    the reveal walks the copy from dim to lit. */
 .statement__reveal {
   position: relative;
-  min-height: 220vh;
+  min-height: 230vh;
 }
 
 .statement__stage {
@@ -23,56 +42,345 @@
   top: 0;
 
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
-  grid-template-rows: 1fr auto;
+  grid-template-columns: minmax(15rem, 0.95fr) minmax(0, 2.25fr);
+  grid-template-rows: auto 1fr;
   grid-template-areas:
-    "left-column right"
-    "byline     .";
-  row-gap: clamp(1rem, 2vw, 1.5rem);
+    "topbar      topbar"
+    "left-column right";
+  row-gap: clamp(1.75rem, 3.2vh, 2.75rem);
   column-gap: clamp(2rem, 5vw, 5rem);
 
-  /* No min-height: at 46px the passage needs ~846px, more than a 100vh
-     stage can hold. Capping it clipped the tail mid-sentence; letting the
-     stage grow means the copy scrolls through instead of being cut off.
-     The top padding is what clears the 60px fixed nav (`.m-hero__nav`) —
-     with the stage no longer vertically centred, the first line otherwise
-     sat underneath it. */
   padding-block: calc(60px + clamp(0.75rem, 2vh, 1.5rem))
-    clamp(1.5rem, 5vh, 4rem);
+    clamp(1.75rem, 5vh, 3.5rem);
 }
+
+/* --------------------------------------------------------------- topbar -- */
+
+.statement__topbar {
+  grid-area: topbar;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-bottom: clamp(0.875rem, 1.8vh, 1.25rem);
+  border-bottom: 1px solid color-mix(in oklch, var(--paper) 14%, transparent);
+}
+
+.statement__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.statement__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 0 0 12px color-mix(in oklch, var(--paper) 65%, transparent);
+  mix-blend-mode: normal;
+}
+
+.statement__eyebrow-text {
+  font-family: var(--font-sans);
+  font-size: clamp(0.875rem, 1.05vw, 1rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--paper);
+  mix-blend-mode: normal;
+}
+
+.statement__progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.statement__progress-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--paper) 52%, transparent);
+  mix-blend-mode: normal;
+}
+
+.statement__progress-track {
+  position: relative;
+  width: clamp(5rem, 12vw, 9rem);
+  height: 2px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--paper) 16%, transparent);
+  overflow: hidden;
+}
+
+.statement__progress-fill {
+  width: 100%;
+  height: 100%;
+  background: var(--paper);
+  transform-origin: 0 50%;
+  transform: scaleX(clamp(0.06, var(--reveal-front, 0.06), 1));
+}
+
+/* ---------------------------------------------------------- left column -- */
 
 .statement__left-column {
   grid-area: left-column;
-  /* Was center. At 46px the copy fills the whole grid row (711px of an 886px
-     stage), so centering this short block against that box pushed it 250px
-     *below* the opening line. Starting it keeps the stat level with the
-     first line of copy. */
-  align-self: start;
+  align-self: stretch;
 
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  justify-content: space-between;
+  gap: clamp(1.25rem, 2.5vh, 2rem);
+  padding-right: clamp(1rem, 2.5vw, 2.25rem);
+  border-right: 1px solid color-mix(in oklch, var(--paper) 12%, transparent);
+}
+
+.statement__stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: clamp(1.25rem, 2.2vw, 1.75rem);
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklch, var(--paper) 14%, transparent);
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklch, var(--paper) 7%, transparent),
+    color-mix(in oklch, var(--paper) 2%, transparent)
+  );
+}
+
+.statement__stat-tag {
+  display: inline-block;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklch, var(--paper) 18%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--paper) 68%, transparent);
+  mix-blend-mode: normal;
 }
 
 .statement__stat {
   font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: clamp(4rem, 8vw, 7.5rem);
-  line-height: 1;
-  letter-spacing: -0.04em;
+  font-weight: 700;
+  font-size: clamp(3.75rem, 7.2vw, 6.75rem);
+  line-height: 0.94;
+  letter-spacing: -0.045em;
   color: var(--paper);
+  mix-blend-mode: normal;
 }
 
 .statement__caption {
   font-family: var(--font-sans);
   font-weight: 400;
-  font-size: clamp(0.9375rem, 1.2vw, 1.0625rem);
+  font-size: clamp(0.875rem, 1.05vw, 1rem);
   line-height: 1.5;
   letter-spacing: -0.005em;
   margin: 0;
-  max-width: 22ch;
+  max-width: 24ch;
+  color: color-mix(in oklch, var(--paper) 72%, transparent);
   text-wrap: pretty;
+  mix-blend-mode: normal;
 }
+
+/* ---------------------------------------------------------- infographic -- */
+
+.statement__infographic {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: clamp(1rem, 1.8vw, 1.35rem);
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklch, var(--paper) 14%, transparent);
+  background: linear-gradient(
+    160deg,
+    color-mix(in oklch, var(--paper) 6%, transparent),
+    color-mix(in oklch, var(--paper) 1.5%, transparent)
+  );
+  color: var(--paper);
+  mix-blend-mode: normal;
+}
+
+.statement__infographic,
+.statement__infographic span,
+.statement__infographic svg {
+  mix-blend-mode: normal;
+}
+
+.statement__infographic-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.statement__infographic-title {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--paper) 62%, transparent);
+}
+
+.statement__infographic-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--paper) 10%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--paper) 82%, transparent);
+}
+
+.statement__infographic-badge::before {
+  content: "";
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+  animation: statement-pulse 2s ease-in-out infinite;
+}
+
+.statement__infographic-canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  background: color-mix(in oklch, var(--ink) 65%, transparent);
+  border: 1px solid color-mix(in oklch, var(--paper) 8%, transparent);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statement__infographic-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  color: var(--paper);
+}
+
+.statement__orbit {
+  transform-origin: 140px 78px;
+}
+
+.statement__orbit--outer {
+  animation: statement-spin 22s linear infinite;
+}
+
+.statement__orbit--inner {
+  animation: statement-spin-reverse 14s linear infinite;
+}
+
+.statement__pulse-glow {
+  transform-origin: 140px 78px;
+  animation: statement-breathe 3.6s ease-in-out infinite;
+}
+
+.statement__curve-primary {
+  stroke-dasharray: 340;
+  stroke-dashoffset: calc(340 * (1 - clamp(0.18, var(--reveal-front, 0.65), 1)));
+}
+
+.statement__node-center {
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.85));
+}
+
+@keyframes statement-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes statement-spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes statement-breathe {
+  0%,
+  100% {
+    transform: scale(0.88);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.14);
+    opacity: 0.95;
+  }
+}
+
+@keyframes statement-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.statement__infographic-metrics {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid color-mix(in oklch, var(--paper) 12%, transparent);
+}
+
+.statement__infographic-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.statement__infographic-metric--end {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.statement__infographic-key {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--paper) 48%, transparent);
+}
+
+.statement__infographic-val {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--paper);
+}
+
+.statement__infographic-arrow {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: color-mix(in oklch, var(--paper) 55%, transparent);
+}
+
+/* --------------------------------------------------------- right column -- */
 
 .statement__right {
   grid-area: right;
@@ -80,46 +388,94 @@
 
   display: flex;
   flex-direction: column;
-  gap: clamp(0.625rem, 1.4vh, 1.25rem);
+  gap: clamp(0.85rem, 1.75vh, 1.5rem);
 }
 
-/* The passage is 14 display-sized lines revealed inside one 100vh stage, so
-   the type is capped against viewport height as well as width. The cap sits
-   high enough that the intended size holds on any normal screen and only
-   engages on unusually short windows, where the stage would otherwise pin with
-   its tail cut off. */
+.statement__row {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.statement__row--climax {
+  margin-top: clamp(0.25rem, 0.8vh, 0.65rem);
+  padding-top: clamp(0.75rem, 1.6vh, 1.25rem);
+  border-top: 1px solid color-mix(in oklch, var(--paper) 14%, transparent);
+}
+
+.statement__row--final {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.statement__row-index {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--paper) 45%, transparent);
+  mix-blend-mode: normal;
+  opacity: 0.45;
+}
+
+.statement__reveal[data-reveal="active"] .statement__row-index {
+  opacity: clamp(
+    0.22,
+    calc(
+      0.22 +
+        0.78 *
+          clamp(
+            0,
+            (var(--reveal-front) - (var(--row-start) + 0.5) / var(--reveal-total)) /
+              var(--reveal-feather) +
+              0.5,
+            1
+          )
+    ),
+    1
+  );
+}
+
 .statement__copy {
   font-family: var(--font-sans);
   font-weight: 600;
-  /* The vh term is the binding one: at 2.8vw/5.2vh the cap won at every
-     window size tested, so raising vw alone would have changed nothing.
-     3.6vw only sets the size on wide-but-short windows; taller ones clamp
-     back down so the passage never outgrows the stage. */
-  font-size: min(clamp(1.5rem, 3.6vw, 3.6rem), 6.9vh);
-  line-height: 1.1;
-  letter-spacing: -0.025em;
+  font-size: min(clamp(1.375rem, 2.85vw, 2.75rem), 5.6vh);
+  line-height: 1.14;
+  letter-spacing: -0.028em;
 
   color: var(--paper);
   text-wrap: pretty;
-
   margin: 0;
-  /* Was min(34ch, 100%). At 46px, 34ch measures 830px against an 842px
-     column, so ch was throttling the measure; the column bounds it now. */
   max-width: 100%;
+  mix-blend-mode: normal;
+}
+
+.statement__copy--climax {
+  font-style: italic;
+  font-weight: 500;
+  color: color-mix(in oklch, var(--paper) 88%, transparent);
+}
+
+.statement__copy--final {
+  font-style: normal;
+  font-weight: 700;
+  font-size: min(clamp(1.5rem, 3.15vw, 3.1rem), 6.2vh);
+  letter-spacing: -0.035em;
+  color: var(--paper);
 }
 
 /* Unlit by default so the passage is readable without JS or before hydration.
    Scroll-driven dimming only opts in once TextReveal marks the container. */
 .statement__token {
   opacity: 1;
+  color: inherit;
+  mix-blend-mode: normal;
 }
 
 /* Each token's opacity is a smooth ramp across the passage: `--reveal-front` is
    the scroll position of the light front, `--i` / `--reveal-total` place this
-   token in the stream, and `--reveal-feather` is how soft that front is (all
-   three are published by TextReveal). There are no transitions on purpose — the
-   front is already interpolated every frame, and transitioning on top of it is
-   what made the words pop in one at a time. */
+   token in the stream, and `--reveal-feather` is how soft that front is. */
 .statement__reveal[data-reveal="active"] .statement__token {
   --dim: 0.16;
   opacity: clamp(
@@ -139,56 +495,7 @@
   );
 }
 
-.statement__byline {
-  grid-area: byline;
-  align-self: end;
-
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: var(--space-sm);
-
-  color: var(--paper);
-
-  padding-top: 0;
-}
-
-.statement__avatar {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, oklch(40% 0.04 60), oklch(30% 0.05 30));
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 0.9375rem;
-  letter-spacing: -0.01em;
-
-  flex-shrink: 0;
-}
-
-.statement__byline-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.3;
-}
-
-.statement__byline-name {
-  font-family: var(--font-sans);
-  font-weight: 500;
-  font-size: 0.9375rem;
-  letter-spacing: -0.005em;
-}
-
-.statement__byline-role {
-  font-family: var(--font-sans);
-  font-weight: 400;
-  font-size: 0.8125rem;
-}
+/* --------------------------------------------------------------- mobile -- */
 
 @media (max-width: 768px) {
   .statement__reveal {
@@ -199,58 +506,78 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto auto;
     grid-template-areas:
+      "topbar"
       "left-column"
-      "right"
-      "byline";
-    /* Without this the auto rows stretch to fill the 100vh stage and open a
-       gap between the caption and the copy. */
-    align-content: center;
-    row-gap: clamp(1rem, 3vh, 2rem);
+      "right";
+    align-content: start;
+    row-gap: clamp(1.25rem, 2.5vh, 1.75rem);
 
     min-height: 100vh;
-    /* Mobile keeps the stage at one viewport: the mobile copy size is
-       unchanged, so it still fits and the centred pin is preserved. */
-    /* Extra top space clears the fixed site header, which the desktop layout
-       never collides with because its left column is vertically centred. */
-    padding-block: clamp(4rem, 7vh, 5rem) clamp(1rem, 2vh, 2rem);
+    padding-block: clamp(4.25rem, 7.5vh, 5.25rem) clamp(1.25rem, 2.5vh, 2rem);
   }
 
-  /* Stat and caption sit side by side on mobile: stacked, they push the copy
-     past the viewport and force the reveal text down to ~18px. */
   .statement__left-column {
-    align-self: start;
     flex-direction: row;
-    align-items: baseline;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 0;
+    padding-bottom: 1rem;
+    border-right: 0;
+    border-bottom: 1px solid color-mix(in oklch, var(--paper) 12%, transparent);
     gap: var(--space-md);
   }
 
+  .statement__stat-card {
+    flex-direction: row;
+    align-items: baseline;
+    padding: 0;
+    border: 0;
+    background: none;
+    gap: var(--space-sm);
+  }
+
+  .statement__stat-tag {
+    display: none;
+  }
+
   .statement__stat {
-    font-size: clamp(2.5rem, 9vw, 3.5rem);
+    font-size: clamp(2.25rem, 8.5vw, 3.25rem);
   }
 
   .statement__caption {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     max-width: 20ch;
   }
 
-  .statement__right {
-    width: 100%;
-    align-self: center;
-    align-items: flex-start;
-    text-align: left;
+  .statement__infographic {
+    display: none;
   }
 
-  .statement__copy {
+  .statement__row {
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    column-gap: 0.5rem;
+  }
+
+  .statement__copy,
+  .statement__copy--final {
     width: 100%;
     max-width: none;
     margin-inline: 0;
-    font-size: min(clamp(1.375rem, 6vw, 1.5rem), 3.4vh);
-    line-height: 1.15;
+    font-size: min(clamp(1.25rem, 5.4vw, 1.5rem), 3.3vh);
+    line-height: 1.18;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .statement__reveal[data-reveal="active"] .statement__token {
+  .statement__reveal[data-reveal="active"] .statement__token,
+  .statement__reveal[data-reveal="active"] .statement__row-index {
     opacity: 1;
+  }
+
+  .statement__orbit--outer,
+  .statement__orbit--inner,
+  .statement__pulse-glow,
+  .statement__infographic-badge::before {
+    animation: none;
   }
 }

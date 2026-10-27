@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises'
 import { getPayload } from 'payload'
 import type { Payload } from 'payload'
 import config from '../payload.config'
+import { caseStudySeedFields } from './case-study-content'
 
 const filename = fileURLToPath(import.meta.url)
 const ROOT = path.resolve(path.dirname(filename), '..')
@@ -532,6 +533,7 @@ async function main() {
         caption: 'Making complex workflow better.',
         image: svcGrowth,
         alt: 'IQVIA project — crystal growth visual',
+        ...(caseStudySeedFields('IQVIA') ?? {}),
       },
       {
         title: 'Manipal Hospitals',
@@ -552,6 +554,7 @@ async function main() {
         caption: 'Making trust easier to feel.',
         image: svcContent,
         alt: 'Manipal Hospitals project — film camera visual',
+        ...(caseStudySeedFields('Manipal Hospitals') ?? {}),
       },
       {
         title: 'Redmonk Wellness',
@@ -571,6 +574,7 @@ async function main() {
         caption: 'Turning attention into action.',
         image: svcSocial,
         alt: 'Redmonk Wellness project — pink network visual',
+        ...(caseStudySeedFields('Redmonk Wellness') ?? {}),
       },
       {
         title: 'Team Taurus',
@@ -590,6 +594,7 @@ async function main() {
         caption: 'Spaces that feel lived in.',
         image: svcIdentity,
         alt: 'Team Taurus project — clay identity mark',
+        ...(caseStudySeedFields('Team Taurus') ?? {}),
       },
     ],
     marqueeLine1: 'We build. We refine.',

@@ -29,6 +29,8 @@ interface Slider3DProps {
   imageClassName?: string;
   rotationDirection?: "left" | "right";
   withMask?: boolean;
+  /** Called with the index of an image that failed to load. */
+  onImageError?: (index: number) => void;
 }
 
 export default function ImageSlider3D({
@@ -41,6 +43,7 @@ export default function ImageSlider3D({
   imageClassName = "",
   rotationDirection = "left",
   withMask = true,
+  onImageError,
 }: Slider3DProps) {
   const n = images.length;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -89,6 +92,7 @@ export default function ImageSlider3D({
             sizes="280px"
             loading="lazy"
             decoding="async"
+            onError={() => onImageError?.(i)}
             className={`col-start-1 row-start-1 object-cover rounded-[1.5em] ${imageClassName}`}
             style={{
               width: cardWidth,

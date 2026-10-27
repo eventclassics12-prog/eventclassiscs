@@ -165,7 +165,7 @@ export function Gap({ data, copy = DEFAULT_COPY }: GapProps) {
               src={imageSrc}
               alt=""
               fill
-              sizes="(max-width: 768px) 60vw, 22vw"
+              sizes="(max-width: 768px) 80vw, (min-width: 1474px) 560px, 38vw"
               className="gap__image-img"
             />
           </div>
