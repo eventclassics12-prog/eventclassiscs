@@ -1,9 +1,12 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import dynamic from "next/dynamic";
 import { TextReveal, TOKEN_SEPARATOR } from "@/components/TextReveal";
 import type { HomeStatementData } from "@/lib/cms";
 import "./Statement.css";
+
+const StatementArt = dynamic(() => import("./StatementArt"), { ssr: false });
 
 interface StatementProps {
   data?: HomeStatementData | null;
@@ -109,9 +112,14 @@ export function Statement({
 
                 <aside className="statement__left-column">
                   <div className="statement__stat-card">
-                    <span className="statement__stat-tag">PROVEN IMPACT</span>
-                    <div className="statement__stat">{resolvedStat}</div>
-                    <p className="statement__caption">{resolvedStatCaption}</p>
+                    <div className="statement__art-slot">
+                      <StatementArt />
+                    </div>
+                    <div className="statement__stat-copy">
+                      <span className="statement__stat-tag">PROVEN IMPACT</span>
+                      <div className="statement__stat">{resolvedStat}</div>
+                      <p className="statement__caption">{resolvedStatCaption}</p>
+                    </div>
                   </div>
 
                   <div
