@@ -5,43 +5,13 @@ import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { WorkMasonry } from "./WorkMasonry";
 import { mediaUrl, type PageWorkData, type TextPart } from "@/lib/cms";
-import { resolveProjects, resolveWorkLabels } from "@/lib/work";
+import { resolveProjects } from "@/lib/work";
 import "./WorkPage.css";
 
 const DEFAULT_HERO_LEDE =
   "Our clients are founders and leaders in healthcare, enterprise technology, wellness, and real estate. We are routinely entrusted by them to build brand systems and digital experiences where clarity and performance play a key role.";
 
-const DEFAULT_HERO_TITLE = "Selected Work";
 const DEFAULT_PROJECTS_LABEL = "Selected Projects";
-
-/** Add decorative media without changing the CMS-owned sentence. */
-function InlineWorkMedia({ text }: { text: string }) {
-  const words = text.split(/(\s+)/);
-  const wordCount = words.filter((word) => word.trim()).length;
-  const preferred = ["team", "project", "shipped"];
-  const stops = preferred.map((word, index) => {
-    const found = words.findIndex((token) => token.toLowerCase().replace(/[^a-z]/g, "") === word);
-    if (found >= 0) return found;
-    const target = Math.round(wordCount * (index + 1) / 4);
-    let count = 0;
-    return words.findIndex((token) => token.trim() && ++count >= target);
-  });
-  return (
-    <>
-      {words.map((word, index) => (
-        <span key={index} className="wk__inline-fragment">
-          {word}
-          {stops.includes(index) && (
-            <span
-              className={`wk__inline-media wk__inline-media--${stops.indexOf(index)}`}
-              aria-hidden="true"
-            />
-          )}
-        </span>
-      ))}
-    </>
-  );
-}
 
 function MarqueeLine2({ parts }: { parts?: TextPart[] }) {
   if (parts == null) {
@@ -73,9 +43,7 @@ export function WorkPage({ data }: { data?: PageWorkData | null }) {
   const projects = useMemo(() => resolveProjects(data), [data]);
 
   const heroLede = data?.heroLede?.trim() || DEFAULT_HERO_LEDE;
-  const heroTitle = data?.heroTitle?.trim() || DEFAULT_HERO_TITLE;
   const projectsLabel = data?.projectsLabel?.trim() || DEFAULT_PROJECTS_LABEL;
-  const labels = useMemo(() => resolveWorkLabels(data), [data]);
 
   const marqueeLine1 = data?.marqueeLine1 ?? "We build. We refine.";
   const marqueeVideoSrc =
@@ -100,21 +68,11 @@ export function WorkPage({ data }: { data?: PageWorkData | null }) {
   return (
     <main className="wk">
       <section className="wk__intro" aria-label="Work overview">
-        <div className="wk__intro-rule" aria-hidden="true" />
-        <p className="wk__lede">
-          <span className="wk__pill">{labels.workPillLabel}</span>
-          <span className="wk__lede-copy"><InlineWorkMedia text={heroLede} /></span>
-        </p>
+        <p className="wk__lede">{heroLede}</p>
       </section>
 
       <section className="wk__cases" id="work-masonry" aria-label="Case studies">
-        <div className="wk__cases-header">
-          <div className="wk__cases-rule" aria-hidden="true" />
-          <div className="wk__cases-meta">
-            <span className="wk__pill">{projectsLabel}</span>
-          </div>
-          <h1 className="wk__title">{heroTitle}</h1>
-        </div>
+        <h1 className="wk__sr-only">{projectsLabel}</h1>
 
         {projects.length > 0 && <WorkMasonry projects={projects} />}
       </section>

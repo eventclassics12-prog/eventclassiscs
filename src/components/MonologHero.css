@@ -40,6 +40,28 @@
   color: var(--paper);
   mix-blend-mode: difference;
 
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+}
+
+/* The blur lives on a child layer, never on the bar itself.
+
+   WebKit (iOS/iPadOS Safari) renders an element that combines
+   `backdrop-filter` with `mix-blend-mode` as an opaque black band: the
+   backdrop-filter establishes a backdrop root, so the blend has nothing to
+   difference against and resolves to black. Chrome ignores this, which is
+   why the bug only shows on tablets and phones.
+
+   Moving only the blur down here keeps the bar a single blend group — so the
+   text still inverts against whatever scrolls underneath exactly as before —
+   while removing the combination WebKit chokes on. */
+.m-hero__nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
   background: linear-gradient(
     to bottom,
     rgb(255 255 255 / 0.14),
@@ -506,9 +528,9 @@
 
      backdrop-filter on a fixed bar re-samples the backdrop every frame, and
      the wordmark animates straight into this bar — so it competes with the
-     blend layer for the same fill rate. mix-blend-mode and mask-image are
-     kept; the 12px blur is the expensive part. */
-  .m-hero__nav {
+     blend layer for the same fill rate. The gradient scrim and mask-image
+     are kept; the 12px blur is the expensive part. */
+  .m-hero__nav::before {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }

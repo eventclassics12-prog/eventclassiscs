@@ -1,6 +1,5 @@
 .wk {
   --wk-blue: var(--ink);
-  --wk-hairline: color-mix(in oklch, var(--ink) 78%, transparent);
   --wk-dim: 0.42;
 
   background: var(--paper);
@@ -14,25 +13,18 @@
   mix-blend-mode: normal;
 }
 
-/* ----------------------------------------------------------- pill badge -- */
-
-.wk__pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.24rem 0.85rem;
-  border: 1px solid var(--ink);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: clamp(0.6875rem, 0.8vw, 0.8125rem);
-  font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+/* Visually hidden but announced: the page still needs one real heading for
+   screen readers and search engines now that the display title is gone. */
+.wk__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
-  mix-blend-mode: normal;
+  border: 0;
 }
 
 /* --------------------------------------------------------- intro section -- */
@@ -44,14 +36,8 @@
   padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
 }
 
-.wk__intro-rule {
-  width: 100%;
-  height: 1px;
-  background: var(--wk-hairline);
-}
-
 .wk__lede {
-  margin: 0.25rem 0 0;
+  margin: 0;
   max-width: 46ch;
   color: var(--ink);
   font-family: var(--font-sans);
@@ -63,53 +49,11 @@
   mix-blend-mode: normal;
 }
 
-.wk__lede .wk__pill {
-  vertical-align: middle;
-  transform: translateY(-0.18em);
-  margin-right: clamp(1.25rem, 2.4vw, 2.25rem);
-}
-
-.wk__lede-copy {
-  color: var(--ink);
-  mix-blend-mode: normal;
-}
-
-/* --------------------------------------------------------- cases header -- */
+/* --------------------------------------------------------- cases section -- */
 
 .wk__cases {
   width: 100%;
   padding-bottom: clamp(var(--space-xl), 6vw, var(--space-3xl));
-}
-
-.wk__cases-header {
-  width: 100%;
-  padding-inline: clamp(var(--space-md), 5vw, var(--space-2xl));
-  margin-bottom: clamp(2.5rem, 5vh, 4.25rem);
-}
-
-.wk__cases-rule {
-  width: 100%;
-  height: 1px;
-  background: var(--wk-hairline);
-}
-
-.wk__cases-meta {
-  display: flex;
-  align-items: center;
-  margin-top: 0.25rem;
-}
-
-.wk__title {
-  margin: clamp(1.75rem, 3.8vh, 2.75rem) 0 0;
-  max-width: 22ch;
-  color: var(--ink);
-  font-family: var(--font-display, var(--font-sans));
-  font-weight: 400;
-  font-size: clamp(3rem, 6.8vw, 6.25rem);
-  line-height: 1.02;
-  letter-spacing: -0.04em;
-  text-wrap: balance;
-  mix-blend-mode: normal;
 }
 
 /* -------------------------------------------------------------- marquee -- */
@@ -188,43 +132,10 @@
     font-size: clamp(1.25rem, 5.2vw, 1.65rem);
     line-height: 1.28;
   }
-
-  .wk__lede .wk__pill {
-    margin-right: 0.75rem;
-  }
-
-  .wk__title {
-    font-size: clamp(2.35rem, 10vw, 3.5rem);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .wk__marquee-group {
     animation: none;
   }
-}
-
-/* Tiny photographic pills sit on the same line as the intro copy. */
-.wk__lede { line-height: 1.65; }
-.wk__inline-fragment { color: inherit; mix-blend-mode: normal; }
-.wk__inline-media {
-  display: inline-block;
-  width: 2.5em;
-  height: 1.18em;
-  margin-inline: .22em;
-  vertical-align: -.22em;
-  border-radius: 999px;
-  overflow: hidden;
-  background-color: #e8e7e2;
-  background-image: url("/work/inline-studio-media.webp");
-  background-size: 300% auto;
-  background-repeat: no-repeat;
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / .06);
-  mix-blend-mode: normal;
-}
-.wk__inline-media--0 { background-position: left center; }
-.wk__inline-media--1 { background-position: center center; }
-.wk__inline-media--2 { background-position: right center; }
-@media (max-width: 600px) {
-  .wk__inline-media { width: 2.1em; height: 1.1em; margin-inline: .15em; }
 }
