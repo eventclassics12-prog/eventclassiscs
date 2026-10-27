@@ -1,0 +1,512 @@
+/* ==========================================================================
+   Connected-approach node graph
+   ==========================================================================
+   A small n8n-flavoured canvas: dotted ground, compact nodes, round ports and
+   dashed wires, held to the site's ink-on-paper palette. The global
+   `:where(...)` rule paints every text and svg element `var(--paper)` with
+   `mix-blend-mode: difference`, so everything here opts back into flat colour
+   explicitly. */
+
+.wfd {
+  --wfd-ink: #1e1e1b;
+  --wfd-line: #e2e2db;
+  --wfd-node: #fdfdfa;
+  --wfd-accent-strong: #000000;
+  --wfd-wire: #99998f;
+
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--wfd-line);
+  border-radius: 26px;
+  background: radial-gradient(120% 90% at 50% 0%, #f8f8f3 0%, #f0f0eb 55%, #ecece7 100%);
+  color: var(--wfd-ink);
+  font-family: var(--font-sans);
+  box-shadow:
+    0 34px 70px -48px rgb(30 30 20 / 0.35),
+    0 1px 0 rgb(255 255 255 / 0.8) inset;
+  isolation: isolate;
+}
+
+/* Dotted ground, faded towards the edges. */
+.wfd::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: radial-gradient(circle, #bcbcb1 0.8px, transparent 0.9px);
+  background-size: 16px 16px;
+  background-position: 8px 8px;
+  opacity: 0.6;
+  -webkit-mask-image: radial-gradient(86% 82% at 50% 42%, #000 42%, transparent 100%);
+  mask-image: radial-gradient(86% 82% at 50% 42%, #000 42%, transparent 100%);
+  pointer-events: none;
+}
+
+.wfd :where(p, span, li, small, figcaption, svg) {
+  color: inherit;
+  mix-blend-mode: normal;
+}
+
+.wfd svg {
+  display: block;
+}
+
+/* -------------------------------------------------------------------- bar -- */
+
+.wfd__bar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 21px 24px 0;
+}
+
+.wfd__caption {
+  color: #6f6f66;
+  font-size: 0.64rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------ stage -- */
+
+.wfd__stage {
+  position: relative;
+  z-index: 1;
+  padding: 30px 26px 34px;
+}
+
+.wfd__wires {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.wfd__wire {
+  fill: none;
+  stroke: var(--wfd-wire);
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  stroke-dasharray: 4 4;
+  opacity: 0.9;
+  animation: wfd-flow 3.2s linear infinite;
+  transition:
+    opacity 320ms ease,
+    stroke 320ms ease,
+    stroke-width 320ms ease;
+}
+
+.wfd__wire[data-lit="true"] {
+  stroke: var(--wfd-accent-strong);
+  stroke-width: 1.75;
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------- trigger -- */
+
+.wfd__trigger {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: 100%;
+  margin-inline: auto;
+  padding: 5px 10px 5px 5px;
+  border: 1px solid var(--wfd-line);
+  border-radius: 10px;
+  background: var(--wfd-node);
+  color: var(--wfd-ink);
+  box-shadow:
+    0 8px 18px -14px rgb(30 30 20 / 0.4),
+    0 1px 0 rgb(255 255 255 / 0.9) inset;
+}
+
+.wfd__trigger-icon {
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 6px;
+  background: #efefe8;
+  color: #56564e;
+}
+
+.wfd__trigger-label {
+  color: #2f2f2a;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+.wfd__trigger-tag {
+  padding-left: 8px;
+  border-left: 1px solid #e6e6df;
+  color: #9a9a91;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.wfd__stem {
+  position: relative;
+  z-index: 1;
+  width: 1px;
+  height: 25px;
+  margin-inline: auto;
+  background: linear-gradient(#b9b9af, #a6a69d);
+}
+
+/* ------------------------------------------------------------------- root -- */
+
+.wfd__root {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 430px);
+  margin-inline: auto;
+  padding: 15px 18px 16px;
+  border-radius: 14px;
+  background: #1b1b18;
+  color: #ffffff;
+  box-shadow:
+    0 24px 38px -26px rgb(20 20 14 / 0.75),
+    0 3px 8px -4px rgb(20 20 14 / 0.4);
+  transition: box-shadow 320ms ease;
+}
+
+.wfd__root[data-lit="true"] {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.28),
+    0 24px 38px -24px rgb(20 20 14 / 0.8),
+    0 0 30px -10px rgb(20 20 14 / 0.5);
+}
+
+.wfd__root-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.wfd__root-icon {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 7px;
+  background: rgb(255 255 255 / 0.07);
+  color: #ffffff;
+}
+
+.wfd__root-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: rgb(255 255 255 / 0.52);
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.wfd__root-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.72);
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.08);
+}
+
+.wfd__root-title {
+  margin: 9px 0 0;
+  color: #ffffff;
+  font-size: clamp(1.05rem, 1.55vw, 1.35rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+.wfd__root-note {
+  margin: 4px 0 0;
+  color: rgb(255 255 255 / 0.56);
+  font-size: 0.69rem;
+  letter-spacing: -0.005em;
+  line-height: 1.45;
+}
+
+/* ------------------------------------------------------------------ ports -- */
+
+.wfd__port {
+  position: absolute;
+  z-index: 3;
+  width: 9px;
+  height: 9px;
+  border: 1.6px solid var(--wfd-node);
+  border-radius: 50%;
+  background: var(--wfd-ink);
+  box-shadow:
+    0 0 0 1px rgb(30 30 27 / 0.1),
+    0 2px 4px rgb(30 30 18 / 0.16);
+  pointer-events: none;
+  transition:
+    background-color 260ms ease,
+    box-shadow 260ms ease;
+}
+
+.wfd__port--bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+}
+
+.wfd__port--top {
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.wfd__port--right {
+  top: 50%;
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+.wfd__port--left {
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+
+/* On the ink-coloured root the dots invert, so they stay legible on both the
+   dark node and the paper behind it. */
+.wfd__root .wfd__port {
+  border-color: var(--wfd-ink);
+  background: #f8f8f3;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.18),
+    0 2px 5px rgb(30 30 18 / 0.24);
+}
+
+.wfd__card[data-lit="true"] .wfd__port {
+  background: var(--wfd-accent-strong);
+  box-shadow:
+    0 0 0 3px rgb(30 30 27 / 0.09),
+    0 2px 6px rgb(30 30 18 / 0.2);
+}
+
+/* ------------------------------------------------------------------- grid -- */
+
+.wfd__grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(28px, 9%, 54px);
+  row-gap: 14px;
+  margin: 0;
+  padding: 52px 0 0;
+  list-style: none;
+}
+
+.wfd__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 92px;
+  margin: 0;
+  padding: 12px 14px 14px;
+  border: 1px solid #e3e3db;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.86);
+  color: var(--wfd-ink);
+  box-shadow:
+    0 12px 22px -20px rgb(30 30 20 / 0.45),
+    0 1px 0 rgb(255 255 255 / 0.9) inset;
+  transition:
+    border-color 320ms ease,
+    background-color 320ms ease,
+    box-shadow 320ms ease,
+    opacity 320ms ease;
+}
+
+.wfd__card[data-lit="true"] {
+  border-color: #c9c9bf;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px rgb(30 30 27 / 0.04),
+    0 18px 28px -22px rgb(30 30 20 / 0.3);
+}
+
+.wfd__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wfd__card-icon {
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  border: 1px solid #e6e6df;
+  border-radius: 6px;
+  background: #f3f3ed;
+  color: #4b4b44;
+}
+
+.wfd__card-index {
+  color: #a0a097;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.09em;
+}
+
+.wfd__card-title {
+  margin: 10px 0 0;
+  color: #2a2a26;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  line-height: 1.38;
+  text-wrap: pretty;
+}
+
+.wfd__card-note {
+  margin: 5px 0 0;
+  color: #83837a;
+  font-size: 0.66rem;
+  letter-spacing: -0.002em;
+  line-height: 1.45;
+}
+
+/* ----------------------------------------------------------------- motion -- */
+
+@keyframes wfd-flow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+/* --------------------------------------------------------------- responsive */
+
+@media (max-width: 900px) {
+  .wfd__stage {
+    padding: 26px 22px 30px;
+  }
+
+  .wfd__root {
+    width: min(100%, 420px);
+  }
+
+  .wfd__grid {
+    padding-top: 46px;
+  }
+}
+
+@media (max-width: 700px) {
+  .wfd {
+    border-radius: 22px;
+  }
+
+  .wfd__bar {
+    padding: 17px 17px 0;
+  }
+
+  .wfd__caption {
+    font-size: 0.58rem;
+    letter-spacing: 0.13em;
+  }
+
+  .wfd__stage {
+    padding: 22px 14px 26px;
+  }
+
+  .wfd__stem {
+    height: 21px;
+  }
+
+  .wfd__root {
+    padding: 13px 15px 14px;
+    border-radius: 12px;
+  }
+
+  .wfd__root-title {
+    margin-top: 7px;
+    font-size: 1.08rem;
+  }
+
+  .wfd__root-note {
+    font-size: 0.65rem;
+  }
+
+  .wfd__grid {
+    column-gap: 38px;
+    row-gap: 10px;
+    padding-top: 36px;
+  }
+
+  .wfd__card {
+    min-height: 84px;
+    padding: 10px 11px 12px;
+    border-radius: 10px;
+  }
+
+  .wfd__card-title {
+    margin-top: 8px;
+    font-size: 0.72rem;
+    line-height: 1.42;
+  }
+
+  .wfd__card-note {
+    font-size: 0.62rem;
+  }
+
+  .wfd__card-icon {
+    width: 21px;
+    height: 21px;
+  }
+
+  .wfd__trigger-tag {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .wfd__stage {
+    padding-inline: 12px;
+  }
+
+  .wfd__grid {
+    column-gap: 30px;
+  }
+
+  .wfd__card {
+    padding-inline: 10px;
+  }
+
+  .wfd__card-title {
+    font-size: 0.68rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wfd__wire {
+    animation: none;
+  }
+
+  .wfd__root,
+  .wfd__card,
+  .wfd__port {
+    transition: none;
+  }
+}

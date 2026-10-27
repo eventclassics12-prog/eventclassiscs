@@ -9,5 +9,7 @@
    `.svc__hero-text` only sets `max-width` in ServicesPage.css, so this
    override never collides with it regardless of import order. */
 .svc__hero-text {
-  margin-bottom: clamp(1rem, 2.5vw, 2.25rem);
+  /* Raised once more: the copy now clears the figure's baseline by a wider
+     margin instead of sitting just above it. */
+  margin-bottom: clamp(1.5rem, 4.5vw, 4rem);
 }

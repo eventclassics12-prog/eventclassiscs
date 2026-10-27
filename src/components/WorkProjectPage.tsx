@@ -1,18 +1,15 @@
 import Link from "next/link";
-import { pad2 } from "@/lib/utils";
 import { WorkProjectImage } from "./WorkProjectImage";
 import { WorkCaseStudy } from "./WorkCaseStudy";
-import type { WorkProject } from "@/lib/work";
+import { WorkflowDiagram } from "./WorkflowDiagram";
+import type { WorkLabels, WorkProject } from "@/lib/work";
 import "./WorkProjectPage.css";
 
 interface WorkProjectPageProps {
   project: WorkProject;
   index: number;
-  total: number;
   next: WorkProject | undefined;
-  includesLabel: string;
-  backLabel: string;
-  nextLabel: string;
+  labels: WorkLabels;
 }
 
 function Kicker({ parts }: { parts: Array<[string, string?]> }) {
@@ -36,12 +33,10 @@ function Kicker({ parts }: { parts: Array<[string, string?]> }) {
 export function WorkProjectPage({
   project,
   index,
-  total,
   next,
-  includesLabel,
-  backLabel,
-  nextLabel,
+  labels,
 }: WorkProjectPageProps) {
+  const diagram = project.diagram;
   return (
     <main className="wkp wkp--editorial">
       <section className="wkp__hero">
@@ -52,14 +47,11 @@ export function WorkProjectPage({
             priority
             sizes="100vw"
           />
-          <span className="wkp__counter" aria-hidden="true">
-            {pad2(index + 1)} / {pad2(total)}
-          </span>
         </div>
 
         <div className="wkp__hero-copy">
           <Link href="/work" className="wkp__back">
-            <span aria-hidden="true">&larr;</span> {backLabel}
+            <span aria-hidden="true">&larr;</span> {labels.backLabel}
           </Link>
 
           <h1 className="wkp__title">{project.title}</h1>
@@ -72,44 +64,38 @@ export function WorkProjectPage({
         </div>
       </section>
 
-      {(
-        <section className="wkp__systems" aria-labelledby="systems-heading">
-          <div className="wkp__systems-copy">
-            <p className="wkp__eyebrow">The approach</p>
-            <h2 id="systems-heading">{project.caption || "A clear direction. Built around the brief."}</h2>
-            <p>{project.body}</p>
-            <a href="#case-execution">Explore the approach <span aria-hidden="true">↗</span></a>
-          </div>
-          {project.slug === "iqvia" ? (
-            <figure className="wkp__diagram">
-              <figcaption>Integration approach · conceptual illustration</figcaption>
-              <div className="wkp__nodes"><div>CRM<small>Customer workflows</small></div><div>ERP<small>Business operations</small></div></div>
-              <div className="wkp__connector" aria-hidden="true" />
-              <div className="wkp__hub"><span aria-hidden="true">✳</span>Connected workflows<small>Built around the business</small></div>
-              <div className="wkp__connector" aria-hidden="true" />
-              <div className="wkp__nodes"><div>Teams<small>Clearer handoffs</small></div><div>Processes<small>Less friction</small></div></div>
-            </figure>
-          ) : (
-            <figure className="wkp__diagram wkp__service-map">
-              <figcaption>A connected approach</figcaption>
-              <div className="wkp__hub"><span aria-hidden="true">✳</span>{project.title}<small>Strategy into expression</small></div>
-              <div className="wkp__connector" aria-hidden="true" />
-              <div className="wkp__nodes">
-                {project.includes.map((service, i) => (
-                  <div key={service}><small>{pad2(i + 1)}</small>{service}</div>
-                ))}
-              </div>
-            </figure>
-          )}
-        </section>
-      )}
+      <section className="wkp__systems" aria-labelledby="systems-heading">
+        <div className="wkp__systems-copy">
+          <p className="wkp__eyebrow">{labels.approachEyebrow}</p>
+          <h2 id="systems-heading">
+            {project.caption || "A clear direction. Built around the brief."}
+          </h2>
+          <p>{project.body}</p>
+          <a href="#case-execution">
+            {labels.approachLinkLabel} <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+        <WorkflowDiagram
+          caption={diagram.hideCaption ? undefined : labels.diagramCaption}
+          triggerLabel={diagram.triggerLabel || labels.diagramTriggerLabel}
+          rootEyebrow={diagram.eyebrow || labels.diagramRootEyebrow}
+          rootTitle={diagram.title || project.title}
+          rootNote={diagram.note || labels.diagramRootNote}
+          itemsLabel={diagram.itemsLabel || labels.diagramItemsLabel}
+          items={
+            diagram.items.length > 0
+              ? diagram.items
+              : project.includes.map((service) => ({ title: service }))
+          }
+        />
+      </section>
 
-      <WorkCaseStudy project={project} includesLabel={includesLabel} />
+      <WorkCaseStudy project={project} labels={labels} />
 
       {next && (
         <nav className="wkp__next" aria-label="Next project">
           <Link href={`/work/${next.slug}`} className="wkp__next-link">
-            <span className="wkp__next-label">{nextLabel}</span>
+            <span className="wkp__next-label">{labels.nextLabel}</span>
             <span className="wkp__next-title">{next.title}</span>
             <span className="wkp__next-arrow" aria-hidden="true">
               &rarr;

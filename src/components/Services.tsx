@@ -194,20 +194,10 @@ export function Services({ data }: ServicesProps) {
                 className={`services__description ${index === contentIndex ? "services__description--active" : ""}`}
                 aria-hidden={index !== contentIndex}
               >
-                <div className="services__description-meta">
-                  <span className="services__description-index">
-                    {String(index + 1).padStart(2, "0")} /{" "}
-                    {String(services.length).padStart(2, "0")}
-                  </span>
-                  <span className="services__description-category">
-                    {active.imageLabel || active.name}
-                  </span>
-                </div>
 
                 <strong className="services__description-title">
                   {active.name}
                 </strong>
-                <em className="services__kicker">{active.kicker}</em>
                 <span className="services__description-body">
                   {active.description}
                 </span>

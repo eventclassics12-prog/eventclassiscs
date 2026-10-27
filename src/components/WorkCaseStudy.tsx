@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import dynamic from "next/dynamic";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { pad2 } from "@/lib/utils";
 import { resolveCaseStudy } from "@/lib/case-studies";
-import type { WorkProject } from "@/lib/work";
+import type { WorkLabels, WorkProject } from "@/lib/work";
 import "./WorkCaseStudy.css";
 
-gsap.registerPlugin(ScrollTrigger);
+const WorkChapterArt = dynamic(() => import("./WorkChapterArt"), {
+  ssr: false,
+  loading: () => <span className="wcs__chapter-art" aria-hidden="true" />,
+});
 
 const IDEA_ID = "case-idea";
 const EXECUTION_ID = "case-execution";
@@ -17,10 +20,10 @@ const IMPACT_ID = "case-impact";
 
 interface WorkCaseStudyProps {
   project: WorkProject;
-  includesLabel: string;
+  labels: WorkLabels;
 }
 
-export function WorkCaseStudy({ project, includesLabel }: WorkCaseStudyProps) {
+export function WorkCaseStudy({ project, labels }: WorkCaseStudyProps) {
   const caseStudy = useMemo(() => resolveCaseStudy(project), [project]);
   const rootRef = useRef<HTMLElement | null>(null);
 
@@ -30,16 +33,31 @@ export function WorkCaseStudy({ project, includesLabel }: WorkCaseStudyProps) {
   const hasImpact =
     caseStudy.impacts.length > 0 || caseStudy.closing.length > 0;
 
-  const chapters = useMemo(() => {
-    const list = [{ id: IDEA_ID, label: "The idea" }];
-    if (hasExecution) list.push({ id: EXECUTION_ID, label: "Execution" });
-    if (hasChallenges) list.push({ id: CHALLENGES_ID, label: "Challenges" });
-    if (hasImpact) list.push({ id: IMPACT_ID, label: "Impact" });
-    return list;
-  }, [hasExecution, hasChallenges, hasImpact]);
+  // Keep the reduced-motion chapter numbers consecutive for visible sections.
+  const chapters = useMemo(
+    () => [
+      { id: IDEA_ID, label: labels.ideaLabel },
+      ...(hasExecution
+        ? [{ id: EXECUTION_ID, label: labels.executionLabel }]
+        : []),
+      ...(hasChallenges
+        ? [{ id: CHALLENGES_ID, label: labels.challengesLabel }]
+        : []),
+      ...(hasImpact ? [{ id: IMPACT_ID, label: labels.impactLabel }] : []),
+    ],
+    [
+      hasExecution,
+      hasChallenges,
+      hasImpact,
+      labels.ideaLabel,
+      labels.executionLabel,
+      labels.challengesLabel,
+      labels.impactLabel,
+    ],
+  );
 
-  const number = (id: string) =>
-    pad2(chapters.findIndex((chapter) => chapter.id === id) + 1);
+  const chapterIndex = (id: string) =>
+    Math.max(0, chapters.findIndex((chapter) => chapter.id === id));
 
   useEffect(() => {
     const root = rootRef.current;
@@ -97,22 +115,12 @@ export function WorkCaseStudy({ project, includesLabel }: WorkCaseStudyProps) {
   }, []);
 
   return (
-    <section className="wcs" ref={rootRef} aria-labelledby="wcs-heading">
+    <section className="wcs" ref={rootRef} aria-label={labels.caseStudyLabel}>
       <div className="wcs__inner">
-        <header className="wcs__head">
-          <h2 className="wcs__tag" id="wcs-heading">
-            Case study
-          </h2>
-        </header>
-
-
-
         <article id={IDEA_ID} className="wcs__chapter" data-chapter>
           <header className="wcs__chapter-head">
-            <span className="wcs__index" aria-hidden="true">
-              {number(IDEA_ID)}
-            </span>
-            <h3 className="wcs__chapter-title">The idea</h3>
+            <WorkChapterArt name="idea" index={chapterIndex(IDEA_ID)} />
+            <h3 className="wcs__chapter-title">{labels.ideaLabel}</h3>
           </header>
 
           <div className="wcs__chapter-body">
@@ -132,10 +140,8 @@ export function WorkCaseStudy({ project, includesLabel }: WorkCaseStudyProps) {
         {hasExecution && (
           <article id={EXECUTION_ID} className="wcs__chapter" data-chapter>
             <header className="wcs__chapter-head">
-              <span className="wcs__index" aria-hidden="true">
-                {number(EXECUTION_ID)}
-              </span>
-              <h3 className="wcs__chapter-title">Execution</h3>
+              <WorkChapterArt name="execution" index={chapterIndex(EXECUTION_ID)} />
+              <h3 className="wcs__chapter-title">{labels.executionLabel}</h3>
             </header>
 
             <div className="wcs__chapter-body">
@@ -173,7 +179,7 @@ export function WorkCaseStudy({ project, includesLabel }: WorkCaseStudyProps) {
 
               {project.includes.length > 0 && (
                 <div className="wcs__scope" data-reveal>
-                  <p className="wcs__scope-label">{includesLabel}</p>
+                  <p className="wcs__scope-label">{labels.includesLabel}</p>
                   <ul className="wcs__scope-list">
                     {project.includes.map((item) => (
                       <li key={item}>{item}</li>
@@ -188,13 +194,11 @@ export function WorkCaseStudy({ project, includesLabel }: WorkCaseStudyProps) {
         {hasChallenges && (
           <article id={CHALLENGES_ID} className="wcs__chapter" data-chapter>
             <header className="wcs__chapter-head">
-              <span className="wcs__index" aria-hidden="true">
-                {number(CHALLENGES_ID)}
-              </span>
+              <WorkChapterArt name="challenges" index={chapterIndex(CHALLENGES_ID)} />
               <div className="wcs__chapter-heading">
-                <h3 className="wcs__chapter-title">Challenges</h3>
+                <h3 className="wcs__chapter-title">{labels.challengesLabel}</h3>
                 <p className="wcs__chapter-note">
-                  What we faced, and how we solved it.
+                  {labels.challengesNote}
                 </p>
               </div>
             </header>
@@ -202,8 +206,8 @@ export function WorkCaseStudy({ project, includesLabel }: WorkCaseStudyProps) {
             <div className="wcs__chapter-body">
               <div className="wcs__challenge-head" aria-hidden="true">
                 <span />
-                <span>The challenge</span>
-                <span>How we solved it</span>
+                <span>{labels.challengeColumnLabel}</span>
+                <span>{labels.solutionColumnLabel}</span>
               </div>
 
               <ol className="wcs__challenge-list">
@@ -214,7 +218,7 @@ export function WorkCaseStudy({ project, includesLabel }: WorkCaseStudyProps) {
                     data-reveal
                   >
                     <span className="wcs__challenge-index" aria-hidden="true">
-                      {pad2(index + 1)}
+                      {index + 1}
                     </span>
                     <p className="wcs__challenge-q">{item.challenge}</p>
                     <p className="wcs__challenge-a">
@@ -236,10 +240,8 @@ export function WorkCaseStudy({ project, includesLabel }: WorkCaseStudyProps) {
           <div className="wcs__inner">
             <article id={IMPACT_ID} className="wcs__chapter">
               <header className="wcs__chapter-head">
-                <span className="wcs__index" aria-hidden="true">
-                  {number(IMPACT_ID)}
-                </span>
-                <h3 className="wcs__chapter-title">Impact</h3>
+                <WorkChapterArt name="impact" index={chapterIndex(IMPACT_ID)} />
+                <h3 className="wcs__chapter-title">{labels.impactLabel}</h3>
               </header>
 
               <div className="wcs__chapter-body">
@@ -265,8 +267,6 @@ export function WorkCaseStudy({ project, includesLabel }: WorkCaseStudyProps) {
                     {caseStudy.impactNote}
                   </p>
                 )}
-
-
               </div>
             </article>
           </div>

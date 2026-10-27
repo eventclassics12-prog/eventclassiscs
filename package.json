@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "tsx --env-file-if-exists=.env scripts/clear-dev-marker.ts && payload migrate && next build",
+    "build": "NODE_ENV=production tsx --env-file-if-exists=.env scripts/clear-dev-marker.ts && NODE_ENV=production payload migrate && next build",
     "start": "next start",
     "lint": "eslint",
     "check:wordmark": "node scripts/check-wordmark-animation.mjs",
@@ -15,7 +15,8 @@
     "generate:types": "payload generate:types",
     "check:cms": "node scripts/check-cms-integration.mjs",
     "init:trusted-by": "NODE_ENV=production tsx --env-file=.env scripts/initialize-trusted-by.ts",
-    "check:trusted-by": "node --import tsx scripts/check-trusted-by.ts && node --import tsx scripts/check-brands-fallback.cts"
+    "check:trusted-by": "node --import tsx scripts/check-trusted-by.ts && node --import tsx scripts/check-brands-fallback.cts",
+    "check:work": "node --import tsx scripts/check-work-projects.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

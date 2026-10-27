@@ -230,7 +230,11 @@ export function WorkMasonry({ projects }: WorkMasonryProps) {
       {projects.map((project, index) => {
         const aspect = ASPECT_RATIOS[index % ASPECT_RATIOS.length];
         const position = layout.positions[project.slug];
-        const tags = resolveCardTags(project);
+        // CMS pills win; the heuristic only covers a project that has none.
+        const tags =
+          project.cardTags.length > 0
+            ? project.cardTags
+            : resolveCardTags(project);
 
         return (
           <Link
@@ -263,7 +267,7 @@ export function WorkMasonry({ projects }: WorkMasonryProps) {
             <div className="wk-masonry__tags">
               {tags.map((tag) => (
                 <span key={tag} className="wk-masonry__category">
-                  {tag}
+                  <span className="wk-masonry__category-text">{tag}</span>
                 </span>
               ))}
               {project.includes[0] && !tags.includes(project.includes[0]) && (
@@ -278,7 +282,12 @@ export function WorkMasonry({ projects }: WorkMasonryProps) {
                 {/* The project name is the card's heading. The page has one
                     h1 and nothing else, so a screen reader heading list
                     would otherwise skip the case studies entirely. */}
-                <h2 className="wk-masonry__title">{project.title}</h2>
+                {project.flagship && (
+                  <span className="wk-masonry__flag">Flagship</span>
+                )}
+                <h2 className="wk-masonry__title">
+                  {project.title}
+                </h2>
               </div>
               <span className="wk-masonry__kicker">
                 <KickerText kicker={project.kicker} />

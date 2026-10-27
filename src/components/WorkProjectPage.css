@@ -128,7 +128,6 @@
 
   padding-block: clamp(1.5rem, 3vw, 2.5rem);
   border-top: 1px solid color-mix(in oklch, var(--ink) 16%, transparent);
-  border-bottom: 1px solid color-mix(in oklch, var(--ink) 16%, transparent);
 
   color: var(--ink);
   text-decoration: none;
@@ -204,6 +203,8 @@
 
 /* Shared project layout: editorial cover and illustrated approach. */
 .wkp--editorial { background: #f7f7f5; }
+/* The case study sits on the editorial field rather than a white sheet. */
+.wkp--editorial .wcs { background: transparent; }
 .wkp--editorial .wkp__hero { position: relative; display: grid; grid-template-columns: 1fr; min-height: 740px; min-height: min(900px, 95svh); margin: 0 20px; border-radius: 0 0 32px 32px; overflow: hidden; background: #151515; }
 .wkp--editorial .wkp__hero-media { position: absolute; inset: 0; }
 .wkp--editorial .wkp__hero-media img { object-position: 75% center; opacity: .8; }
@@ -216,19 +217,11 @@
 .wkp--editorial .wkp__kicker { font-size: clamp(1.6rem, 3vw, 2.8rem); max-width: 21ch; }
 .wkp--editorial .wkp__lede { max-width: 44ch; opacity: .75; line-height: 1.65; }
 .wkp__systems { max-width: 1440px; margin: auto; padding: clamp(48px, 7vw, 100px) 5vw; display: grid; grid-template-columns: 1fr 1fr; gap: 6vw; align-items: center; }
-.wkp__systems :is(span,small,p,h2,a,figcaption) { mix-blend-mode: normal; color: inherit; }
+.wkp__systems-copy :is(span,small,p,h2,a) { mix-blend-mode: normal; color: inherit; }
 .wkp__eyebrow { text-transform: uppercase; letter-spacing: .13em; font-size: .7rem; }
 .wkp__systems h2 { font-size: clamp(2rem, 3.8vw, 3.8rem); letter-spacing: -.05em; line-height: 1.05; margin: 24px 0; font-weight: 500; }
 .wkp__systems-copy > p:last-of-type { max-width: 48ch; line-height: 1.7; color: #62625f; }
 .wkp__systems-copy a { display: inline-block; margin-top: 24px; text-underline-offset: 6px; }
-.wkp__diagram { margin: 0; padding: clamp(20px, 3vw, 44px); border: 1px solid #deded8; border-radius: 28px; background: #eeeee9; color: #242422; box-shadow: 0 24px 60px #00000006; }
-.wkp__diagram figcaption { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 32px; }
-.wkp__nodes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.wkp__nodes > div { padding: 20px 12px; text-align: center; background: #ffffffc9; border: 1px solid #fff; border-radius: 14px; font-size: 1.15rem; }
-.wkp__diagram small { display: block; font-size: .7rem; margin-top: 8px; opacity: .7; }
-.wkp__connector { height: 30px; width: 1px; margin: auto; background: #b8b8b0; }
-.wkp__hub { padding: 22px 12px; border-radius: 16px; background: #252523; color: white; text-align: center; box-shadow: 0 12px 24px #00000012; }
-.wkp__hub > span { display: block; font-size: 2rem; margin-bottom: 8px; }
 .wkp--editorial .wcs__steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .wkp--editorial .wcs__step { display: flex; flex-direction: column; padding: 28px; border: 1px solid #deded8; border-radius: 20px; background: #fff; gap: 16px; }
 .wkp--editorial .wcs__step-index { color: #73736b; }
@@ -241,9 +234,6 @@
  .wkp__systems { grid-template-columns: 1fr; gap: 32px; }
  .wkp--editorial .wcs__steps { grid-template-columns: 1fr; }
 }
-
-.wkp__service-map .wkp__nodes > div { font-size: .95rem; line-height: 1.4; }
-.wkp__service-map .wkp__nodes small { margin: 0 0 12px; color: #73736b; }
 
 /* Results are visible immediately and share the site's neutral palette. */
 .wkp--editorial .wcs__impact {

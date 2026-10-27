@@ -1,18 +1,18 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import dynamic from "next/dynamic";
 import { TextReveal, TOKEN_SEPARATOR } from "@/components/TextReveal";
 import type { HomeStatementData } from "@/lib/cms";
 import "./Statement.css";
+
+const StatementArt = dynamic(() => import("./StatementArt"), { ssr: false });
 
 interface StatementProps {
   data?: HomeStatementData | null;
   stat?: string;
   statCaption?: string;
   paragraphs?: ReadonlyArray<string>;
-  bylineName?: string;
-  bylineRole?: string;
-  bylineInitials?: string;
 }
 
 const DEFAULT_PARAGRAPHS: ReadonlyArray<string> = [
@@ -98,9 +98,6 @@ export function Statement({
                   </div>
 
                   <div className="statement__progress-wrap" aria-hidden="true">
-                    <span className="statement__progress-label">
-                      01 / MANIFESTO
-                    </span>
                     <div className="statement__progress-track">
                       <div className="statement__progress-fill" />
                     </div>
@@ -109,179 +106,16 @@ export function Statement({
 
                 <aside className="statement__left-column">
                   <div className="statement__stat-card">
-                    <span className="statement__stat-tag">PROVEN IMPACT</span>
-                    <div className="statement__stat">{resolvedStat}</div>
-                    <p className="statement__caption">{resolvedStatCaption}</p>
-                  </div>
-
-                  <div
-                    className="statement__infographic"
-                    aria-label="Signal alignment infographic: bridging built product value and market perception"
-                  >
-                    <div className="statement__infographic-head">
-                      <span className="statement__infographic-title">
-                        SIGNAL ALIGNMENT
-                      </span>
-                      <span className="statement__infographic-badge">
-                        LIVE TELEMETRY
-                      </span>
+                    <div className="statement__art-slot">
+                      <StatementArt />
                     </div>
-
-                    <div className="statement__infographic-canvas" aria-hidden="true">
-                      <svg
-                        viewBox="0 0 280 156"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="statement__infographic-svg"
-                      >
-                        <defs>
-                          <linearGradient
-                            id="stmt-wave-grad"
-                            x1="0"
-                            y1="0"
-                            x2="280"
-                            y2="0"
-                            gradientUnits="userSpaceOnUse"
-                          >
-                            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.15" />
-                            <stop offset="50%" stopColor="#ffffff" stopOpacity="0.95" />
-                            <stop offset="100%" stopColor="#ffffff" stopOpacity="0.2" />
-                          </linearGradient>
-                          <radialGradient
-                            id="stmt-node-glow"
-                            cx="50%"
-                            cy="50%"
-                            r="50%"
-                          >
-                            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.45" />
-                            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-                          </radialGradient>
-                        </defs>
-
-                        {/* Subtle coordinate grid */}
-                        <line
-                          x1="16"
-                          y1="34"
-                          x2="264"
-                          y2="34"
-                          stroke="currentColor"
-                          strokeOpacity="0.1"
-                          strokeDasharray="2 4"
-                        />
-                        <line
-                          x1="16"
-                          y1="78"
-                          x2="264"
-                          y2="78"
-                          stroke="currentColor"
-                          strokeOpacity="0.14"
-                        />
-                        <line
-                          x1="16"
-                          y1="122"
-                          x2="264"
-                          y2="122"
-                          stroke="currentColor"
-                          strokeOpacity="0.1"
-                          strokeDasharray="2 4"
-                        />
-
-                        {/* Orbiting rings around center convergence node */}
-                        <circle
-                          cx="140"
-                          cy="78"
-                          r="44"
-                          stroke="currentColor"
-                          strokeOpacity="0.14"
-                          strokeDasharray="4 6"
-                          className="statement__orbit statement__orbit--outer"
-                        />
-                        <circle
-                          cx="140"
-                          cy="78"
-                          r="28"
-                          stroke="currentColor"
-                          strokeOpacity="0.24"
-                          strokeDasharray="18 8"
-                          className="statement__orbit statement__orbit--inner"
-                        />
-                        <circle
-                          cx="140"
-                          cy="78"
-                          r="36"
-                          fill="url(#stmt-node-glow)"
-                          className="statement__pulse-glow"
-                        />
-
-                        {/* Divergent perception curve (dashed) */}
-                        <path
-                          d="M16 112 C 62 118, 92 42, 140 78 C 188 114, 218 44, 264 48"
-                          stroke="currentColor"
-                          strokeOpacity="0.32"
-                          strokeWidth="1.25"
-                          strokeDasharray="3 4"
-                          className="statement__curve-secondary"
-                        />
-
-                        {/* Primary brand-signal alignment wave */}
-                        <path
-                          d="M16 96 C 58 28, 98 128, 140 78 C 182 28, 222 118, 264 56"
-                          stroke="url(#stmt-wave-grad)"
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          className="statement__curve-primary"
-                        />
-
-                        {/* Keyframe nodes */}
-                        <circle
-                          cx="58"
-                          cy="63"
-                          r="3"
-                          fill="#ffffff"
-                          fillOpacity="0.55"
-                        />
-                        <circle
-                          cx="140"
-                          cy="78"
-                          r="5"
-                          fill="#ffffff"
-                          className="statement__node-center"
-                        />
-                        <circle
-                          cx="222"
-                          cy="86"
-                          r="3"
-                          fill="#ffffff"
-                          fillOpacity="0.55"
-                        />
-                      </svg>
-                    </div>
-
-                    <div className="statement__infographic-metrics">
-                      <div className="statement__infographic-metric">
-                        <span className="statement__infographic-key">
-                          REALITY
-                        </span>
-                        <span className="statement__infographic-val">
-                          PRODUCT PROOF
-                        </span>
-                      </div>
-                      <span
-                        className="statement__infographic-arrow"
-                        aria-hidden="true"
-                      >
-                        →
-                      </span>
-                      <div className="statement__infographic-metric statement__infographic-metric--end">
-                        <span className="statement__infographic-key">
-                          PERCEPTION
-                        </span>
-                        <span className="statement__infographic-val">
-                          MARKET CLARITY
-                        </span>
-                      </div>
+                    <div className="statement__stat-copy">
+                      <span className="statement__stat-tag">PROVEN IMPACT</span>
+                      <div className="statement__stat">{resolvedStat}</div>
+                      <p className="statement__caption">{resolvedStatCaption}</p>
                     </div>
                   </div>
+
                 </aside>
 
                 <div className="statement__right">
@@ -305,12 +139,6 @@ export function Statement({
                           } as CSSProperties
                         }
                       >
-                        <span
-                          className="statement__row-index"
-                          aria-hidden="true"
-                        >
-                          {String(paragraphIndex + 1).padStart(2, "0")}
-                        </span>
 
                         <p
                           className={`statement__copy ${

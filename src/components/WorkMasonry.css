@@ -64,6 +64,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   max-width: 100%;
   mix-blend-mode: normal;
@@ -75,7 +76,9 @@
   justify-content: center;
   width: fit-content;
   max-width: 100%;
-  padding: 0.36em 0.82em 0.38em;
+  height: 2rem;
+  padding: 0 0.9em;
+  flex-shrink: 0;
   border: 1px solid rgb(255 255 255 / 0.78);
   border-radius: 999px;
   background: rgb(0 0 0 / 0.28);
@@ -83,14 +86,21 @@
   backdrop-filter: blur(10px) saturate(140%);
   color: #fff;
   font-family: var(--font-sans);
-  font-size: clamp(0.6875rem, 0.82vw, 0.8125rem);
-  font-weight: 450;
-  line-height: 1;
+  font-size: clamp(0.75rem, 0.95vw, 0.875rem);
+  font-weight: 400;
+  line-height: 1.2;
   letter-spacing: 0.01em;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  mix-blend-mode: normal;
+}
+
+.wk-masonry__category-text {
+  display: block;
+  line-height: 1;
+  color: inherit;
   mix-blend-mode: normal;
 }
 
@@ -116,6 +126,22 @@
 }
 
 .wk-masonry__head {
+  mix-blend-mode: normal;
+}
+
+/* Only the flagship word gets the accent; the card keeps the shared layout. */
+.wk-masonry__flag {
+  display: block;
+  width: fit-content;
+  margin-bottom: 0.65rem;
+  color: #ddff70;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 8px rgb(0 0 0 / 0.35);
   mix-blend-mode: normal;
 }
 
@@ -164,13 +190,20 @@
   }
 
   .wk-masonry__category {
-    padding: 0.34em 0.68em 0.36em;
+    height: 1.5rem;
+    padding: 0 0.68em;
     font-size: 0.625rem;
     letter-spacing: 0.015em;
   }
 
   .wk-masonry__body {
     gap: 0.25rem;
+  }
+
+  .wk-masonry__flag {
+    margin-bottom: 0.5rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
   }
 
   .wk-masonry__title {

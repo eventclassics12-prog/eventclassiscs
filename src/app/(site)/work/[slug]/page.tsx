@@ -10,7 +10,11 @@ import {
   type SiteSettingsData,
 } from "@/lib/cms-server";
 import { buildMetadata } from "@/lib/seo";
-import { findProjectBySlug, resolveProjects } from "@/lib/work";
+import {
+  findProjectBySlug,
+  resolveProjects,
+  resolveWorkLabels,
+} from "@/lib/work";
 
 export const revalidate = 300;
 
@@ -74,11 +78,8 @@ export default async function WorkProjectRoute({ params }: WorkProjectRouteProps
       <WorkProjectPage
         project={project}
         index={index}
-        total={projects.length}
         next={next}
-        includesLabel={data?.includesLabel ?? "Includes:"}
-        backLabel="All work"
-        nextLabel="Next project"
+        labels={resolveWorkLabels(data)}
       />
       <Footer site={site} />
     </PageTransition>

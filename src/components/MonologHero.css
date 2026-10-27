@@ -1,6 +1,8 @@
 .m-hero {
   position: relative;
   z-index: 10;
+  isolation: isolate;
+  background: #fff;
 
   min-height: 100vh;
   min-height: 100svh;
@@ -10,6 +12,12 @@
 
   padding-block: clamp(2.5rem, 8vw, 5rem) 0;
   padding-inline: 2vw;
+}
+
+/* Keep the WebGL backdrop inside the hero's non-negative paint layers.
+   A negative layer can be excluded from WebKit's blend backdrop. */
+.m-hero > .liquid-metal-bg {
+  z-index: 0;
 }
 
 .m-hero__nav {
@@ -158,7 +166,7 @@
   outline-offset: 2px;
 }
 
-.m-hero__para,
+.m-hero__para-blend,
 .m-hero__links li,
 .m-hero__bookcta {
   opacity: 0;
@@ -280,6 +288,7 @@
 }
 
 .m-hero__pitch {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -295,6 +304,11 @@
 }
 
 .m-hero__para-blend {
+  /* Blend above the shader in the hero stacking context. Keep the pitch
+     free of z-index/transform/isolation so it does not cut off the backdrop. */
+  position: relative;
+  z-index: 1;
+  color: #fff;
   mix-blend-mode: difference;
 }
 
@@ -305,6 +319,7 @@
   line-height: 1.4;
   letter-spacing: -0.02em;
 
+  color: inherit;
   mix-blend-mode: normal;
 
   margin: 0;
@@ -315,15 +330,8 @@
   display: block;
   font-size: 1.3em;
 
-  /* The invert for this headline happens ONCE, at the .m-hero__para-blend
-     container. Without this override the site-wide `:where(... span ...)` rule
-     in globals.css also puts `mix-blend-mode: difference` on these spans, so
-     the text ends up inside a difference group nested in a difference group.
-     Chromium resolves that as an inert no-op, but iOS Safari/WebKit resolves
-     the nested blend against the isolated (transparent) parent group and the
-     headline renders flat white instead of inverting against the background.
-     Every other blend group in this file neutralises its children the same
-     way — see .m-hero__links a/li, .m-hero__cta-label, .m-hero__wordmark-load. */
+  /* Only the parent blends; global span styles must not blend again. */
+  color: inherit;
   mix-blend-mode: normal;
 }
 
@@ -519,7 +527,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .m-hero__para,
+  .m-hero__para-blend,
   .m-hero__links li,
   .m-hero__bookcta {
     opacity: 1;
