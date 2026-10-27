@@ -581,3 +581,13 @@
     animation: none;
   }
 }
+
+/* Keep the illustration mounted in the card with a stable loading footprint. */
+.statement__stat-card { align-items: center; }
+.statement__art-slot { width: 100%; max-width: 17rem; aspect-ratio: 768 / 906; min-width: 0; margin-inline: auto; }
+.statement__stat-copy { display: flex; flex-direction: column; align-items: center; gap: .75rem; text-align: center; }
+@media (max-width: 768px) {
+  .statement__stat-card { width: 100%; align-items: center; gap: 1rem; }
+  .statement__art-slot { flex: 0 0 clamp(5rem, 23vw, 7rem); margin: 0; }
+  .statement__stat-copy { flex: 1; min-width: 0; gap: .5rem; }
+}
