@@ -12,35 +12,56 @@
 }
 
 .about__hero {
-  min-height: 100svh;
+  /* The hero sits under a fixed header, so it clears the header itself
+     instead of filling the whole viewport. Pinning the copy to the bottom
+     of a 100svh block left an empty band under the nav on every breakpoint;
+     the hero is now content-sized and top-aligned. */
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
 
-  padding-top: clamp(var(--space-lg), 9vh, 8rem);
-  padding-bottom: 10vh;
+  padding-top: clamp(7rem, 15vh, 10rem);
+  padding-bottom: clamp(4rem, 9vh, 7rem);
 }
 
 .about__hero-grid {
   display: flex;
   flex-direction: column;
   gap: clamp(1.5rem, 4vw, 3rem);
-  margin-top: auto;
 }
 
+/* The hero video ships with a large dead margin around the animated shape
+   (the shape occupies x 105-587, y 120-557 of the 700x676 frame). Left
+   uncropped, the element box lined up with the heading but the shape
+   itself floated inside it. The figure box is sized to the cropped region
+   and the video is scaled up and offset so the shape fills the box, which
+   makes the visible edge of the shape align with the copy. */
 .about__hero-figure {
+  --frame-w: 700;
+  --frame-h: 676;
+  --crop-x: 105;
+  --crop-y: 120;
+  --crop-w: 482;
+  --crop-h: 437;
+
   flex-shrink: 0;
   width: clamp(260px, 72vw, 420px);
+  aspect-ratio: var(--crop-w) / var(--crop-h);
   align-self: center;
-  display: grid;
-  place-items: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .about__hero-figure-video {
+  position: absolute;
+  top: calc(var(--crop-y) / var(--crop-h) * -100%);
+  left: calc(var(--crop-x) / var(--crop-w) * -100%);
+  width: calc(var(--frame-w) / var(--crop-w) * 100%);
+  height: calc(var(--frame-h) / var(--crop-h) * 100%);
+  /* Tailwind's preflight caps replaced elements at `max-width: 100%`, which
+     would clamp the scaled-up video and skew the crop. */
+  max-width: none;
   display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
   mix-blend-mode: normal;
 }
 
@@ -51,7 +72,7 @@
 @media (min-width: 769px) {
   .about__hero-grid {
     flex-direction: row;
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: space-between;
   }
 
@@ -62,7 +83,12 @@
 
   .about__hero-figure {
     order: 2;
-    width: clamp(320px, 42vw, 580px);
+    /* Size the figure by height so its box lines up with the copy block
+       instead of towering over it, and top-align it so the shape's top edge
+       starts on the same line as the headline. */
+    width: auto;
+    height: clamp(240px, 42vh, 400px);
+    align-self: flex-start;
   }
 }
 
@@ -91,7 +117,7 @@
 
 @media (max-width: 768px) {
   .about__hero {
-    padding-top: clamp(var(--space-lg), 9vh, 8rem);
+    padding-top: clamp(6.5rem, 12vh, 8rem);
   }
 }
 

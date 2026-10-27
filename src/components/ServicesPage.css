@@ -14,36 +14,55 @@
 }
 
 .svc__hero {
-  min-height: 100svh;
+  /* Mirrors the About hero: the block clears the fixed header and is sized
+     to its content, instead of stretching to 100svh and leaving an empty
+     band under the nav on every breakpoint. */
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
 
-  padding-top: clamp(var(--space-lg), 9vh, 8rem);
-  padding-bottom: 10vh;
-  margin-bottom: clamp(3rem, 7vw, 6rem);
+  padding-top: clamp(7rem, 15vh, 10rem);
+  padding-bottom: clamp(1rem, 2vh, 1.5rem);
+  margin-bottom: clamp(1rem, 2vw, 1.5rem);
 }
 
 .svc__hero-grid {
   display: flex;
   flex-direction: column;
   gap: clamp(1.5rem, 4vw, 3rem);
-  margin-top: auto;
 }
 
+/* Same crop treatment as the About hero: the services loop also carries a
+   dead margin around the animated shape (x 108-641, y 95-614 of 700x682).
+   The figure box is sized to the cropped region and the video is scaled up
+   and offset so the shape fills the box and its edge lines up with the
+   copy. */
 .svc__hero-figure {
+  --frame-w: 700;
+  --frame-h: 682;
+  --crop-x: 108;
+  --crop-y: 95;
+  --crop-w: 533;
+  --crop-h: 519;
+
   flex-shrink: 0;
   width: clamp(260px, 72vw, 420px);
+  aspect-ratio: var(--crop-w) / var(--crop-h);
   align-self: center;
-  display: grid;
-  place-items: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .svc__hero-figure-video {
+  position: absolute;
+  top: calc(var(--crop-y) / var(--crop-h) * -100%);
+  left: calc(var(--crop-x) / var(--crop-w) * -100%);
+  width: calc(var(--frame-w) / var(--crop-w) * 100%);
+  height: calc(var(--frame-h) / var(--crop-h) * 100%);
+  /* Tailwind's preflight caps replaced elements at `max-width: 100%`, which
+     would clamp the scaled-up video and skew the crop. */
+  max-width: none;
   display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
 }
 
 .svc__hero-text {
@@ -53,7 +72,7 @@
 @media (min-width: 769px) {
   .svc__hero-grid {
     flex-direction: row;
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: space-between;
   }
 
@@ -64,7 +83,13 @@
 
   .svc__hero-figure {
     order: 2;
-    width: clamp(320px, 42vw, 580px);
+    /* Size the figure by height so its box lines up with the copy block
+       instead of towering over it, and top-align it so the shape's top edge
+       starts on the same line as the headline. The height tracks the copy
+       block's height so the figure doesn't overhang into the gap below. */
+    width: auto;
+    height: clamp(220px, 32vh, 300px);
+    align-self: flex-start;
   }
 }
 
@@ -94,7 +119,6 @@
 .svc__list {
   display: flex;
   flex-direction: column;
-  border-top: 1px solid color-mix(in oklch, var(--ink) 15%, transparent);
 }
 
 .svc__row {
