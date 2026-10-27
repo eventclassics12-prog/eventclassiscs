@@ -160,12 +160,6 @@ export const PageWork: GlobalConfig = {
   fields: [
     ...seoFields,
     {
-      name: 'heroTitle',
-      type: 'textarea',
-      label: 'Board title',
-      defaultValue: 'Selected work from teams with momentum',
-    },
-    {
       name: 'heroLede',
       type: 'textarea',
       label: 'Board intro',
@@ -173,13 +167,12 @@ export const PageWork: GlobalConfig = {
         'A senior brand team embedded directly into each project — fast-moving, reactive work that gets your product shipped and noticed.',
     },
     {
-      name: 'workPillLabel',
+      name: 'projectsLabel',
       type: 'text',
-      label: 'Intro pill',
-      defaultValue: 'Work',
-      admin: { description: 'Small pill above the board intro.' },
+      label: 'Board heading',
+      defaultValue: 'Projects',
+      admin: { description: 'Screen-reader heading for the board of case studies.' },
     },
-    { name: 'projectsLabel', type: 'text', label: 'Board pill', defaultValue: 'Projects' },
     {
       type: 'collapsible',
       label: 'Project page labels',

@@ -209,9 +209,7 @@ export interface PageWorkProjectData {
 }
 
 export interface PageWorkData extends PageSeoData {
-  heroTitle?: string | null
   heroLede?: string | null
-  workPillLabel?: string | null
   projectsLabel?: string | null
   backLabel?: string | null
   nextLabel?: string | null

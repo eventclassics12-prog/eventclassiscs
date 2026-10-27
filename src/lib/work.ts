@@ -248,7 +248,6 @@ export function findProjectBySlug(
 
 /** Copy that repeats across the work board and every project page. */
 export interface WorkLabels {
-  workPillLabel: string;
   backLabel: string;
   nextLabel: string;
   approachEyebrow: string;
@@ -271,7 +270,6 @@ export interface WorkLabels {
 
 /** Mirrors the CMS defaults, so an unconfigured global still reads correctly. */
 const WORK_LABELS: WorkLabels = {
-  workPillLabel: "Work",
   backLabel: "All work",
   nextLabel: "Next project",
   approachEyebrow: "The approach",
@@ -299,7 +297,6 @@ export function resolveWorkLabels(
     value?.trim() || fallback;
 
   return {
-    workPillLabel: text(data?.workPillLabel, WORK_LABELS.workPillLabel),
     backLabel: text(data?.backLabel, WORK_LABELS.backLabel),
     nextLabel: text(data?.nextLabel, WORK_LABELS.nextLabel),
     approachEyebrow: text(data?.approachEyebrow, WORK_LABELS.approachEyebrow),

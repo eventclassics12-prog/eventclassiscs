@@ -510,10 +510,8 @@ async function main() {
   })
 
   await setGlobal(payload, 'page-work', {
-    heroTitle: 'Selected work from teams with momentum',
     heroLede:
       'A senior brand team embedded directly into each project — fast-moving, reactive work that gets your product shipped and noticed.',
-    workPillLabel: 'Work',
     projectsLabel: 'Projects',
     backLabel: 'All work',
     nextLabel: 'Next project',

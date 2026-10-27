@@ -766,12 +766,10 @@ export interface PageWork {
   seoTitle?: string | null;
   seoDescription?: string | null;
   ogImage?: (number | null) | Media;
-  heroTitle?: string | null;
   heroLede?: string | null;
   /**
-   * Small pill above the board intro.
+   * Screen-reader heading for the board of case studies.
    */
-  workPillLabel?: string | null;
   projectsLabel?: string | null;
   backLabel?: string | null;
   nextLabel?: string | null;
@@ -1248,9 +1246,7 @@ export interface PageWorkSelect<T extends boolean = true> {
   seoTitle?: T;
   seoDescription?: T;
   ogImage?: T;
-  heroTitle?: T;
   heroLede?: T;
-  workPillLabel?: T;
   projectsLabel?: T;
   backLabel?: T;
   nextLabel?: T;
