@@ -43,7 +43,9 @@
 
 .brands__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* Column count follows the number of logos in the CMS so the grid never
+     leaves a half-empty row. */
+  grid-template-columns: repeat(var(--brands-cols, 4), minmax(0, 1fr));
   gap: 1px;
   margin-top: clamp(1.75rem, 3.2vh, 2.75rem);
   padding: 1px;
@@ -98,7 +100,7 @@
 
 @media (max-width: 768px) {
   .brands__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--brands-cols-sm, 2), minmax(0, 1fr));
     margin-top: 1.5rem;
   }
 
