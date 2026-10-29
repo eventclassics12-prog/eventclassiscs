@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import { asMediaObject, mediaUrl, type HomeBrandsData } from "@/lib/cms";
 import "./Brands.css";
@@ -71,7 +72,17 @@ export function Brands({ data }: BrandsProps) {
           <h2 className="brands__label" id="brands-heading">{label}</h2>
         </header>
 
-        <div className="brands__grid">
+        <div
+          className="brands__grid"
+          style={
+            {
+              "--brands-cols": Math.max(brands.length, 1),
+              // On narrow screens a row of more than three logos would shrink
+              // them to unreadable slivers, so the count is capped there.
+              "--brands-cols-sm": Math.min(Math.max(brands.length, 1), 3),
+            } as CSSProperties
+          }
+        >
           {brands.map((brand, i) => (
             <div className="brands__cell" key={`${brand.src}-${i}`}>
               <div className="brands__logo">
