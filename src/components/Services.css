@@ -345,11 +345,24 @@
 }
 
 @media (max-width: 900px) {
+  /* Stack the copy and the gallery into one column and reorder them so the
+     intro headline reads before the tiles. `display: contents` lifts the two
+     copy blocks out of their wrapper so each can be ordered on its own. */
+  .services__copy {
+    display: contents;
+  }
+
+  .services__copy-top {
+    order: 1;
+  }
+
   .services__stage {
+    order: 2;
     aspect-ratio: 4 / 3;
-    /* Keep the gallery above the copy: revealing the description must not
-       push the tiles down the page. */
-    order: -1;
+  }
+
+  .services__descriptions {
+    order: 3;
   }
 
   .services__tile {
