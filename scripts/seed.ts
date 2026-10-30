@@ -453,8 +453,8 @@ async function main() {
     heroTitle: 'We’re a strategic brand-building partner for founders with momentum',
     heroLede:
       'Get a senior brand team embedded directly into your project. When you don’t have time to waste, we strip it back to what matters: fast-moving, reactive work that gets your product noticed.',
-    circularInner: "Round and round the letters go, where they stop, you'll know.",
-    circularOuter: "Round and round the letters go, where they stop, you'll know.",
+    circularInner: 'We tell clear stories, guided by NMC ethics.',
+    circularOuter: 'We bring clarity and creativity to healthcare.',
     storyTitle:
       'We set you on a path to go from idea to impact with a partner that just gets the ins and outs of brand life.',
     quoteLead:
